@@ -23,3 +23,8 @@ Cross Roads Inn, 827, Near RV Dental College Compound, 24th Main, 12th Cross, JP
 
 
 6,+ Shakambari+ Nagar,+ 1st+ stage,+ JP+ Nagar,+ Bangalore
+
+
+
+* geo encoding has had csome progress
+

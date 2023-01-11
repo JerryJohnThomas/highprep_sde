@@ -18,30 +18,34 @@ def get_geocordinates(place):
         geo = data['items'][0]['position']
         lat = geo['lat']
         lng = geo['lng']
-        print("title: ", title)
-        print("lat: ", lat)
-        print("lng: ", lng)
+            # print("title: ", title)
+            # print("lat: ", lat)
+            # print("lng: ", lng)
 
         return lat, lng, title
+    return 1000, 1000, "NIL" 
 
 print("Start")
 
 data = pd.read_excel('../dataset/bangalore_dispatch_address_finals.xlsx')
 places = data['address']
-limit =2
-data["lat"] =-1
-data["lng"] =-1
+limit = 218
+data["lat"] =-1.00
+data["lng"] =-1.00
 
 for i in range(limit):
     x =places[i]
-    print(x)
     lat, lng, title = get_geocordinates(x)
+    print(title)
+    if lat==1000:
+        continue
     print()
-    data[lat][i]= lat
-    data[lng][i]= lng
+    data['lat'][i]= lat
+    data['lng'][i]= lng
     time.sleep(1)
+    print(i," over")
 
-
+data.to_csv("out2.csv")
 
 print("over")
 
