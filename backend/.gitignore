@@ -101,6 +101,7 @@ celerybeat-schedule.*
 .venv 
 env/ 
 venv/ 
+djangoenv/
 ENV/ 
 env.bak/ 
 venv.bak/ 
