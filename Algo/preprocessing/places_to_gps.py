@@ -27,13 +27,14 @@ def get_geocordinates(place):
 
 print("Start")
 
-data = pd.read_excel('../dataset/bangalore_dispatch_address_finals.xlsx')
+# data = pd.read_excel('../dataset/bangalore_dispatch_address_finals.xlsx')
+data = pd.read_excel('../dataset/bangalore_pickups.xlsx')
 places = data['address']
 limit = 218
 data["lat"] =-1.00
 data["lng"] =-1.00
 
-for i in range(limit):
+for i in range(places.size):
     x =places[i]
     lat, lng, title = get_geocordinates(x)
     print(title)
@@ -45,7 +46,7 @@ for i in range(limit):
     time.sleep(1)
     print(i," over")
 
-data.to_csv("out2.csv")
+data.to_csv("bangalore_pickups_out.csv")
 
 print("over")
 

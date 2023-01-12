@@ -28,3 +28,11 @@ Cross Roads Inn, 827, Near RV Dental College Compound, 24th Main, 12th Cross, JP
 
 * geo encoding has had csome progress
 
+pricing 
+* https://mapsplatform.google.com/pricing/
+
+
+
+openrouteservice
+5b3ce3597851110001cf6248b76e3c4096b7467c86421b2f6b8bdef2
+
