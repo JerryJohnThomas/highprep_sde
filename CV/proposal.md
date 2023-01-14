@@ -16,4 +16,14 @@ There are two parameters we care about,
 
 ## Process
 
-We calculate the pixels per cm using some reference and this value can be used to estimate the dimensions of the object.
+- We calculate the pixels per cm using some reference and this value can be used to estimate the dimensions of the object.
+
+- We classify the object being placed in the focus using some classification technique(can be decided based on needs).
+
+- Then we use edge detection techniques to calculate dimensions(in pixels) related to the respective shape of the packaging and then use the `pixels per cm` value to convert the dimensions.
+
+- Using the dimensions, calculate the volume for the respective shape.
+
+## Future Work
+
+The accuracy of this technique will not be 100% since we are estimating only from RGB images. But using LiDAR or any other sensor, this can be hugely improved.
