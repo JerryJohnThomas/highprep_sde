@@ -36,3 +36,14 @@ pricing
 openrouteservice
 5b3ce3597851110001cf6248b76e3c4096b7467c86421b2f6b8bdef2
 
+https://matrix.route.ls.hereapi.com/routing/7.2/calculatematrix.json?apiKey=6QNNTzC1zysibIBzUnTnBAg5KY1Qc4BBEBElSnrMvSo&start0=52.5,13.4&destination0=52.5,13.43&destination1=52.5,13.46&mode=fastest;car;traffic:disabled
+
+
+
+
+
+
+
+
+
+

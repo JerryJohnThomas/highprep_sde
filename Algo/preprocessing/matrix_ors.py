@@ -8,18 +8,24 @@ import json
 
 # the below are obtained from the dataset, its working on google maps manually but in this api call
 # body = {"locations":[[12.91345,77.57498],[12.89757,77.65878],[12.91182,77.64814],[12.9169,77.65171]]}
-body = {"locations":[[12.91345,77.57498],[12.89757,77.65878]]}
+# body = {"locations":[[12.91345,77.57498],[12.89757,77.65878],[12.91182,77.64814]]}
+
+
+body = {"locations":[[12.971663669806006, 77.59456572820953],[8.532151496675453, 77.10232542839935]]}
 
 headers = {
     'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
     'Authorization': '5b3ce3597851110001cf6248b76e3c4096b7467c86421b2f6b8bdef2',
     'Content-Type': 'application/json; charset=utf-8'
-}
+}   
 call = requests.post('https://api.openrouteservice.org/v2/matrix/driving-car', json=body, headers=headers)
 
 print(call.status_code, call.reason)
-print(call.text)
-print()
+# print(call.text)
+# print()
 
 json_object = json.loads(call.text)
 print(json.dumps(json_object, indent=4))
+
+
+# !!!!   IMPORTANT:: ok this does not work in india
