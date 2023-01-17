@@ -2,28 +2,36 @@
 
 ## Setup
 
-We take two cameras and setup them as:
+Two cameras are set up in a specific configuration to capture different perspectives of an object or scene.
 
-- One covering top view with angle 0&deg;
-- One with angle 90&deg; to cover the vertical length.
+- The first camera is positioned to capture a top view, with an angle of 0 degrees. This camera will provide a bird's eye view of the subject, showing the top surface and the surrounding area.
+
+- The second camera is positioned with an angle of 90 degrees to the first camera, capturing the vertical length of the subject.
+
+This camera will provide a side view of the subject, showing its height and any features along its vertical length. This configuration of two cameras with different angles allows for a more comprehensive and detailed understanding of the subject being captured.
 
 ## Calibration
 
-There are two parameters we care about,
+In the context of our current discussion, there exist two distinct categories of parameters that warrant attention. These parameters are known as extrinsic and intrinsic parameters.
 
-- Extrinnsic parameters - Rotation and translation, which we took care when defined a particular setup for the cameras.
-- Intrinsic parameters - The internal camera parameters, which depends on the choice of our cameras.
+Extrinsic parameters pertain to the rotation and translation of the cameras in a particular setup. It is crucial to take these parameters into consideration when defining the configuration of the cameras as they have a direct impact on the overall performance of the system.
+
+On the other hand, intrinsic parameters are internal camera parameters that are dependent on the specific cameras chosen for the system. These parameters are closely related to the optics of the camera and have a significant influence on the image quality and resolution. It is thus imperative to give due consideration to the intrinsic parameters while selecting cameras for the system.
 
 ## Process
 
-- We calculate the pixels per cm using some reference and this value can be used to estimate the dimensions of the object.
+We use a technique called "pixels per cm" calculation to estimate the dimensions of an object. This method involves using a reference object of known dimensions and measuring the number of pixels it occupies in an image captured by the camera. This value can then be used to determine the dimensions of other objects in the image by comparing their pixel counts.
 
-- We classify the object being placed in the focus using some classification technique(can be decided based on needs).
+We then use classification techniques to identify the object that is in focus. This could involve training a machine learning model on a dataset of labeled images, or using pre-existing algorithms for object recognition.
 
-- Then we use edge detection techniques to calculate dimensions(in pixels) related to the respective shape of the packaging and then use the `pixels per cm` value to convert the dimensions.
+Once the object has been identified, we apply edge detection techniques to calculate the dimensions of the object in pixels. Edge detection is a technique used to find the boundaries of an object in an image. By identifying the edges of the object, we can determine its shape and calculate its dimensions.
 
-- Using the dimensions, calculate the volume for the respective shape.
+Finally, we use the previously calculated "pixels per cm" value to convert the dimensions from pixels to centimeters. With the dimensions in centimeters, we can then calculate the volume of the object using formulas specific to the shape of the object.
+
+For example, if the object is a cuboid, we can calculate its volume by multiplying its length, width and height. If the object is a cylinder we can calculate its volume by πr²h.
 
 ## Future Work
 
-The accuracy of this technique will not be 100% since we are estimating only from RGB images. But using LiDAR or any other sensor, this can be hugely improved.
+- We can add a weighing scale which will also calculate the deadweight.
+
+- The accuracy of this technique will not be 100% since we are estimating only from RGB images. But using LiDAR or any other sensor, this can be hugely improved.
