@@ -18,6 +18,8 @@
             * remove from active list and notify customer
         * not sure for security measures, check with syed
 
+what we forget
+* bag of items --> 
 
 
 

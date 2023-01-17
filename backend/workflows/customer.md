@@ -3,7 +3,7 @@
 * login
 * add pickup
 * put in package info and location (post)
-* admin will do a get request after every x seconds 
+<!-- * admin will do a get request after every x seconds  -->
 * admin will accept or reject (post)
 * if accepted will go to algo
 * algo will tell which rider 

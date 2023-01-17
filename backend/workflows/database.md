@@ -17,4 +17,6 @@
 
 * number of rides completed by each rider each day
 
+* bag of rider 
+
 
