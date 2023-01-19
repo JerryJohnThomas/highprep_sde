@@ -2,10 +2,9 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from login_api.views import AdminLoginView
+from inventory_apis.views import ListAllItemsView
 
-app_name = 'login_api'
-
+app_name = 'inventory_apis'
 urlpatterns = [
-    path("admin/", AdminLoginView.as_view(), name='AdminLoginView'),
+    path("", ListAllItemsView.as_view(), name='ListAllItemsView'),
 ]
