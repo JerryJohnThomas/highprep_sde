@@ -2,11 +2,11 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from login_api.views import AdminLoginView
-from starting_apis.views import LatLongView, UploadExcelSheetView
-from starting_apis.views import StartAlgoView
 
-app_name = 'starting_apis'
+from algo_apis.views import LatLongView, UploadExcelSheetView
+from algo_apis.views import StartAlgoView
+
+app_name = 'algo_apis'
 
 urlpatterns = [
     path("coordinates/", LatLongView.as_view(), name='LatLongView'),

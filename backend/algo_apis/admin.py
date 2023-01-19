@@ -1,7 +1,5 @@
 from django.contrib import admin
-
-from starting_apis.models import Location, Rider
-
+from .models import Rider, Location
 # Register your models here.
 admin.site.register(Rider);
-admin.site.register(Location);
+admin.site.register(Location)

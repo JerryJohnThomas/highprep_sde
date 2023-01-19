@@ -21,7 +21,7 @@ class ItemDetails(APIView):
         currentItem = ItemSerializer(currentItem, many=True);
         print("The post after serialization is ", currentItem.data);
 
-        # send the response to frontend 
+        # send the response to frontend
         return Response(currentItem.data);
 
 
