@@ -10,5 +10,5 @@ urlpatterns = [
     # here we have connected the blog and blog_api application using the urls.py 
     # path('', include('blog.urls', namespace = 'blog')),
     path('inventory/', include('inventory_apis.urls', namespace = 'inventory_apis')),
-    path('login/', include('login_apis.urls', namespace = 'login_apis')),
+    path('', include('login_apis.urls', namespace = 'login_apis')),
 ]
