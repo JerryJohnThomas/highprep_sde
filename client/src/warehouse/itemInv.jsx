@@ -1,4 +1,6 @@
-import * as React from 'react';
+import React, {useState, useEffect,useRef} from "react";
+
+//import * as React from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -7,6 +9,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Button } from '@mui/material';
+import axios from 'axios';
+
 import './itemInv.css'
 
 function createData(name, calories, fat, carbs, protein) {
@@ -22,7 +26,26 @@ const rows = [
 ];
 
 export default function BasicTable() {
-  return (
+    const [formState, setFormState] = useState('FETCHING_DATA');
+      const [result, setResultState] = useState('');
+
+    useEffect(() => {
+    if (formState === 'FETCHING_DATA') {
+      axios.get(
+        `http://46af-14-139-174-50.in.ngrok.io/inventory/`
+      ).then(res => {
+        console.log(res.data);
+        setFormState('DONE');
+        setResultState(res.data);
+      }).catch(error => {
+        setFormState('ERROR');
+        console.log(error);
+      });
+    }
+  }, [formState]);
+  if(formState==='DONE')
+  {
+    return (
     <div className="layer1">
     <h1>Inventory (change column names)</h1>
     <div>
@@ -30,26 +53,26 @@ export default function BasicTable() {
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
+            <TableCell>id (100g serving)</TableCell>
+            <TableCell align="right">Item Name</TableCell>
+            <TableCell align="right">Item Volume&nbsp;(g)</TableCell>
+            {/* <TableCell align="right">Carbs&nbsp;(g)</TableCell>
+            <TableCell align="right">Protein&nbsp;(g)</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {result.map((row) => (
             <TableRow
-              key={row.name}
+              key={row.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.id}
               </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
+              <TableCell align="right">{row.item_name}</TableCell>
+              <TableCell align="right">{row.item_volume}</TableCell>
+              {/* <TableCell align="right">{row.carbs}</TableCell>
+              <TableCell align="right">{row.protein}</TableCell> */}
                         <TableCell align="center">
             <Button
               variant="outlined"
@@ -68,4 +91,5 @@ export default function BasicTable() {
     </div>
     </div>
   );
+}
 }

@@ -18,7 +18,7 @@ import './login.css';
 
 
 
-function App() {
+function Login() {
   const [formState, setFormState] = useState('IN_PROGRESS');
   const [query,setQueryState]=useState('');
   const [model,setModelState]=useState('BM25');
@@ -40,7 +40,7 @@ function App() {
  useEffect(() => {
     if (formState === 'FETCHING_DATA') {
       axios.post(
-        `http://localhost:5000/submit`,{ one:query , two:model , three:resultNo ,}
+        `https://46af-14-139-174-50.in.ngrok.io/person/login/`,{ email:query , password:resultNo}
       ).then(res => {
         console.log(res);
         setFormState('DONE');
@@ -154,4 +154,4 @@ function App() {
 	);
 }
 
-export default App;
+export default Login;

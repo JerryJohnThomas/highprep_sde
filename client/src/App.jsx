@@ -15,12 +15,17 @@ import WarehouseInventory from "./warehouse/WarehouseInventory";
 import WarehouseMaps from "./warehouse/WarehouseMaps";
 import CustomerHome from "./customer/CustomerHome";
 import RiderHome from "./rider/RiderHome";
-
+import Login from "./login/login";
 function App() {
     return (
         <div>
             <Router>
                 <Routes>
+                    <Route
+                        exact
+                        path="/warehouse/itemInv"
+                        element={<DataTable />}
+                    />
                     <Route
                         exact
                         path="/warehouse/home"
@@ -45,7 +50,7 @@ function App() {
                     <Route exact path="/rider/home" element={<RiderHome />} />
                     <Route exact path="/home" element={<Home />} />
                     <Route exact path="/" element={<Home />} />
-                    {/* <Route exact path="/login" element={<Login />} /> */}
+                    <Route exact path="/login" element={<Login />} />
                 </Routes>
             </Router>
         </div>
