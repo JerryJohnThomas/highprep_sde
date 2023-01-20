@@ -3,8 +3,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from .models import PersonInfo
-from .serializers import PersonInfoSerializer
+from .serializers import PersonInfoSerializer, PersonLoginSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 
 # Create your views here.
 # endpoint to fetch the detail of a single person 
@@ -45,6 +46,34 @@ class PersonListView(APIView):
 class PersonLoginView(APIView):
     def post(self, request):
         # TODO
+        serializedDAta = PersonLoginSerializer(data=request.data);
+
+        if serializedDAta.is_valid():
+            email = serializedDAta.data.get('email');
+            password = serializedDAta.data.get('password');
+            # print("\n\n\n");
+            # print(serializedDAta)
+            # print(serializedDAta.data);
+            # print("\n\n\n");
+            # print("the email is ", email);
+            # print("password is", password);
+            # now we have to authenticate this user 
+            currentUser = authenticate(email=email, password=password);
+            # user = PersonInfo.objects.get(email = email);
+            # print(user.name);
+            # print(user.phone_number);
+            # print(user.age);
+            # print(user.password);
+            # print("The another user is ", user);
+            # print("The current user is \n\n");
+            # print(currentUser);
+            if currentUser is not None:
+                return Response({'msg' : 'Login Success'}, status=status.HTTP_200_OK)
+            else :
+                return Response({'errors' : {'non_field_errors' : ['Email or Password is not valid']}}, status=status.HTTP_404_NOT_FOUND)
+            
+            # say everything went fine 
+            return Response(serializedDAta.errors, status=status.HTTP_400_BAD_REQUEST)
         pass
 
 
@@ -62,6 +91,8 @@ class PersonRegister(APIView):
             serializedData.save();
         else :
             return Response(serializedData.errors, status=status.HTTP_403_FORBIDDEN);
+        print("The serialized data is\n\n ", serializedData);
+        print("The serialized data with data  is\n\n ", serializedData.data);
         
         # person = PersonInfo.objects.get(username = serializedData.data['username']);
         # print("The new user which is registering is ==> \n\n\n", person);

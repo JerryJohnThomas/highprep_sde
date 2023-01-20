@@ -31,6 +31,7 @@ class CustomPersonManager(BaseUserManager):
             age = age,
             person_type = person_type,
             bike_details = bike_details,
+          
         )
 
         # here we will save the password and the save the user in database 

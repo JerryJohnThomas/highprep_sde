@@ -135,7 +135,7 @@ AUTH_USER_MODEL = 'login_apis.PersonInfo'
 REST_FRAMEWORK = {
    
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
   
 }
