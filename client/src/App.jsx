@@ -1,7 +1,7 @@
 import Home from "./Home";
 import Demo from "./customer/demo";
 import DataTable from "./warehouse/itemInv";
-
+import "./App.css"
 import {
     BrowserRouter as Router,
     // Switch,

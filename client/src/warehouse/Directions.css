@@ -1,0 +1,24 @@
+.jerry_directions2_contianer_top{
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background-color: #ccc6c6;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.jerry_directions2_map_container{
+    height: 100%;
+    width: 100%;
+    flex:3
+}
+
+.jerry_directions2_rider_info{
+    /* height: 100%; */
+    /* width: 40%; */
+    flex: 1
+    }
+
+
