@@ -63,14 +63,15 @@ class PersonRegister(APIView):
         else :
             return Response(serializedData.errors, status=status.HTTP_403_FORBIDDEN);
         
-        person = PersonInfo.objects.get(username = serializedData.data['username']);
-        print("The new user which is registering is ==> \n\n\n", person);
+        # person = PersonInfo.objects.get(username = serializedData.data['username']);
+        # print("The new user which is registering is ==> \n\n\n", person);
 
         # we have to create the token for the first time 
-        refreshToken = RefreshToken.for_user(person);
-        accessToken = refreshToken.access_token;
+        # refreshToken = RefreshToken.for_user(person);
+        # accessToken = refreshToken.access_token;
 
         # say everything went fine 
-        return Response({'payload': serializedData.data, 'refresh' : str(refreshToken), 'access' : str(accessToken)}, status=status.HTTP_201_CREATED);
+        # return Response({'msg' : 'Registration Successfull','payload': serializedData.data, 'refresh' : str(refreshToken), 'access' : str(accessToken)}, status=status.HTTP_201_CREATED);
+        return Response({'msg' : 'Registration Successfull','payload': serializedData.data}, status=status.HTTP_201_CREATED);
 
         # otherwise i will save this to the database 
