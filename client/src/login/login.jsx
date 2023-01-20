@@ -15,9 +15,6 @@ import Typography from '@mui/material/Typography';
 
 
 import './login.css';
-
-
-
 function App() {
   const [formState, setFormState] = useState('IN_PROGRESS');
   const [query,setQueryState]=useState('');
