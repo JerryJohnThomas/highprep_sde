@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
+import pandas as pd;
+import csv
 
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
@@ -15,6 +16,11 @@ class LatLongView(APIView):
 # endpoint to upload the excel sheet 
 class UploadExcelSheetView(APIView):
     def post(self, request):
+        print(request.data);
+        data = request.data;
+        print(data.items);
+
+        print(request.FILES);
 
 ########################################################################################################
         # TODO 
@@ -29,8 +35,19 @@ class UploadExcelSheetView(APIView):
 
 # endpoint to start the algorithm once warehouse guy presses start algo 
 class StartAlgoView(APIView):
-    def get(self, request):
-        
+    # post request to start the algo 
+    def post(self, request):
+        file = open('./data/bangalore_dispatch_address_finals_out.csv')
+        csvreader = csv.reader(file);
+
+        print(csvreader);
+
+        rows = [];
+        d = dict();
+
+        for row in csvreader:
+            rows.append(row);
+            print("The row is \n\n", row);
 ########################################################################################################
         # TODO
             # 1.fetch the excel sheet consisting of the list of places and the available rider 

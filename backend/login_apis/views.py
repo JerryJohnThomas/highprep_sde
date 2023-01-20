@@ -6,7 +6,11 @@ from .models import PersonInfo
 from .serializers import PersonInfoSerializer, PersonLoginSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
+from django.contrib import auth
 # Create your views here.
 # endpoint to fetch the detail of a single person 
 class PersonDetails(APIView):
@@ -27,8 +31,11 @@ class PersonDetails(APIView):
 
 # here i will be making the view for handling the login for this purpose 
 class PersonListView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     # if it is a get request then we have to show the list of person for this purpsoe 
     def get(self, request):
+
         personList = PersonInfo.objects.all();
 
         # serialize the data to convert this in json format 
@@ -55,8 +62,8 @@ class PersonLoginView(APIView):
             # print(serializedDAta)
             # print(serializedDAta.data);
             # print("\n\n\n");
-            # print("the email is ", email);
-            # print("password is", password);
+            print("the email is ", email);
+            print("password is", password);
             # now we have to authenticate this user 
             currentUser = authenticate(email=email, password=password);
             # user = PersonInfo.objects.get(email = email);
@@ -68,6 +75,7 @@ class PersonLoginView(APIView):
             # print("The current user is \n\n");
             # print(currentUser);
             if currentUser is not None:
+                print("Successfullt sent the response")
                 return Response({'msg' : 'Login Success'}, status=status.HTTP_200_OK)
             else :
                 return Response({'errors' : {'non_field_errors' : ['Email or Password is not valid']}}, status=status.HTTP_404_NOT_FOUND)
@@ -94,15 +102,30 @@ class PersonRegister(APIView):
         print("The serialized data is\n\n ", serializedData);
         print("The serialized data with data  is\n\n ", serializedData.data);
         
-        # person = PersonInfo.objects.get(username = serializedData.data['username']);
+        person = PersonInfo.objects.get(email = serializedData.data['email']);
         # print("The new user which is registering is ==> \n\n\n", person);
 
         # we have to create the token for the first time 
         # refreshToken = RefreshToken.for_user(person);
         # accessToken = refreshToken.access_token;
-
+        token, _ = Token.objects.get_or_create(user = person);
         # say everything went fine 
+        return Response({'msg' : 'Registration Successfull','payload': serializedData.data, 'token' : str(token)}, status=status.HTTP_201_CREATED);
         # return Response({'msg' : 'Registration Successfull','payload': serializedData.data, 'refresh' : str(refreshToken), 'access' : str(accessToken)}, status=status.HTTP_201_CREATED);
-        return Response({'msg' : 'Registration Successfull','payload': serializedData.data}, status=status.HTTP_201_CREATED);
+        # return Response({'msg' : 'Registration Successfull','payload': serializedData.data}, status=status.HTTP_201_CREATED);
 
         # otherwise i will save this to the database 
+
+class LogoutView(APIView):
+    @staticmethod
+    def delete(request, *args, **kwargs):
+        auth.logout(request)
+        data = {
+            "message": "You have successfully logged out.",
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class randomView(APIView):
+    def get(self, request):
+        return Response("hello");

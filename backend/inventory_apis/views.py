@@ -23,6 +23,17 @@ class ItemDetails(APIView):
 
         # send the response to frontend
         return Response(currentItem.data);
+    
+    # making the endpoint to delete the items 
+    def post(self, request, pk):
+        primaryKey = self.kwargs['pk'];
+
+        response = Item.objects.get(id = primaryKey);
+
+        print(response);
+        response.delete();
+
+        return Response("Successfully deleted the item\n\n");
 
 
 
@@ -31,13 +42,14 @@ class ItemDetails(APIView):
 # view to show the list of items that are present and to add new list if it is post request 
 class ItemList(APIView):
 
+
     # handling the get request 
     def get(self, request):
 
         itemList = Item.objects.all();
 
         serializedData = ItemSerializer(itemList, many=True);
-      
+        print(serializedData.data)
         return Response(serializedData.data);
         
     # handling the post request to create the new item in inventory 
