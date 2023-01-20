@@ -2,7 +2,7 @@ import useGeolocation from "react-hook-geolocation";
 import { useMemo } from "react";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 
-function Home() {
+function CustomerHome() {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: "AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g",
   });
@@ -37,4 +37,4 @@ function Map() {
 //   );
 };
 
-export default Home;
+export default CustomerHome;
