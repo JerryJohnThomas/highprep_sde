@@ -1,6 +1,6 @@
 import React from 'react'
 
-function WarehouseInventory() {
+function WarehouseInventory({token, islogged}) {
   return (
     <div>WarehouseInventory</div>
   )

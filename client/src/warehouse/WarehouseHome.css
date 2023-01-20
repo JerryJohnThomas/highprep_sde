@@ -1,0 +1,57 @@
+.jj_stats_container{
+    background-color: blue;
+    height: 200px;
+    width: 80%;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.jj_stats_item{
+    flex:1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    color: white;
+}
+.jj_stats_button{
+    padding: 7px 10px;
+    font-size: 15px;
+    border-radius: 7px;
+    border: none;
+    background-color: white;
+    text-decoration: none;
+    transition: all 0.1s ease-in 0s;
+}
+
+.jj_stats_button:hover{
+    background-color: rgb(135, 135, 209);
+    color:white;
+}
+
+.jj_stats_right{
+    
+    /* background-color: aqua; */
+    height: 80%;
+    width: 80%;
+
+}
+.jj_stats_item div:first-child{
+    font-size: 110px;
+}
+
+.jj_stats_item div::nth-child(2) {
+    font-size: 30px;
+}
+
+.jj_stats_wrapper{
+    width: 100vw;
+    height: 80vh;
+    overflow-y: hidden;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

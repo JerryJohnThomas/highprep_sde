@@ -1,0 +1,28 @@
+.jerry_navbar_container{
+    background-color: rgb(13, 37, 178);
+    height: 60px;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+}
+
+.jj_navbar_left{
+    margin-left: 10px;
+}
+
+.jj_navbar_right {
+    margin-right: 10px;
+}
+
+.jj_log_text{
+    text-decoration: none;
+    color:white;
+    transform: all 1s ease-in 0s;
+}
+
+
+.jj_log_text:hover{
+    color:rgb(94, 94, 230)
+}

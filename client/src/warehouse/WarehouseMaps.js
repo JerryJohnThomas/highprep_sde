@@ -1,7 +1,7 @@
 import React from 'react'
 import Directions2 from './Directions2'
 
-function WarehouseMaps() {
+function WarehouseMaps({token, islogged}) {
   return (
     <>
       <div>Warehouse    Maps</div>

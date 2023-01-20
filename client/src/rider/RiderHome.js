@@ -1,6 +1,6 @@
 import React from 'react'
 
-function RiderHome() {
+function RiderHome({token, islogged}) {
   return (
     <div>RiderHome</div>
   )
