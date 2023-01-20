@@ -1,8 +1,13 @@
 import React from 'react'
+import Directions2 from './Directions2'
 
 function WarehouseMaps() {
   return (
-    <div>WarehouseMaps</div>
+    <>
+      <div>Warehouse    Maps</div>
+      <Directions2 />
+    </>
+    
   )
 }
 
