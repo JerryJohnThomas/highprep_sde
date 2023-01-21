@@ -8,7 +8,7 @@ function WarehouseHome({token, islogged}) {
 
 
   const[places, setPlaces]= useState(32)
-  const[riders, setRiders]= useState(0)
+  const[riders, setRiders]= useState(6)
   const[showUpload, setShowUpload] = useState(false)
 
 
