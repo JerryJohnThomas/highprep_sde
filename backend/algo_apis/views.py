@@ -68,9 +68,9 @@ def api_call(origins, destinations):
     for location in destinations:
         body['destinations'].append({"waypoint": {"location": {"latLng": {"latitude": location[1], "longitude": location[2]}}}})
 
-    print("origin 23", origins[23])
-    print("origin 23", origins[24])
-    print("destination 13", origins[13])
+    # print("origin 23", origins[23])
+    # print("origin 23", origins[24])
+    # print("destination 13", origins[13])
 
     # print(body)
 
