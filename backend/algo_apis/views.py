@@ -205,6 +205,7 @@ def calculateDistanceTimeMatrix(filePath):
     dist_mat = pd.DataFrame( index=arr, columns=arr)
     time_mat = pd.DataFrame( index=arr, columns=arr)
 
+
     print("total batches ", len(batches))
 
     for id_i,data_i in enumerate(batches):
@@ -232,8 +233,8 @@ def calculateDistanceTimeMatrix(filePath):
     write_csv=True
 
     if write_csv:
-        dist_mat.to_csv("distance_matrix"+str(size)+"_"+time_now+".csv", index=False)
-        time_mat.to_csv("time_matrix"+str(size)+"_"+time_now+".csv", index=False)
+        dist_mat.to_csv("distance_matrix"+str(size)+"_"+time_now+".csv", index=True)
+        time_mat.to_csv("time_matrix"+str(size)+"_"+time_now+".csv", index=True)
 
 
 
