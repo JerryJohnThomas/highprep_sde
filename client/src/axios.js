@@ -2,6 +2,7 @@ import axios from  "axios";
 
 const instance = axios.create({
     // baseURL: "https://innovationsitev2.herokuapp.com/"
+    baseURL: "https://4a20-14-139-174-50.in.ngrok.io"
 })
 
 export default instance;
