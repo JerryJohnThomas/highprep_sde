@@ -2,13 +2,13 @@ import useGeolocation from "react-hook-geolocation";
 import { useMemo } from "react";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 
-function CustomerHome() {
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g",
-  });
+function CustomerHome({ token, islogged }) {
+    const { isLoaded } = useLoadScript({
+        googleMapsApiKey: "AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g",
+    });
 
-  if (!isLoaded) return <div>Loading...</div>;
-  return <Map />;
+    if (!isLoaded) return <div>Loading...</div>;
+    return <Map />;
 }
 
 function Map() {

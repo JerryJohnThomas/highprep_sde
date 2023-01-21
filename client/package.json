@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "http://localhost:5000/submit",
   "dependencies": {
+    "@chakra-ui/react": "^2.4.9",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.11.5",
@@ -19,6 +20,7 @@
     "react-dom": "^18.2.0",
     "react-google-maps": "^9.4.5",
     "react-hook-geolocation": "^1.1.0",
+    "react-icons": "^4.7.1",
     "react-router-dom": "^6.7.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"

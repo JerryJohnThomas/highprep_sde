@@ -1,0 +1,21 @@
+.jj_uploadexcel_wrapper{
+    height: 100vh;
+    width: 100vw;
+    top:0;
+    left:0;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: green;
+    background-color: rgba(0, 0, 0, 0.411);
+    /* background-color: rgba(256,256,256,1); */
+        /* background-color: rgba(256, 256, 256,1); */
+}
+
+.jj_uploadexcel_container{
+    height: 400px;
+    width: 80vw;
+    border-radius: 10px;
+    background-color: rgb(87, 87, 213);
+}

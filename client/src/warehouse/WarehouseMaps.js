@@ -1,8 +1,13 @@
 import React from 'react'
+import Directions2 from './Directions2'
 
-function WarehouseMaps() {
+function WarehouseMaps({token, islogged}) {
   return (
-    <div>WarehouseMaps</div>
+    <>
+      <div>Warehouse    Maps</div>
+      <Directions2 />
+    </>
+    
   )
 }
 

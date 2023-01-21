@@ -1,0 +1,12 @@
+.jerry_ridercard_container{
+    height: "200px";
+    width: 100%;
+    background-color: red;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10px 0;
+    align-items: center;
+
+}
