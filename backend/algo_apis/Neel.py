@@ -103,6 +103,7 @@ def solve(n, m, times):
 	
 	timesC = []
 	timesC.append([])
+	print(times)
 	for i in range(1, len(times)):
 		# X = times[i]
 		# X.sort()

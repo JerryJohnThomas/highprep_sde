@@ -11,6 +11,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
 from django.contrib import auth
+from algo_apis.models import Rider
+
+
 # Create your views here.
 # endpoint to fetch the detail of a single person 
 class PersonDetails(APIView):
@@ -93,7 +96,7 @@ class PersonRegister(APIView):
         data = request.data;
 
         serializedData = PersonInfoSerializer(data=data);
-
+        
         # checking the validity of data 
         if serializedData.is_valid() :
             serializedData.save();

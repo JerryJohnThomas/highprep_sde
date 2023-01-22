@@ -13,4 +13,5 @@ urlpatterns = [
     path("start/", StartAlgoView.as_view(), name='StartAlgoView'),
     # endpoint to add the excel sheet 
     path("upload/", UploadExcelSheetView.as_view(), name="UploadExcelSheetView"),
+    
 ]

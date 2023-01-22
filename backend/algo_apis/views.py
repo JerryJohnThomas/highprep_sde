@@ -11,7 +11,15 @@ import json
 from datetime import datetime as dt
 import googlemaps
 import gmaps
+from rest_framework.authtoken.models import Token
+from rest_framework import status
 
+from .serializers import AlgorithmStatusModelSerializer
+from .models import AlgorithmStatusModel
+from login_apis.models import PersonInfo
+# import random
+import string
+import random
 
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
@@ -20,16 +28,61 @@ class LatLongView(APIView):
 
 
 
+def random_string_generator(size=10, chars=string.ascii_lowercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 
 # endpoint to upload the excel sheet 
 class UploadExcelSheetView(APIView):
     def post(self, request):
         print(request.data);
-        data = request.data;
-        print(data.items);
-
         print(request.FILES);
+        data = request.data;
+        token = data['token'];
+        file = request.FILES['file']
+
+        
+        
+
+        randomNumber = random_string_generator()
+        print(randomNumber)
+
+        print("The token that i got is \n", token);
+        print("The file name that i got is \n", file);
+        excelData = pd.read_excel(file);
+
+        print("The content of the file is ", excelData);
+
+        userName = Token.objects.get(key=token).user
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        print('The token belongs to the following user\n\n', currentUser);
+        userName = currentUser.email;
+
+        data2 = {}
+        data2['username'] = userName
+        data2['random_number'] = randomNumber
+        data2['status'] = "NotFinished"
+        data2['excelSheetFile'] = file;
+
+        
+
+        # serializedData = AlgorithmStatusModelSerializer(data=data2, file=request.FILES);
+        algorithmStatus = AlgorithmStatusModel.objects.create(username= userName, random_number = randomNumber, status="Not Started", excelSheetFile = file)
+
+        algorithmStatus.save();
+        print("The saved new entry in the algorithm thing is \n", algorithmStatus);
+        # if serializedData.is_valid():
+        #     serializedData.save();
+        # else:
+        #     return Response({"msg" : serializedData.errors}, status=status.HTTP_403_FORBIDDEN)
+        
+        # print("The serialized data is ", serializedData.data);
+        # say everything went fine 
+        return Response({"msg" : "Hopefully done successfully"}, status=status.HTTP_201_CREATED)
+
+        # print(data.items);
+
+        # print(request.FILES);
 
 ########################################################################################################
         # TODO 
@@ -38,7 +91,7 @@ class UploadExcelSheetView(APIView):
 ########################################################################################################
 
 
-        return Response("endpoint to upload the excel sheet to store this in db")
+        # return Response("endpoint to upload the excel sheet to store this in db")
 
 
 
