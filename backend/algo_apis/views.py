@@ -15,7 +15,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework import status
 
 from .serializers import AlgorithmStatusModelSerializer
-from .models import AlgorithmStatusModel, Location
+from .models import AlgorithmStatusModel, Location, Rider
 from login_apis.models import PersonInfo
 # import random
 import string
@@ -305,6 +305,26 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
         print("The new entry is as follows\n\n", currentLocationEntry);
 
 
+
+# function to find the first n available riders for this purpose 
+def findFirstNAvailableRiders():
+    riders = Rider.objects.filter(status = "NotAvailable").only("email");
+
+    availableRiders = []
+
+    for rider in riders.iterator():
+        availableRiders.append(rider.email)
+    # using the for loop for this purpose 
+    # for i in range(riders.size):
+    #     if riders[i].status == "NotAvailable":
+    #         availableRiders.append(riders[i])
+
+    # print("The list of all riders are as follows \n", riders);
+
+    # say everything went fine 
+    return availableRiders
+
+
 # endpoint to start the algorithm once warehouse guy presses start algo 
 class StartAlgoView(APIView):
     # post request to start the algo 
@@ -323,6 +343,15 @@ class StartAlgoView(APIView):
         # updating the status 
         currentAlgorithm.status = "Started";
         currentAlgorithm.save();
+
+########################################################################################################
+        #TODO 
+            # find the list of first n available riders from the database and store with id starting with 1 
+        availableRidersN = findFirstNAvailableRiders();
+        print("The available riders are as follows :", availableRidersN);
+
+
+########################################################################################################
 
         excelPath = currentAlgorithm.excelSheetFile;
 
@@ -350,9 +379,15 @@ class StartAlgoView(APIView):
         # timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
         timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
         # now i will be calling the NEEL's algo here 
-        algoRes = think(timeMatrixFileName)
+        # algoRes = think(timeMatrixFileName)
 
-        print("The result from the algorithm is ", algoRes);
+########################################################################################################
+        #TODO 
+        #   observe the output and find the riders id correctly and locations correctly 
+        #   return this to frontend 
+########################################################################################################
+
+        # print("The result from the algorithm is ", algoRes);
 
         return Response({"msg" : "Successfully Started the Algorithm"}, status=status.HTTP_200_OK);
 

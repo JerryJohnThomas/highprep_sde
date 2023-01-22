@@ -96,7 +96,7 @@ class PersonRegister(APIView):
         data = request.data;
 
         serializedData = PersonInfoSerializer(data=data);
-        
+
         # checking the validity of data 
         if serializedData.is_valid() :
             serializedData.save();
@@ -106,6 +106,11 @@ class PersonRegister(APIView):
         print("The serialized data with data  is\n\n ", serializedData.data);
         
         person = PersonInfo.objects.get(email = serializedData.data['email']);
+        if person.person_type == "rider":
+            # then we also have to store this information in the rider table as well 
+            newRider = Rider(email = person.email, status = "NotAvailable", location_ids = {});
+            newRider.save();
+        
         # print("The new user which is registering is ==> \n\n\n", person);
 
         # we have to create the token for the first time 
