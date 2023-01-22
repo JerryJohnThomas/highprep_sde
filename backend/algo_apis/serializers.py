@@ -14,3 +14,10 @@ class AlgorithmStatusModelSerializer(serializers.Serializer):
     
     # def create(self, validated_data):
     #     return AlgorithmStatusModel.objects.create(**validated_data)
+
+
+class LocationSerializer(serializers.Serializer):
+    class Meta:
+        model = AlgorithmStatusModel
+        fields = ("location_id", 'username', 'random_number', 'location_array')
+    

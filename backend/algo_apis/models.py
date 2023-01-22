@@ -16,10 +16,11 @@ class Rider(models.Model):
 
 # model to store the locations information and geo coordinates 
 class Location(models.Model):
+    username = models.EmailField(null=False)
+    random_number = models.CharField(max_length=500)
     location_id = models.AutoField(primary_key=True)
-    latitude = models.CharField(max_length=100)
-    longitude = models.CharField(max_length=100)
-    location_name = models.CharField(max_length=150)
+    location_array = models.JSONField(null=True)
+    # location_name = models.JSONField(null=True)
    
 # making the new model 
 class AlgorithmStatusModel(models.Model):
