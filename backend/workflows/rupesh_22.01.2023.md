@@ -18,6 +18,9 @@ get_stats_api(toke, random_numer)
 
 this_weeks (post monday work)
 * maybe make rriders associated with a hub
+* bags
+* just give options to choose number of riders to the warehouse guy
+
 
 
 
