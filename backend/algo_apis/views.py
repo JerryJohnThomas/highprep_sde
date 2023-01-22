@@ -20,6 +20,7 @@ from login_apis.models import PersonInfo
 # import random
 import string
 import random
+from .Think import think
 
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
@@ -215,7 +216,7 @@ def addressToLocations(excelPath, userName, randomNumber):
 
 
 # function to get the distance time matrix 
-def calculateDistanceTimeMatrix(filePath):
+def calculateDistanceTimeMatrix(filePath, userName, randomNumber):
     
     df = pd.read_csv(filePath)
     lat = df["lat"]
@@ -267,11 +268,41 @@ def calculateDistanceTimeMatrix(filePath):
     time_now= time_now.replace(":",".")
 
     write_csv=True
-
+    distMatrixFileName = "distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+    timeMatrixFileName = "time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
     if write_csv:
-        dist_mat.to_csv("distance_matrix"+str(size)+"_"+time_now+".csv", index=True)
-        time_mat.to_csv("time_matrix"+str(size)+"_"+time_now+".csv", index=True)
+        dist_mat.to_csv(f"./data/distance/{distMatrixFileName}", index=True)
+        time_mat.to_csv(f"./data/time/{timeMatrixFileName}", index=True)
 
+
+def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
+
+        df = pd.read_csv(latLongCsvFilePath)
+        lat = df["lat"]
+        lng = df["lng"]
+        print("The lat is ",type(lat));
+        print("The long is ",type(lng));
+
+        # latitude = [];
+        # longitude = [];
+        coordinates = [];
+
+        # using the for loop for this purpose 
+        for i in range(lat.size):
+            coordinates.append([i+1, df['lat'][i], df['lng'][i]])
+
+
+        location_names = [];
+
+        # converting these data into json 
+        locationArray = {
+            "coordinates" : coordinates,
+            "location_names" : location_names
+        }
+        currentLocationEntry = Location.objects.create(username = currentUser.email, random_number = randomNumber, location_array = locationArray)
+        currentLocationEntry.save();
+
+        print("The new entry is as follows\n\n", currentLocationEntry);
 
 
 # endpoint to start the algorithm once warehouse guy presses start algo 
@@ -305,51 +336,24 @@ class StartAlgoView(APIView):
         
         # latLongCsvFilePath is the file in which the lat and long has been find out by the algorithm 
         latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
-        df = pd.read_csv(latLongCsvFilePath)
-        lat = df["lat"]
-        lng = df["lng"]
-        print("The lat is ",type(lat));
-        print("The long is ",type(lng));
-
-        latitude = [];
-        longitude = [];
-
-        # using the for loop for this purpose 
-        for i in range(lat.size):
-            latitude.append(df['lat'][i]);
-            longitude.append(df['lng'][i]);
-
-        print("The array form of lat and long is ", latitude, longitude);
-
-        location_names = [];
-
-        # converting these data into json 
-        locationArray = {
-            "latitude" : latitude, 
-            "longitude" : longitude, 
-            "location_names" : location_names
-        }
-
-        currentLocationEntry = Location.objects.create(username = userName, random_number = randomNumber, location_array = locationArray)
-        currentLocationEntry.save();
-
-        print("The new entry is as follows\n\n", currentLocationEntry);
+        # storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser)
 
 ########################################################################################################
         #TODO 
             # how to find the places given the latitude and longitude 
+
+            # now we have to calculate the distance time matrix csv for the algorithm 
+            # calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
 ########################################################################################################
 
-        # once i got this file i will have to read this file and then store the locations in the location model
+        distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        # timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
+        # now i will be calling the NEEL's algo here 
+        algoRes = think(timeMatrixFileName)
 
-        # now we have to calculate the distance time matrix csv for the algorithm 
-        # calculateDistanceTimeMatrix(latLongCsvFilePath);
-        # excelPath = "./data/bangalore_dispatch_address_finals.xlsx"
-        # filePath = "./data/bangalore_dispatch_address_finals_out.csv";
-        # calculateDistanceTimeMatrix(filePath)
+        print("The result from the algorithm is ", algoRes);
 
-###########################################################################################################
-        
         return Response({"msg" : "Successfully Started the Algorithm"}, status=status.HTTP_200_OK);
 
 

@@ -7,10 +7,10 @@
 
 import pandas as pd
 import numpy as np
-from Neel import solve 
+from .Neel import solve 
 
 # time_matrix218_2023-01-21T17.04.47.497441
-def think(time_filename, dist_filename):
+def think(time_filename):
     time = pd.read_csv(time_filename)
     # print(time)
 
@@ -24,8 +24,6 @@ def think(time_filename, dist_filename):
     res = solve(219,5,np_matrix)
     print("\n\n\n\n")
     print(res)
+    return res;
 
-print("Start")
-think("../time_matrix218_2023-01-21T17.04.47.497441.csv","")
-print("over")
 
