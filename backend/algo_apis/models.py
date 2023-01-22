@@ -30,4 +30,10 @@ class AlgorithmStatusModel(models.Model):
     status = models.CharField(max_length=200)
     # excelSheetName = models.CharField(max_length=1000)
     excelSheetFile = models.FileField(upload_to=content_file_name ,null=True)
+    rider_to_location = models.JSONField(default=[]);
 
+# # making the new model to store the results of the algorithm 
+# class ResultModel(models.Model):
+#     username = models.EmailField(null=False)
+#     random_number = models.CharField(max_length=500)
+#     rider_to_location = models.JSONField()

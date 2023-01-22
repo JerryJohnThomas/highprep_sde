@@ -407,3 +407,24 @@ class StartAlgoView(APIView):
         return Response({"msg" : "Successfully Started the Algorithm"}, status=status.HTTP_200_OK);
 
 
+# endpoint to check the status of the algorithm running 
+class StatusOfAlgo(APIView):
+    def get(self, request):
+        token = request.data['token'];
+        randomNumber = request.data['randomNumber'];
+        userName = Token.objects.get(key=token).user
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        currentAlgorithm = AlgorithmStatusModel.objects.filter(username = currentUser.email, random_number = randomNumber);
+
+        print("The current algorithm is ", currentAlgorithm);
+
+        currentStatus = currentAlgorithm.status;
+        # if the algorithm is complete or finished then we have to send the results back to the frontend 
+        if currentStatus == 'Finished':
+            # then the algorithm is finished hence we can send back the final result 
+            rider_to_locations = currentAlgorithm.rider_to_location;
+            return Response({"msg" : "Algorithm Finished", "rider_to_location" : rider_to_locations}, status=status.HTTP_200_OK)
+
+
+        # say everything went fine 
+        return Response({"msg" : "Algo is still going on"}, status=status.HTTP_200_OK); 
