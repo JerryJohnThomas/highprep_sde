@@ -11,7 +11,16 @@ import json
 from datetime import datetime as dt
 import googlemaps
 import gmaps
+from rest_framework.authtoken.models import Token
+from rest_framework import status
 
+from .serializers import AlgorithmStatusModelSerializer
+from .models import AlgorithmStatusModel, Location
+from login_apis.models import PersonInfo
+# import random
+import string
+import random
+from .Think import think
 
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
@@ -20,26 +29,52 @@ class LatLongView(APIView):
 
 
 
+def random_string_generator(size=10, chars=string.ascii_lowercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 
 # endpoint to upload the excel sheet 
 class UploadExcelSheetView(APIView):
     def post(self, request):
         print(request.data);
-        data = request.data;
-        print(data.items);
-
         print(request.FILES);
+        data = request.data;
+        token = data['token'];
+        file = request.FILES['file']
 
-########################################################################################################
-        # TODO 
-            # 1. fetch the excel sheet from the frontend from warehouse guy 
-            # 2. store this in database 
-########################################################################################################
+        
+        
 
+        randomNumber = random_string_generator()
+        print(randomNumber)
 
-        return Response("endpoint to upload the excel sheet to store this in db")
+        print("The token that i got is \n", token);
+        print("The file name that i got is \n", file);
+        excelData = pd.read_excel(file);
 
+        print("The content of the file is ", excelData);
+
+        userName = Token.objects.get(key=token).user
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        print('The token belongs to the following user\n\n', currentUser);
+        userName = currentUser.email;
+
+        data2 = {}
+        data2['username'] = userName
+        data2['random_number'] = randomNumber
+        data2['status'] = "NotFinished"
+        data2['excelSheetFile'] = file;
+
+        
+
+        # serializedData = AlgorithmStatusModelSerializer(data=data2, file=request.FILES);
+        algorithmStatus = AlgorithmStatusModel.objects.create(username= userName, random_number = randomNumber, status="Not Started", excelSheetFile = file)
+
+        algorithmStatus.save();
+        print("The saved new entry in the algorithm thing is \n", algorithmStatus);
+        
+        # say everything went fine 
+        return Response({"msg" : "Hopefully done successfully", "randomNumber" : randomNumber}, status=status.HTTP_201_CREATED)
 
 
 
@@ -154,7 +189,7 @@ def rupesh_test1():
 
 
 # defining the function to convert the address to lat long 
-def addressToLocations(excelPath):
+def addressToLocations(excelPath, userName, randomNumber):
     
     data = pd.read_excel(excelPath)
     places = data['address']
@@ -173,13 +208,15 @@ def addressToLocations(excelPath):
         data['lng'][i]= lng
         time.sleep(1)
         print(i," over")
-
-    data.to_csv("./data/bangalore_dispatch_address_finals_out.csv")
+    latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
+    print("The path of the geo_encoding with lat long coordinates is ", latLongCsvFilePath);
+    # data.to_csv("./data/bangalore_dispatch_address_finals_out.csv")
+    data.to_csv(latLongCsvFilePath);
 
 
 
 # function to get the distance time matrix 
-def calculateDistanceTimeMatrix(filePath):
+def calculateDistanceTimeMatrix(filePath, userName, randomNumber):
     
     df = pd.read_csv(filePath)
     lat = df["lat"]
@@ -231,36 +268,92 @@ def calculateDistanceTimeMatrix(filePath):
     time_now= time_now.replace(":",".")
 
     write_csv=True
-
+    distMatrixFileName = "distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+    timeMatrixFileName = "time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
     if write_csv:
-        dist_mat.to_csv("distance_matrix"+str(size)+"_"+time_now+".csv", index=True)
-        time_mat.to_csv("time_matrix"+str(size)+"_"+time_now+".csv", index=True)
+        dist_mat.to_csv(f"./data/distance/{distMatrixFileName}", index=True)
+        time_mat.to_csv(f"./data/time/{timeMatrixFileName}", index=True)
 
+
+def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
+
+        df = pd.read_csv(latLongCsvFilePath)
+        lat = df["lat"]
+        lng = df["lng"]
+        print("The lat is ",type(lat));
+        print("The long is ",type(lng));
+
+        # latitude = [];
+        # longitude = [];
+        coordinates = [];
+
+        # using the for loop for this purpose 
+        for i in range(lat.size):
+            coordinates.append([i+1, df['lat'][i], df['lng'][i]])
+
+
+        location_names = [];
+
+        # converting these data into json 
+        locationArray = {
+            "coordinates" : coordinates,
+            "location_names" : location_names
+        }
+        currentLocationEntry = Location.objects.create(username = currentUser.email, random_number = randomNumber, location_array = locationArray)
+        currentLocationEntry.save();
+
+        print("The new entry is as follows\n\n", currentLocationEntry);
 
 
 # endpoint to start the algorithm once warehouse guy presses start algo 
 class StartAlgoView(APIView):
     # post request to start the algo 
     def post(self, request):
-        # excelPath = "./data/bangalore_dispatch_address_finals.xlsx"
-        # addressToLocations(excelPath)
-        filePath = "./data/bangalore_dispatch_address_finals_out.csv";
-        calculateDistanceTimeMatrix(filePath)
+        # first we have to make the status as started 
+        token = request.data['token'];
+        randomNumber = request.data['randomNumber']
 
-        # rupesh_test1();
+        # find the entry on this random number 
+        userName = Token.objects.get(key=token).user
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        currentAlgorithm = AlgorithmStatusModel.objects.get(random_number = randomNumber, username=userName);
+        print("The current algorith excel sheet model is ", currentAlgorithm);
+        print("The current user is  ", currentUser);
+
+        # updating the status 
+        currentAlgorithm.status = "Started";
+        currentAlgorithm.save();
+
+        excelPath = currentAlgorithm.excelSheetFile;
+
+
 ########################################################################################################
-        # TODO
-            # 1.fetch the excel sheet consisting of the list of places and the available rider 
-            # 2. find the (lat, long) for each of the places, distance and time matrix using google maps apis
-            # 3. then these points will be feed to the algorithm 
-            # 4. wait for the algorithm to return the final result 
-            # 5. once got the final result find the routes of each destination for each rider.
-            # 6. store this in database.(why ??)
-            # 7. then return the direction routes with rider id to the frontend or warehouse guy to be specific.
-            # 8. also notify each rider about the directions routes that needs to be navigated.(this is the current issue how are we going to do that).
-        # main problems will be to 
+        #TODO ==> UNCOMMENT THE LINE 
+        # addressToLocations(excelPath, userName, randomNumber)
+########################################################################################################
 
-###########################################################################################################
-        return Response("hopefully should be done ");
+        # excelData = pd.read_excel(excelPath);
+        
+        # latLongCsvFilePath is the file in which the lat and long has been find out by the algorithm 
+        latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
+        # storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser)
+
+########################################################################################################
+        #TODO 
+            # how to find the places given the latitude and longitude 
+
+            # now we have to calculate the distance time matrix csv for the algorithm 
+            # calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
+########################################################################################################
+
+        distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        # timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
+        # now i will be calling the NEEL's algo here 
+        algoRes = think(timeMatrixFileName)
+
+        print("The result from the algorithm is ", algoRes);
+
+        return Response({"msg" : "Successfully Started the Algorithm"}, status=status.HTTP_200_OK);
 
 
