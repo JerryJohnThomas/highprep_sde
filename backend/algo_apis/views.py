@@ -307,23 +307,33 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
 
 
 # function to find the first n available riders for this purpose 
-def findFirstNAvailableRiders():
-    riders = Rider.objects.filter(status = "NotAvailable").only("email");
-
+def findFirstNAvailableRiders(n):
+    riders = Rider.objects.filter(status = "Available").only("email");
+    count = 0;
     availableRiders = []
 
     for rider in riders.iterator():
+        if count == n:
+            break
         availableRiders.append(rider.email)
-    # using the for loop for this purpose 
-    # for i in range(riders.size):
-    #     if riders[i].status == "NotAvailable":
-    #         availableRiders.append(riders[i])
-
-    # print("The list of all riders are as follows \n", riders);
-
+        count = count + 1;
+    
+    if(count < n):
+        # then this means we do not have enough riders to deliver the items 
+        return [];
     # say everything went fine 
     return availableRiders
 
+
+# function to mark the riders as not available 
+def markThemAsNonAvailable(availableRidersN):
+    for i in range(len(availableRidersN)):
+        currRider = Rider.objects.get(email = availableRidersN[i]);
+        currRider.status = "NotAvailable";
+        currRider.save();
+
+    # say everything went fine 
+    return;
 
 # endpoint to start the algorithm once warehouse guy presses start algo 
 class StartAlgoView(APIView):
@@ -346,10 +356,15 @@ class StartAlgoView(APIView):
 
 ########################################################################################################
         #TODO 
+        n = 2
             # find the list of first n available riders from the database and store with id starting with 1 
-        availableRidersN = findFirstNAvailableRiders();
+        availableRidersN = findFirstNAvailableRiders(n);
         print("The available riders are as follows :", availableRidersN);
-
+        if(availableRidersN == []):
+            return Response({"msg" : "Not Enough Riders to deliver"}, status=status.HTTP_403_FORBIDDEN);
+        
+        # now we have to mark these as non available 
+        markThemAsNonAvailable(availableRidersN);
 
 ########################################################################################################
 
