@@ -103,7 +103,6 @@ def solve(n, m, times):
 	
 	timesC = []
 	timesC.append([])
-	print(times)
 	for i in range(1, len(times)):
 		# X = times[i]
 		# X.sort()
@@ -144,6 +143,16 @@ def solve(n, m, times):
 					if(x > 4):
 						break
 
+			# when flag is true everything is in locatiosn, 
+			flag= True
+			for k in range(1,m+1):
+				if k not in locations:
+					flag=False
+			
+			if flag ==True:
+				count = 21
+				break
+				
 			menEle = 100000
 			thisEle = -1
 			for k in options:
@@ -195,7 +204,7 @@ def solve(n, m, times):
 # # m - number of locations
 # # times - (m + 1)* ( m +1 ) matrix - distance matrix 10000
 # # location 1 is the hub
-	
+
 # # return a map -> (location, drivers)
 # locations = solve(n, m, times)
 

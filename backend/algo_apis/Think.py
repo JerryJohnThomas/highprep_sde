@@ -21,7 +21,7 @@ def think(time_filename):
     np_matrix = np.append([np.zeros(num_cols+1)], np_matrix, axis=0 )
     np_matrix[np_matrix == 0] = np.inf 
 
-    res = solve(219,5,np_matrix)
+    res = solve(5,218,np_matrix)
     print("\n\n\n\n")
     print(res)
     return res;
