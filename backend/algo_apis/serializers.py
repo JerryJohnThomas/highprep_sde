@@ -1,7 +1,7 @@
 
 from rest_framework import serializers;
 # from .models import PersonInfo;
-from .models import AlgorithmStatusModel
+from .models import AlgorithmStatusModel, Rider, Location
 
 
 # class RiderSerializer(serializers.Serializer):
@@ -18,6 +18,12 @@ class AlgorithmStatusModelSerializer(serializers.Serializer):
 
 class LocationSerializer(serializers.Serializer):
     class Meta:
-        model = AlgorithmStatusModel
+        model = Location
         fields = ("location_id", 'username', 'random_number', 'location_array')
+
+
+class RiderSerializer(serializers.Serializer):
+    class Meta:
+        model = Rider
+        fields = "__all__"
     

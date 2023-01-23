@@ -10,9 +10,12 @@ def content_file_name(instance, filename):
 # Create your models here.
 # models to store the information of the locations of rider that it needs to navigate 
 class Rider(models.Model):
+    username = models.EmailField(null=False, default="pandey7@gmail.com")
     email = models.EmailField(primary_key=True, default="1@gmail.com")
+    random_number = models.CharField(max_length=500, default="string")
     status = models.CharField(max_length=20)
     location_ids = models.JSONField(null=True, blank=True)
+    
     # need to add the bag which will store the ids of inventory items 
 
 # model to store the locations information and geo coordinates 

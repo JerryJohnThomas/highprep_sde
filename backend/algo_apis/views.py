@@ -14,7 +14,7 @@ import gmaps
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 
-from .serializers import AlgorithmStatusModelSerializer
+from .serializers import AlgorithmStatusModelSerializer,RiderSerializer
 from .models import AlgorithmStatusModel, Location, Rider
 from login_apis.models import PersonInfo
 # import random
@@ -335,6 +335,38 @@ def markThemAsNonAvailable(availableRidersN):
     # say everything went fine 
     return;
 
+
+
+# defining the function to store the locationids in database in proper location 
+def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availableNRiders):
+    i = 0;
+    riderDict = {};
+    # using the for loop for storing this in database 
+    for riderEmail in availableNRiders:
+        currentRider = Rider.objects.get(email = riderEmail);
+        currentRider.location_ids = {
+            "coordinates" : riderIdVsLoc[i]
+        }
+        currentRider.username = username;
+        currentRider.random_number = randomNumber
+        print("The rider ", riderEmail);
+        print("got the coordinates = ", riderIdVsLoc[i]);
+        print("\n\n")
+
+        currentRider.save();
+        riderDict[riderEmail] = riderIdVsLoc[i];
+        i = i+1;
+
+    # currentAlgorithm = 
+    currentAlgorithm = AlgorithmStatusModel.objects.get(username =  username, random_number = randomNumber);
+    currentAlgorithm.rider_to_location = riderDict;
+    currentAlgorithm.save();
+
+    # say everything went fine 
+    return riderDict;
+
+
+
 # endpoint to start the algorithm once warehouse guy presses start algo 
 class StartAlgoView(APIView):
     # post request to start the algo 
@@ -356,15 +388,16 @@ class StartAlgoView(APIView):
 
 ########################################################################################################
         #TODO 
-        n = 2
-            # find the list of first n available riders from the database and store with id starting with 1 
-        availableRidersN = findFirstNAvailableRiders(n);
-        print("The available riders are as follows :", availableRidersN);
-        if(availableRidersN == []):
+        n = 5
+        # find the list of first n available riders from the database and store with id starting with 1 
+        availableNRiders = findFirstNAvailableRiders(n);
+        print("The available riders are as follows :", availableNRiders);
+        if(availableNRiders == []):
             return Response({"msg" : "Not Enough Riders to deliver"}, status=status.HTTP_403_FORBIDDEN);
         
-        # now we have to mark these as non available 
-        markThemAsNonAvailable(availableRidersN);
+        # # idMapForRiders = 
+        # # now we have to mark these as non available 
+        # markThemAsNonAvailable(availableRidersN);
 
 ########################################################################################################
 
@@ -394,17 +427,54 @@ class StartAlgoView(APIView):
         # timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
         timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
         # now i will be calling the NEEL's algo here 
-        # algoRes = think(timeMatrixFileName)
+        algoRes = think(timeMatrixFileName)
 
 ########################################################################################################
         #TODO 
         #   observe the output and find the riders id correctly and locations correctly 
+        # the output order to Neels algo is place_id vs rider_id
+        riderIdVsLoc = [];
+        currentLocation = Location.objects.get(username = currentUser.email, random_number = randomNumber);
+        location_array = currentLocation.location_array;
+        coordinates = location_array['coordinates']
+        print("The location_array is as follows \n", coordinates)
+
+
+        for i in range(n):
+            riderIdVsLoc.append([]);
+
+        # using the for loop for this purpose 
+        # for loop to find the exact location id and the rider id 
+        # for i in range(n):
+        #     tempArray = [];
+        #     for key in algoRes:
+        #         if algoRes[key] == i+1:
+
+        #             tempArray.append(coordinates[key]);
+        #     riderIdVsLoc.append(tempArray);
+        for key in algoRes:
+            currentLatLong = coordinates[key-1];
+            riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
+        
+
+        print("The final mapping of riderid vs loc is as follows \n\n");
+        print(riderIdVsLoc)
+
+        riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders);
+
+        # serializedData = RiderSerializer(ridersInformation, many=True);
+        # # if serializedData.is_valid():
+        # print(serializedData.data);
+
+
+        # print("The final allocation of locations ids with riders is ", riderLocationDict);
         #   return this to frontend 
 ########################################################################################################
 
         # print("The result from the algorithm is ", algoRes);
+        # print("The type of the algorithm is ", type(algoRes));
 
-        return Response({"msg" : "Successfully Started the Algorithm"}, status=status.HTTP_200_OK);
+        return Response({"msg" : "Successfully Started the Algorithm", "data" : "some"}, status=status.HTTP_200_OK);
 
 
 # endpoint to check the status of the algorithm running 
@@ -414,7 +484,7 @@ class StatusOfAlgo(APIView):
         randomNumber = request.data['randomNumber'];
         userName = Token.objects.get(key=token).user
         currentUser = PersonInfo.objects.get(email = str(userName))
-        currentAlgorithm = AlgorithmStatusModel.objects.filter(username = currentUser.email, random_number = randomNumber);
+        currentAlgorithm = AlgorithmStatusModel.objects.get(username = currentUser.email, random_number = randomNumber);
 
         print("The current algorithm is ", currentAlgorithm);
 
@@ -423,7 +493,19 @@ class StatusOfAlgo(APIView):
         if currentStatus == 'Finished':
             # then the algorithm is finished hence we can send back the final result 
             rider_to_locations = currentAlgorithm.rider_to_location;
-            return Response({"msg" : "Algorithm Finished", "rider_to_location" : rider_to_locations}, status=status.HTTP_200_OK)
+            ridersInformation = [];
+            currentAlgoRiders = Rider.objects.filter(username = userName, random_number = randomNumber)
+            for currentRider in currentAlgoRiders:
+                # currentRider = Rider.objects.get(email = riderEmail);
+                currentRiderJson = {
+                    "email" : currentRider.email,
+                    "status" : currentRider.status,
+                    "location_ids" : currentRider.location_ids
+                }
+                ridersInformation.append(currentRiderJson);
+            
+            print("The riders information is ", ridersInformation);
+            return Response({"msg" : "Algorithm Finished", "rider_to_location" : ridersInformation}, status=status.HTTP_200_OK)
 
 
         # say everything went fine 
