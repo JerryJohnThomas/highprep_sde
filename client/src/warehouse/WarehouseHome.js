@@ -2,15 +2,19 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import UploadExcel from './UploadExcel'
 import "./WarehouseHome.css"
-
+import axios from "../axios"
+// import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function WarehouseHome({token, islogged}) {
+    const navigate = useNavigate();
 
 
   const[places, setPlaces]= useState(32)
   const[riders, setRiders]= useState(6)
   const[showUpload, setShowUpload] = useState(false)
 
+  
 
   useEffect(()=>{
     updateStats()
@@ -24,12 +28,13 @@ function WarehouseHome({token, islogged}) {
   }
 
   let startAlgo = () =>{
-    if(places == 0 || riders == 0)
-    {
-      alert("places or riders are 0, kindly make it non zero before running")
-      return;
-    }
+    // if(places == 0 || riders == 0)
+    // {
+    //   alert("places or riders are 0, kindly make it non zero before running")
+    //   return;
+    // }
 
+fetchData()
     // start calling get function tell we get a response 
 
 
@@ -40,7 +45,48 @@ function WarehouseHome({token, islogged}) {
     
   }
 
+
+
+    async function fetchData() {
+      const response = await axios.get(
+        // 'https://8f1f-2409-4073-4d8e-70c9-3091-6b34-1a8f-f73c.in.ngrok.io/algo/status/',
+        '/algo/status/',
+               {
+              token: "4a14c34983a572b87fce0255ec2a6c7ec5a52a91",
+              randomNumber : "lfe8m4uxkh"
+            }
+            ).then((data)=>{
+
+              console.log(data);
+              console.log(data.data);
+            }
+            ).catch((err) =>
+            console.log(err));
+
+    }
+
   let sampleAlgo = ()=>{
+
+
+    // .get(`/algo/start/`)
+    axios
+        .post(`/algo/status/`, 
+            {
+              "token": "4a14c34983a572b87fce0255ec2a6c7ec5a52a91",
+              "randomNumber" : "lfe8m4uxkh"
+            }
+        )
+        .then((res) => {
+            console.log(res.data);
+            navigate("/warehouse/maps", { replace: true });
+
+            // setFormState("DONE");
+            // setResultState(res.data);
+        })
+        .catch((error) => {
+            // setFormState("ERROR");
+            console.log(error);
+        });
 
   }
 

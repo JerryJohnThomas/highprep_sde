@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -14,6 +13,8 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
+// import axios from "axios";
+import axios from "../axios"
 
 function Login({ islogged, setIsLogged, token, setToken }) {
     const [formState, setFormState] = useState("IN_PROGRESS");
@@ -39,11 +40,8 @@ function Login({ islogged, setIsLogged, token, setToken }) {
 
         if (formState === "FETCHING_DATA") {
             axios
-                // .post(`https://46af-14-139-174-50.in.ngrok.io/person/login/`, {
-                // .post(`/person/login/`, {
-                // .post(`https://4a20-14-139-174-50.in.ngrok.io/api-token-auth/`, {
                 .post(
-                    `https://4a20-14-139-174-50.in.ngrok.io/api-token-auth/`,
+                    `/api-token-auth/`,
                     {
                         // email: query,
                         username: query,
@@ -61,7 +59,7 @@ function Login({ islogged, setIsLogged, token, setToken }) {
                         setToken(res.data.token); // this should be the token
 
                         // TO DO @shub
-                        // check if user is warehouse like that ... 
+                        // check if user is warehouse like that ...
                         navigate("/warehouse/", { replace: true });
                     }
                     // TO DO @shub

@@ -6,13 +6,14 @@ import {
   HStack,
   IconButton,
   Input,
+  list,
   SkeletonText,
   Text,
 } from '@chakra-ui/react'
 import "./Directions.css"
 
 import { FaLocationArrow, FaTimes } from 'react-icons/fa'
-
+import axios from "../axios"
 import {
   useJsApiLoader,
   GoogleMap,
@@ -32,17 +33,50 @@ function Directions2() {
 
 
     const [rider_places, setRiderplaces] = useState([])
+    const [trigger_api, setTrigger_api] = useState(1)
     const [renderitem, setRenderitem] = useState([])
 
-    // const colors=["yellow", "red" , "blue"]
-    const colors = [  "#A0E6FF",  "#FF8A80",  "#A4D3EE",  "#FFA07A",  "#90CAF9",  "#FF6347",  "#81D4FA",  "#FF7F50",  "#7FC4FD",  "#FF4500"]
+    const colors=["yellow", "red" , "blue", "green", "violet"]
+    // const colors = [  "#A0E6FF",  "#FF8A80",  "#A4D3EE",  "#FFA07A",  "#90CAF9",  "#FF6347",  "#81D4FA",  "#FF7F50",  "#7FC4FD",  "#FF4500"]
   useEffect(()=>{
+    console.log("starting rupesh db useeffect");
+     axios
+        .post(`/algo/status/`, 
+            {
+              "token": "4a14c34983a572b87fce0255ec2a6c7ec5a52a91",
+              "randomNumber" : "lfe8m4uxkh"
+            }
+        )
+        .then((res) => {
+            console.log(res.data);
+            setRiderplaces([]);
+            let data = res.data;
+            let rider_to_loc= data.rider_to_location
+            for (let i =0;i<rider_to_loc.length;i++)
+            {
+              let temp = []
+              let rid = {rider_id:rider_to_loc[i].email}
+              let list_locations= rider_to_loc[i].location_ids.coordinates;
+              temp.push(rid);
 
-    setRiderplaces([
-        [{rider_id: 1},{lat : 10.7992017 , lng:76.8221794},{lat:13.7992017 , lng:77.8221794}, {lat:12.5992017 , lng:76.9221794}, {lat:12.7992017 , lng:77.8221794}],
-        [{rider_id: 2},{lat : 10.9992017 , lng:76.9221794}, {lat:12.6992017 , lng:77.5221794}],
-    ])
-},[])
+              for(let j=0;j<list_locations.length;j++)
+              {
+                temp.push({lat:list_locations[j][1], lng:list_locations[j][2]});
+              }
+              setRiderplaces(old => [...old,temp]);
+              if(i==4)
+              break;
+            }
+            setTrigger_api(x => x+1);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+        // setRiderplaces([
+        //     [{rider_id: 1},{lat : 10.7992017 , lng:76.8221794},{lat:13.7992017 , lng:77.8221794}, {lat:12.5992017 , lng:76.9221794}, {lat:12.7992017 , lng:77.8221794}],
+        //     [{rider_id: 2},{lat : 10.9992017 , lng:76.9221794}, {lat:12.6992017 , lng:77.5221794}],
+        // ])
+      },[])
 
     useEffect(()=>
     {
@@ -54,7 +88,6 @@ function Directions2() {
             return;
         }
 
-
         console.log(rider_places)
 
         for (let index in rider_places )
@@ -65,6 +98,7 @@ function Directions2() {
             let rider_id = data[0]["rider_id"];
             data.shift();
             console.log("rider " + rider_id+ " with " + data.length +" points ");
+            // console.log(data);
             
             
             // eslint-disable-next-line no-undef
@@ -93,7 +127,8 @@ function Directions2() {
 
         }
 
-    },[rider_places,window.google])
+      },[trigger_api, window.google])
+    // },[rider_places,window.google])
 
   
 const { isLoaded } = useJsApiLoader({
@@ -135,21 +170,35 @@ const { isLoaded } = useJsApiLoader({
   async function calculateRouteTuples(org, wp, dest) {
    
     const directionsService = new window.google.maps.DirectionsService()
+    // console.log(wp[16])
     const results = await directionsService.route({
       origin: org,
-      waypoints : wp,
+      waypoints : wp.slice(0,13),
       destination: dest,
       // eslint-disable-next-line no-undef
       travelMode: google.maps.TravelMode.DRIVING,
     })
-
+    .then((results)=> 
+    {
+      console.log("good")
     setRenderitem( renderitem => [...renderitem, results])
-    setDirectionsResponse(results)
+    // setDirectionsResponse(results)
+    //       setRenderitem( renderitem => [...renderitem, results])
+    // setDirectionsResponse(results)
+    })
+    .catch((err)=>
+    {
+      console.log("error", err);
+      console.log(org);
+      console.log(wp);
+      console.log(dest);
+    })
+
+    // setRenderitem( renderitem => [...renderitem, results])
+    // setDirectionsResponse(results)
 
     // setDistance(results.routes[0].legs[0].distance.text)
     // setDuration(results.routes[0].legs[0].duration.text)
-    console.log("over");
-    return "okk";
   }
 
 
@@ -220,7 +269,7 @@ const { isLoaded } = useJsApiLoader({
               renderitem.map((data,index) => {
                 return(
                     <div>
-                        <DirectionsRenderer directions={data} options={{polylineOptions:{strokeColor:colors[index]}}} />
+                        <DirectionsRenderer key={index} directions={data} options={{polylineOptions:{strokeColor:colors[index]}}} />
                     </div>
                 )
                 }
@@ -234,7 +283,7 @@ const { isLoaded } = useJsApiLoader({
         <div className='jerry_directions2_rider_info'>
           {
             renderitem.map((data,index)=>(
-                <RiderCard />
+                <RiderCard  color={colors[index]}/>
             ))
           }
 
