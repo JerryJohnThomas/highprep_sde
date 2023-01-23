@@ -96,7 +96,7 @@ function Directions2() {
     },[rider_places,window.google])
 
   
-  const { isLoaded } = useJsApiLoader({
+const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: 'AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g',
     libraries: ['places'],
   })

@@ -19,6 +19,7 @@ import Login from "./login/login";
 import Navbar from "./common/Navbar";
 import { useState } from "react";
 import UploadExcel from "./warehouse/UploadExcel";
+import RiderMap from "./rider/RiderMap";
 
 
 function App() {
@@ -92,6 +93,15 @@ function App() {
                         path="/rider/home"
                         element={
                             <RiderHome token={token} islogged={islogged} />
+                        }
+                    />
+
+
+                     <Route
+                        exact
+                        path="/rider/maps"
+                        element={
+                            <RiderMap token={token} islogged={islogged} />
                         }
                     />
                     <Route
