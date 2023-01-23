@@ -29,9 +29,11 @@ import RiderCard from './RiderCard'
 // const center = { lat: 48.8584, lng: 2.2945 }
 const center = { lat: 9.95, lng: 76.25 }
 
-function Directions2() {
+function  Directions2() {
 
 
+    
+    const [showRiderRoute, setShowRiderRoute] = useState([])
     const [rider_places, setRiderplaces] = useState([])
     const [trigger_api, setTrigger_api] = useState(1)
     const [renderitem, setRenderitem] = useState([])
@@ -50,6 +52,7 @@ function Directions2() {
         .then((res) => {
             console.log(res.data);
             setRiderplaces([]);
+            setShowRiderRoute([])
             let data = res.data;
             let rider_to_loc= data.rider_to_location
             for (let i =0;i<rider_to_loc.length;i++)
@@ -64,6 +67,7 @@ function Directions2() {
                 temp.push({lat:list_locations[j][1], lng:list_locations[j][2]});
               }
               setRiderplaces(old => [...old,temp]);
+              setShowRiderRoute(old => [...old,true]);
               if(i==4)
               break;
             }
@@ -97,7 +101,7 @@ function Directions2() {
             
             let rider_id = data[0]["rider_id"];
             data.shift();
-            console.log("rider " + rider_id+ " with " + data.length +" points ");
+            // console.log("rider " + rider_id+ " with " + data.length +" points ");
             // console.log(data);
             
             
@@ -123,7 +127,7 @@ function Directions2() {
             // console.log(destination)
 
             let res = calculateRouteTuples(origin, waypoints, destination)
-            console.log("returned calculated routes")
+            // console.log("returned calculated routes")
 
         }
 
@@ -136,6 +140,7 @@ const { isLoaded } = useJsApiLoader({
     libraries: ['places'],
   })
 
+  const [ishighligted, setIshighligted] = useState(false)
   const [map, setMap] = useState(/** @type google.maps.Map */ (null))
   const [directionsResponse, setDirectionsResponse] = useState(null)
   const [distance, setDistance] = useState('')
@@ -180,8 +185,7 @@ const { isLoaded } = useJsApiLoader({
     })
     .then((results)=> 
     {
-      console.log("good")
-    setRenderitem( renderitem => [...renderitem, results])
+      setRenderitem( renderitem => [...renderitem, results])
     // setDirectionsResponse(results)
     //       setRenderitem( renderitem => [...renderitem, results])
     // setDirectionsResponse(results)
@@ -248,6 +252,24 @@ const { isLoaded } = useJsApiLoader({
     thirdplaceRef.current.value = ''
   }
 
+  let   handleClickHighLight = (key) =>{
+
+    let total_len = rider_places.length;
+    if (setIshighligted == true)
+    {
+      let arr = Array(total_len).fill(true);
+      setShowRiderRoute(x => arr);
+
+    }
+    else
+    {
+      let arr = Array(total_len).fill(false);
+      arr[key] = true;
+      setShowRiderRoute(x => arr);
+    }
+      setIshighligted(x => !x)
+  }
+
   return (
  <>
         <div className='jerry_directions2_contianer_top'>
@@ -269,7 +291,9 @@ const { isLoaded } = useJsApiLoader({
               renderitem.map((data,index) => {
                 return(
                     <div>
-                        <DirectionsRenderer key={index} directions={data} options={{polylineOptions:{strokeColor:colors[index]}}} />
+                        {
+                          showRiderRoute[index] && <DirectionsRenderer key={index} directions={data} options={{polylineOptions:{strokeColor:colors[index]}}} />
+                        } 
                     </div>
                 )
                 }
@@ -283,7 +307,12 @@ const { isLoaded } = useJsApiLoader({
         <div className='jerry_directions2_rider_info'>
           {
             renderitem.map((data,index)=>(
-                <RiderCard  color={colors[index]}/>
+                <RiderCard 
+                key={index} 
+                index={index} 
+                onClick_fn={handleClickHighLight}
+                color={colors[index]}
+                />
             ))
           }
 
