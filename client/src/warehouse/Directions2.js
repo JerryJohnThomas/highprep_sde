@@ -33,15 +33,40 @@ function  Directions2() {
 
 
     
+    const [stats, setStats] = useState([])
     const [showRiderRoute, setShowRiderRoute] = useState([])
     const [rider_places, setRiderplaces] = useState([])
     const [trigger_api, setTrigger_api] = useState(1)
     const [renderitem, setRenderitem] = useState([])
 
-    const colors=["yellow", "red" , "blue", "green", "violet"]
+    //metric states
+    const[min_time_state, setMin_time_state] = useState(9999999)
+    const[max_time_state, setMax_time_state] = useState(0)
+    const[sum_time_state, setSum_time_state] = useState(0)
+
+    const[min_dist_state, setMin_dist_state] = useState(9999999)
+    const[max_dist_state, setMax_dist_state] = useState(0)
+    const[sum_dist_state, setSum_dist_state] = useState(0)
+
+
+
+
+
+    let colors=["yellow", "red" , "blue", "green", "violet",
+      "#394053", "#7CAE7A", "#553555", "#F06543",
+        "#DC6BAD", "#F4AC32", "#89023E" ,"#643A71"
+      ]
     // const colors = [  "#A0E6FF",  "#FF8A80",  "#A4D3EE",  "#FFA07A",  "#90CAF9",  "#FF6347",  "#81D4FA",  "#FF7F50",  "#7FC4FD",  "#FF4500"]
   useEffect(()=>{
     console.log("starting rupesh db useeffect");
+
+    setMin_time_state(9999999)
+    setMax_time_state(0)
+    setSum_time_state(0)
+    setMin_dist_state(9999999)
+    setMax_dist_state(0)
+    setSum_dist_state(0)
+
      axios
         .post(`/algo/status/`, 
             {
@@ -101,9 +126,7 @@ function  Directions2() {
             
             let rider_id = data[0]["rider_id"];
             data.shift();
-            // console.log("rider " + rider_id+ " with " + data.length +" points ");
-            // console.log(data);
-            
+
             
             // eslint-disable-next-line no-undef
             for(let i=0;i<data.length;i++)
@@ -119,17 +142,10 @@ function  Directions2() {
                 waypoints.push({location:waypoints_temp[ind3]})
             let destination = data_transformed[data_transformed.length-1];
 
-            // console.log("origin")
-            // console.log(origin)
-            // console.log("waypoints")
-            // console.log(waypoints)
-            // console.log("destination")
-            // console.log(destination)
-
+        
             let res = calculateRouteTuples(origin, waypoints, destination)
-            // console.log("returned calculated routes")
-
         }
+
 
       },[trigger_api, window.google])
     // },[rider_places,window.google])
@@ -157,25 +173,9 @@ const { isLoaded } = useJsApiLoader({
   }
 
 
-  async function getLocation () {
-  if (!navigator.geolocation) {
-    console.log("not supported")
-  } else {
-    console.log('Locating...')
-    navigator.geolocation.getCurrentPosition((position) => {
-      // this is not working 
-      setCurlat(position.coords.latitude);
-      setCurlong(position.coords.longitude);
-      console.log(position.coords.latitude+ "  "+position.coords.longitude);
-      return position.coords;
-    }, () => {
-    });
-  }
-}
   async function calculateRouteTuples(org, wp, dest) {
    
     const directionsService = new window.google.maps.DirectionsService()
-    // console.log(wp[16])
     const results = await directionsService.route({
       origin: org,
       waypoints : wp.slice(0,13),
@@ -186,9 +186,28 @@ const { isLoaded } = useJsApiLoader({
     .then((results)=> 
     {
       setRenderitem( renderitem => [...renderitem, results])
-    // setDirectionsResponse(results)
-    //       setRenderitem( renderitem => [...renderitem, results])
-    // setDirectionsResponse(results)
+      let totdist = 0
+      let tottime = 0
+      for(let i=0;i<results.routes[0].legs.length;i++)
+      {
+        let item = results.routes[0].legs[i]
+        totdist+=item.distance.value
+        tottime+=item.duration.value
+      }
+      totdist = (totdist/1000).toFixed(2)
+      tottime = (tottime/60).toFixed(2)
+      setStats(old => [...old, {distance:totdist, time:tottime}])
+
+    //metrics
+    setMin_time_state(old=> Math.min(old,tottime));
+    setMax_time_state(old=> Math.max(old,tottime));
+    setSum_time_state(old=> ((Math.round(Number(old)+Number(tottime)))));
+
+    setMin_dist_state(old => Math.min(old, totdist))
+    setMax_dist_state(old => Math.max(old, totdist))
+    setSum_dist_state(old=> ((Math.round(Number(old)+Number(totdist)))));
+
+      console.log(results.routes)
     })
     .catch((err)=>
     {
@@ -198,64 +217,15 @@ const { isLoaded } = useJsApiLoader({
       console.log(dest);
     })
 
-    // setRenderitem( renderitem => [...renderitem, results])
-    // setDirectionsResponse(results)
-
     // setDistance(results.routes[0].legs[0].distance.text)
     // setDuration(results.routes[0].legs[0].duration.text)
   }
 
 
-  async function calculateRoute() {
-    if (originRef.current.value === '' || destiantionRef.current.value === '') {
-      return
-    }
-
-    getLocation().then((data)=>{
-      console.log("over")
-      console.log(curlat);
-      console.log(data);
-    })
-
-    // eslint-disable-next-line no-undef
-    const waypts = [
-        // {location : new window.google.maps.LatLng(9.74, 121.05455)},
-        // {location : new window.google.maps.LatLng(14.546748, 121.05455)},
-        // {location : "Ernakulam"},
-        // {location : "Madurai"},
-        // {location : new window.google.maps.LatLng(9.74, 77.05455)},
-        {location : new window.google.maps.LatLng(10.7992017 , 76.8221794)},
-        // {location : new window.google.maps.LatLng(curlat, curlong)},
-      ]
-
-    const directionsService = new window.google.maps.DirectionsService()
-    const results = await directionsService.route({
-      origin: originRef.current.value,
-      waypoints : waypts,
-      destination: destiantionRef.current.value,
-      // eslint-disable-next-line no-undef
-      travelMode: google.maps.TravelMode.DRIVING,
-    })
-
-
-    setDirectionsResponse(results)
-    setDistance(results.routes[0].legs[0].distance.text)
-    setDuration(results.routes[0].legs[0].duration.text)
-  }
-
-  function clearRoute() {
-    setDirectionsResponse(null)
-    setDistance('')
-    setDuration('')
-    originRef.current.value = ''
-    destiantionRef.current.value = ''
-    thirdplaceRef.current.value = ''
-  }
-
   let   handleClickHighLight = (key) =>{
 
     let total_len = rider_places.length;
-    if (setIshighligted == true)
+    if (setIshighligted == true || key == -1)
     {
       let arr = Array(total_len).fill(true);
       setShowRiderRoute(x => arr);
@@ -304,17 +274,37 @@ const { isLoaded } = useJsApiLoader({
         </div>
 
 
+
+
         <div className='jerry_directions2_rider_info'>
+
+          <div className='jerry_routes_stats'>
+          <div> Minimum Distance : {min_dist_state}</div>
+          <div> Maximum Distance: {max_dist_state}</div>
+          <div> Minimum Time : {min_time_state}</div>
+          <div> Maximum Time: {max_time_state}</div>
+          <div> Average Time: {sum_time_state/stats.length}</div>
+          <div> Average Dist: {sum_dist_state/stats.length}</div>
+          <div> Total Riders: {stats.length}</div>
+
+             </div>
+             <div>
+
+          <button className='jj_stats_button' onClick={()=>handleClickHighLight(-1)}> see all </button>
           {
-            renderitem.map((data,index)=>(
-                <RiderCard 
-                key={index} 
-                index={index} 
-                onClick_fn={handleClickHighLight}
-                color={colors[index]}
-                />
-            ))
-          }
+            stats.map((data,index)=>(
+              <RiderCard 
+              name={"Name"}
+              key={index} 
+              index={index} 
+              onClick_fn={handleClickHighLight}
+              color={colors[index]}
+              distance={data.distance}
+              time={data.time}
+              />
+              ))
+            }
+            </div>
 
         </div>
 
