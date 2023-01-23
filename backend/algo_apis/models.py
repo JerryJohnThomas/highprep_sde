@@ -10,8 +10,12 @@ def content_file_name(instance, filename):
 # Create your models here.
 # models to store the information of the locations of rider that it needs to navigate 
 class Rider(models.Model):
+    username = models.EmailField(null=False, default="pandey7@gmail.com")
+    email = models.EmailField(primary_key=True, default="1@gmail.com")
+    random_number = models.CharField(max_length=500, default="string")
     status = models.CharField(max_length=20)
     location_ids = models.JSONField(null=True, blank=True)
+    
     # need to add the bag which will store the ids of inventory items 
 
 # model to store the locations information and geo coordinates 
@@ -29,4 +33,10 @@ class AlgorithmStatusModel(models.Model):
     status = models.CharField(max_length=200)
     # excelSheetName = models.CharField(max_length=1000)
     excelSheetFile = models.FileField(upload_to=content_file_name ,null=True)
+    rider_to_location = models.JSONField(default=[]);
 
+# # making the new model to store the results of the algorithm 
+# class ResultModel(models.Model):
+#     username = models.EmailField(null=False)
+#     random_number = models.CharField(max_length=500)
+#     rider_to_location = models.JSONField()

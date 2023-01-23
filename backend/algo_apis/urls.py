@@ -4,7 +4,7 @@ from django.urls import path, include
 
 
 from algo_apis.views import LatLongView, UploadExcelSheetView
-from algo_apis.views import StartAlgoView
+from algo_apis.views import StartAlgoView, StatusOfAlgo
 
 app_name = 'algo_apis'
 
@@ -13,5 +13,6 @@ urlpatterns = [
     path("start/", StartAlgoView.as_view(), name='StartAlgoView'),
     # endpoint to add the excel sheet 
     path("upload/", UploadExcelSheetView.as_view(), name="UploadExcelSheetView"),
-    
+    path("status/", StatusOfAlgo.as_view(), name="StatusOfAlgo")
+
 ]
