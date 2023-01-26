@@ -2,11 +2,13 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from rider_apis.views import RiderListView
+from rider_apis.views import RiderListView, RiderDropLocations, MarkRiderLocationAsMarked
 
 app_name = 'rider_apis'
 
 urlpatterns = [
     path("", RiderListView.as_view(), name='RiderListView'),
+    path("locations/", RiderDropLocations.as_view(), name="RiderDropLocations"),
+    path("complete/", MarkRiderLocationAsMarked.as_view(), name="MarkRiderLocationAsMarked"),
     
 ]

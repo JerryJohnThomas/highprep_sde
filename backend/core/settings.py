@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "login_apis",
     "algo_apis",
     'rest_framework.authtoken',
+    "rider_apis",
     
 ]
 

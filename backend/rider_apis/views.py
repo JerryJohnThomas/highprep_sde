@@ -22,15 +22,19 @@ class RiderListView(APIView):
         # using the for loop for this purpose 
         for rider in listOfRiders:
             currentRider = PersonInfo.objects.get(email = rider.email);
-            serializedData = PersonInfoSerializer(data=currentRider)
-        # we have to use the serializers for this purpose 
-        serializedData = RiderSerializer(data=listOfRiders, many=True)
-
-        if not serializedData.is_valid():
-            return Response({"msg" : "Failed", "data" : serializedData.data})
-
-        # print("The list of these riders is as follows \n\n", serializedData.data);
-        Response({"msg" : "Success", "data" : serializedData.data}, status=status.HTTP_200_OK);
+            currentRiderJson = {
+                "name" :  currentRider.name,
+                "phone_number" : currentRider.phone_number,
+                "age" : currentRider.age,
+                "person_type" : currentRider.person_type,
+                "bike_details" : currentRider.bike_details,
+                "email" : currentRider.email
+                
+            }
+            print(currentRiderJson);
+            ridersList.append(currentRiderJson)
+            
+        return Response({"msg" : "Success", "data" : ridersList}, status=status.HTTP_200_OK);
     
 
 
@@ -38,9 +42,19 @@ class RiderListView(APIView):
 # end point to give the details about the locations that has been assigned to the riders 
 class RiderDropLocations(APIView):
     def get(self, request):
+        # i just need the email of the riders and thats it 
+        email = request.data["email"];
+
+        print("The email of the rider is ", email);
+        
+        currentRider = Rider.objects.get(email = email);
+
+        currentLocations = currentRider.location_ids;
+
+
         
         # say everything went fine 
-        return Response("this is end point to send the riders location to the frontend for this purpose");
+        return Response({"msg": "success", "data" : currentLocations});
 
 
 
@@ -48,8 +62,42 @@ class RiderDropLocations(APIView):
 class MarkRiderLocationAsMarked(APIView):
     # this will be a post request for this purpose 
     def post(self, request):
+        # here i need to have the lat long which has been completed for this purpose 
+        latitude = request.data["lat"];
+        longitude = request.data["long"];
+        email = request.data["email"];
+        
+        # we have to find the rider 
+        currentRider = Rider.objects.get(email = email);
+        coordinates = currentRider.location_ids["coordinates"];
+
+        print(type(coordinates));
+
+        # using the for loop for updating the new coordinates for this purpose 
+        newCoordinates = [];
+
+        for coordinate in coordinates:
+            print("The current coordinate is \n");
+            print(coordinate)
+            # print(type(latitude))
+            if float(latitude) in coordinate and float(longitude) in coordinate:
+                continue;
+            else :
+                newCoordinates.append(coordinate);
+        
+        print("The number of coordinates are as follows \n\n")
+        print(len(coordinates))
+
+        print("The number of coordinates after marking one as complete is as follows \n");
+        print(len(newCoordinates));
+        
+        # print("The remaining coordinates for this is as follows\n\n", coordinates);
+        currentRider.location_ids["coordinates"] = newCoordinates; 
+        
+        currentRider.save();
+
         # say everything went fine 
-        return Response("done");
+        return Response({"msg" : "successfully marked it as complete", "data" : newCoordinates});
 
 
 
@@ -61,6 +109,7 @@ class RiderBagDetails(APIView):
         # say everything went fine 
         return Response("this end point is to return the details about the bag for this purpose");
 
+
 # end point to mark the pickup location as complete for this purpose 
 class MarkPickUpCompleted(APIView):
     # this will again be a post request 
@@ -68,4 +117,4 @@ class MarkPickUpCompleted(APIView):
         
         # say everything went fine 
         return Response("end point for rider to mark the pickup location as complete");
-        
+
