@@ -18,6 +18,7 @@ urlpatterns = [
     path('', include('login_apis.urls', namespace = 'login_apis')),
     path('api-token-auth/', views.obtain_auth_token),
     path('algo/', include('algo_apis.urls', namespace = 'algo_apis')),
+    path("rider/", include('rider_apis.urls', namespace="rider_apis")),
     # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ] 

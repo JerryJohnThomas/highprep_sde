@@ -370,6 +370,8 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
     # saving the locations to be completed by the rider in the AlgorithmStatusModel thingy 
     currentAlgorithm = AlgorithmStatusModel.objects.get(username =  username, random_number = randomNumber);
     currentAlgorithm.rider_to_location = riderDict;
+    # we also have to update the status of the algorithm as finished for this purpose
+    currentAlgorithm.status = "Finished";
     currentAlgorithm.save();
 
     # say everything went fine 

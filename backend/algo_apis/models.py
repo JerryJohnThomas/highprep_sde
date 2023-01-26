@@ -1,5 +1,5 @@
 from django.db import models
-
+from login_apis.models import PersonInfo 
 import os
 
 def content_file_name(instance, filename):
@@ -9,9 +9,12 @@ def content_file_name(instance, filename):
 
 # Create your models here.
 # models to store the information of the locations of rider that it needs to navigate 
+# do note that there the username is of the warehouse manager which has launched the start algo and under 
+# which this rider comes this acts as the foreign key for this purpose 
 class Rider(models.Model):
     username = models.EmailField(null=False, default="pandey7@gmail.com")
     email = models.EmailField(primary_key=True, default="1@gmail.com")
+    # warehouse_manager_email = models.EmailField(null=False, default="war1@gmail.com")   
     random_number = models.CharField(max_length=500, default="string")
     status = models.CharField(max_length=20)
     location_ids = models.JSONField(null=True, blank=True)
