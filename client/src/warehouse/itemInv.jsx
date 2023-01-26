@@ -9,8 +9,8 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Button } from '@mui/material';
-import axios from 'axios';
-
+import axios from "../axios"
+// import axios from 'axios';
 import './itemInv.css'
 
 function createData(name, calories, fat, carbs, protein) {
@@ -29,20 +29,45 @@ export default function BasicTable({ token, islogged }) {
     const [formState, setFormState] = useState("FETCHING_DATA");
     const [result, setResultState] = useState("");
 
+    // useEffect(() => {
+
+    //     let axiosConfig = {
+    //         headers: {
+    //             "Content-Type": "application/json;charset=UTF-8",
+    //             "Access-Control-Allow-Origin": "*",
+    //         },
+    //     };
+
+    //     let fetchData = async () => {
+    //         try {
+    //             const result = await axios.get(`/inventory/`, axiosConfig);
+    //             console.log(result.data);
+    //         } catch (err) {
+    //             if (err.message === "Network Error") {
+    //                 console.log("Error: net::ERR_FAILED with status code 200");
+    //                 console.log(err);
+    //             }
+    //         }
+    //     };
+    //     fetchData();
+    // }, []);
+
     useEffect(() => {
         if (formState === "FETCHING_DATA") {
-            axios
-                // .get(`http://46af-14-139-174-50.in.ngrok.io/inventory/`)
-                .get(`/inventory/`)
-                .then((res) => {
-                    console.log(res.data);
-                    setFormState("DONE");
-                    setResultState(res.data);
-                })
-                .catch((error) => {
-                    setFormState("ERROR");
-                    console.log(error);
-                });
+            // .get(
+                // `https://0e50-27-63-208-221.in.ngrok.io/inventory/`
+                // )
+                axios
+                    .post(`/inventory/`)
+                    .then((res) => {
+                        console.log(res.data);
+                        setFormState("DONE");
+                        setResultState(res.data);
+                    })
+                    .catch((error) => {
+                        setFormState("ERROR");
+                        console.log(error);
+                    });
         }
     }, [formState]);
     if (formState === "DONE") {
