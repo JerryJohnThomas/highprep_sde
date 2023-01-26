@@ -33,7 +33,7 @@ def random_string_generator(size=10, chars=string.ascii_lowercase + string.digit
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-# endpoint to upload the excel sheet 
+# endpoint to `upload` the excel sheet 
 class UploadExcelSheetView(APIView):
     def post(self, request):
         print(request.data);
@@ -52,6 +52,13 @@ class UploadExcelSheetView(APIView):
         print("The file name that i got is \n", file);
         excelData = pd.read_excel(file);
 
+        if "location" in excelData.columns:
+            for index, row in excelData.iterrows():
+                if row['location'] not in row['address']:
+                    excelData.at[index, 'address'] = row['address'] + ', ' + row['location']
+            
+        #save the updated sheet
+        excelData.to_excel(file)
         print("The content of the file is ", excelData);
 
         userName = Token.objects.get(key=token).user
@@ -169,7 +176,9 @@ def get_geocordinates_not_working(place):
 def get_geocordinates(data):
 
     place = data.replace(" ", "+ ")
+    # place = "MTH, Best of Bengal"
     geocode_result= gmaps.geocode(place)
+    print("The result", geocode_result);
     lat = geocode_result[0]['geometry']['location'] ['lat']
     lng = geocode_result[0]['geometry']['location'] ['lng']
     print("lat: ", lat)
@@ -358,6 +367,7 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
         i = i+1;
 
     # currentAlgorithm = 
+    # saving the locations to be completed by the rider in the AlgorithmStatusModel thingy 
     currentAlgorithm = AlgorithmStatusModel.objects.get(username =  username, random_number = randomNumber);
     currentAlgorithm.rider_to_location = riderDict;
     currentAlgorithm.save();
@@ -397,7 +407,7 @@ class StartAlgoView(APIView):
         
         # # idMapForRiders = 
         # # now we have to mark these as non available 
-        # markThemAsNonAvailable(availableRidersN);
+        markThemAsNonAvailable(availableNRiders);
 
 ########################################################################################################
 
@@ -406,21 +416,21 @@ class StartAlgoView(APIView):
 
 ########################################################################################################
         #TODO ==> UNCOMMENT THE LINE 
-        # addressToLocations(excelPath, userName, randomNumber)
+        addressToLocations(excelPath, userName, randomNumber)
 ########################################################################################################
 
         # excelData = pd.read_excel(excelPath);
         
         # latLongCsvFilePath is the file in which the lat and long has been find out by the algorithm 
         latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
-        # storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser)
+        storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser)
 
 ########################################################################################################
         #TODO 
             # how to find the places given the latitude and longitude 
 
             # now we have to calculate the distance time matrix csv for the algorithm 
-            # calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
+        calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
 ########################################################################################################
 
         distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
@@ -462,24 +472,12 @@ class StartAlgoView(APIView):
 
         riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders);
 
-        # serializedData = RiderSerializer(ridersInformation, many=True);
-        # # if serializedData.is_valid():
-        # print(serializedData.data);
-
-
-        # print("The final allocation of locations ids with riders is ", riderLocationDict);
-        #   return this to frontend 
-########################################################################################################
-
-        # print("The result from the algorithm is ", algoRes);
-        # print("The type of the algorithm is ", type(algoRes));
-
         return Response({"msg" : "Successfully Started the Algorithm", "data" : "some"}, status=status.HTTP_200_OK);
 
 
 # endpoint to check the status of the algorithm running 
 class StatusOfAlgo(APIView):
-    def get(self, request):
+    def post(self, request):
         token = request.data['token'];
         randomNumber = request.data['randomNumber'];
         userName = Token.objects.get(key=token).user
