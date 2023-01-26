@@ -18,6 +18,7 @@ class Rider(models.Model):
     random_number = models.CharField(max_length=500, default="string")
     status = models.CharField(max_length=20)
     location_ids = models.JSONField(null=True, blank=True)
+    bag_id = models.CharField(max_length=100, default="-1")
     
     # need to add the bag which will store the ids of inventory items 
 

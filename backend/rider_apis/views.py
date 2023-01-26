@@ -6,7 +6,7 @@ from algo_apis.models import Rider
 from algo_apis.serializers import RiderSerializer;
 from login_apis.serializers import PersonInfoSerializer
 from login_apis.models import PersonInfo
-
+from .models import Bag
 # Create your views here.
 # endpoint to get the list of riders under a given warehouse manager 
 class RiderListView(APIView):
@@ -102,12 +102,29 @@ class MarkRiderLocationAsMarked(APIView):
 
 
 
-# end point to give the details about the items that he is taking inside the bad 
+# end point to give the details about the items that he is taking inside the bag 
 class RiderBagDetails(APIView):
     # this will be a get request 
     def get(self, request):
+        currentRiderEmail = request.data["email"];
+
+        currentRider = Rider.objects.get(email = currentRiderEmail);
+
+        bag_id = currentRider.bag_id;
+
+        if bag_id == "-1":
+            # then this rider is not yet assigned a bag or it has not been assigned a 
+            return Response({"msg" : "Rider has not assigned a bag"}, status=status.HTTP_200_OK);
+        # now we have to search the bag with this bag_id 
+        currentBag = Bag.objects.get(bag_id = int(bag_id));
+        print("The current information about the bag is as follows\n\n", currentBag.item_list);
+        bagDetailsJson = {
+            "bag_id" : currentBag.bag_id,
+            "bag_size" : currentBag.bag_size,
+            "items_List" : currentBag.item_list
+        }
         # say everything went fine 
-        return Response("this end point is to return the details about the bag for this purpose");
+        return Response({"msg" : "success", "data" : bagDetailsJson}, status=status.HTTP_200_OK);
 
 
 # end point to mark the pickup location as complete for this purpose 
@@ -118,3 +135,30 @@ class MarkPickUpCompleted(APIView):
         # say everything went fine 
         return Response("end point for rider to mark the pickup location as complete");
 
+
+
+
+# end point to create new bag 
+class AddItemToRiderBag(APIView):
+    # this will be a post request since we are adding the new bag for this purpose
+    def post(self, request):
+        # i need the list of items in order to create the new bag 
+        email = request.data["email"];
+        item = request.data["item"];
+
+        # here we have to get the rider first 
+        currentRider = Rider.objects.get(email = email);
+        # now we have to find the id of bag and find the bag for this purpose 
+        currentBag = Bag.objects.get(bag_id = int(currentRider.bag_id));
+
+        currentItemList = currentBag.item_list["item"];
+        print("The current bag list items is ", currentItemList);
+        currentBag.item_list["item"].append(item);
+        print("After adding the item the list of items is ", currentBag.item_list);
+        currentBag.save();
+
+        
+
+
+        # say everything went fine 
+        return Response("successfully created the new bag");

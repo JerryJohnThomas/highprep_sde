@@ -17,6 +17,7 @@ from rest_framework import status
 from .serializers import AlgorithmStatusModelSerializer,RiderSerializer
 from .models import AlgorithmStatusModel, Location, Rider
 from login_apis.models import PersonInfo
+from rider_apis.models import Bag
 # import random
 import string
 import random
@@ -374,6 +375,20 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
     currentAlgorithm.status = "Finished";
     currentAlgorithm.save();
 
+
+# function to assign the bags to these riders by creating the new ones for this purpose 
+def createBagForEachRiders(availableNRiders):
+    for rider in availableNRiders:
+        currentRider = Rider.objects.get(email = rider)
+        # creating new bag 
+        newBag = Bag(bag_size = 30);
+        newBag.save();
+        currentRider.bag_id = str(newBag.bag_id);
+        currentRider.save();
+
+    # say everything went fine 
+    return;
+
     # say everything went fine 
     return riderDict;
 
@@ -455,15 +470,7 @@ class StartAlgoView(APIView):
         for i in range(n):
             riderIdVsLoc.append([]);
 
-        # using the for loop for this purpose 
-        # for loop to find the exact location id and the rider id 
-        # for i in range(n):
-        #     tempArray = [];
-        #     for key in algoRes:
-        #         if algoRes[key] == i+1:
-
-        #             tempArray.append(coordinates[key]);
-        #     riderIdVsLoc.append(tempArray);
+        
         for key in algoRes:
             currentLatLong = coordinates[key-1];
             riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
@@ -474,6 +481,9 @@ class StartAlgoView(APIView):
 
         riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders);
 
+        # now we also have to create new bag for each of this riders 
+        createBagForEachRiders(availableNRiders);
+        
         return Response({"msg" : "Successfully Started the Algorithm", "data" : "some"}, status=status.HTTP_200_OK);
 
 
