@@ -18,6 +18,7 @@ from .serializers import AlgorithmStatusModelSerializer,RiderSerializer
 from .models import AlgorithmStatusModel, Location, Rider
 from login_apis.models import PersonInfo
 from rider_apis.models import Bag
+from inventory_apis.models import Item
 # import random
 import string
 import random
@@ -374,24 +375,142 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
     # we also have to update the status of the algorithm as finished for this purpose
     currentAlgorithm.status = "Finished";
     currentAlgorithm.save();
+    # say everything went fine 
+    return riderDict;
+
 
 
 # function to assign the bags to these riders by creating the new ones for this purpose 
 def createBagForEachRiders(availableNRiders):
+
+    # using the for loop to calculate the new bag and store the items to be delivered randomly 
+    # for this particular rider 
     for rider in availableNRiders:
         currentRider = Rider.objects.get(email = rider)
+        print("The email of the current rider is ", rider);
         # creating new bag 
-        newBag = Bag(bag_size = 30);
-        newBag.save();
+        newBag = Bag(bag_size = 30, item_list = {"item" : []});
+        # newBag.save();
+
+        # assigning the new bag to the rider for this particuar tour for this purpose 
         currentRider.bag_id = str(newBag.bag_id);
+        # here we also have to add the items into the bag for each of the riders 
+        # we have to first get the locations and for each of the location we have to add a item 
+        # randomly assign the items to this rider having k locations 
+        locationCount = len(currentRider.location_ids["coordinates"]);
+        print("The number of coordinates allocated to this particular rider is as follows \n", locationCount);
+        itemList = Item.objects.all();
+        itemCount = len(itemList)
+        k = 0;
+        for i in range(locationCount):
+            itemListJson = {
+                "item_name" : itemList[k].item_name,
+                "item_volume" : itemList[k].item_volume
+            }
+            k = (k+1)%itemCount;
+            newBag.item_list["item"].append(itemListJson)
+        newBag.save();
+        print("The length of the bag items inside the assigned bag is as follows \n\n", len(newBag.item_list["item"]))
         currentRider.save();
+
 
     # say everything went fine 
     return;
 
-    # say everything went fine 
-    return riderDict;
 
+
+# endpoint to start the algorithm once warehouse guy presses start algo 
+# this endpoint is for testing the start algorithm by commenting some parts of this api 
+class StartAlgoView2(APIView):
+    # post request to start the algo 
+    def post(self, request):
+        # first we have to make the status as started 
+        # token = request.data['token'];
+        # randomNumber = request.data['randomNumber']
+
+        # # find the entry on this random number 
+        # userName = Token.objects.get(key=token).user
+        # currentUser = PersonInfo.objects.get(email = str(userName))
+        # currentAlgorithm = AlgorithmStatusModel.objects.get(random_number = randomNumber, username=userName);
+        # print("The current algorith excel sheet model is ", currentAlgorithm);
+        # print("The current user is  ", currentUser);
+
+        # # updating the status 
+        # currentAlgorithm.status = "Started";
+        # currentAlgorithm.save();
+
+########################################################################################################
+        #TODO 
+        n = 5
+        # find the list of first n available riders from the database and store with id starting with 1 
+        availableNRiders = findFirstNAvailableRiders(n);
+        print("The available riders are as follows :", availableNRiders);
+        if(availableNRiders == []):
+            return Response({"msg" : "Not Enough Riders to deliver"}, status=status.HTTP_403_FORBIDDEN);
+        
+        # # idMapForRiders = 
+        # # now we have to mark these as non available 
+        # markThemAsNonAvailable(availableNRiders);
+
+########################################################################################################
+
+        # excelPath = currentAlgorithm.excelSheetFile;
+
+
+########################################################################################################
+        #TODO ==> UNCOMMENT THE LINE 
+        # addressToLocations(excelPath, userName, randomNumber)
+########################################################################################################
+
+        # excelData = pd.read_excel(excelPath);
+        
+        # latLongCsvFilePath is the file in which the lat and long has been find out by the algorithm 
+        # latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
+        # storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser)
+
+########################################################################################################
+        #TODO 
+            # how to find the places given the latitude and longitude 
+
+            # now we have to calculate the distance time matrix csv for the algorithm 
+        # calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
+########################################################################################################
+
+        # distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        # timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
+        # now i will be calling the NEEL's algo here 
+        # algoRes = think(timeMatrixFileName)
+
+########################################################################################################
+        #TODO 
+        #   observe the output and find the riders id correctly and locations correctly 
+        # the output order to Neels algo is place_id vs rider_id
+        riderIdVsLoc = [];
+        # currentLocation = Location.objects.get(username = currentUser.email, random_number = randomNumber);
+        # location_array = currentLocation.location_array;
+        # coordinates = location_array['coordinates']
+        # print("The location_array is as follows \n", coordinates)
+
+
+        # for i in range(n):
+        #     riderIdVsLoc.append([]);
+
+        
+        # for key in algoRes:
+        #     currentLatLong = coordinates[key-1];
+        #     riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
+        
+
+        # print("The final mapping of riderid vs loc is as follows \n\n");
+        # print(riderIdVsLoc)
+
+        # riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders);
+
+        # now we also have to create new bag for each of this riders 
+        createBagForEachRiders(availableNRiders);
+
+        return Response({"msg" : "Successfully Started the Algorithm", "data" : "some"}, status=status.HTTP_200_OK);
 
 
 # endpoint to start the algorithm once warehouse guy presses start algo 
@@ -483,7 +602,7 @@ class StartAlgoView(APIView):
 
         # now we also have to create new bag for each of this riders 
         createBagForEachRiders(availableNRiders);
-        
+
         return Response({"msg" : "Successfully Started the Algorithm", "data" : "some"}, status=status.HTTP_200_OK);
 
 

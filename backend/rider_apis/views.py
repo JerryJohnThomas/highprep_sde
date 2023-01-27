@@ -7,6 +7,7 @@ from algo_apis.serializers import RiderSerializer;
 from login_apis.serializers import PersonInfoSerializer
 from login_apis.models import PersonInfo
 from .models import Bag
+from inventory_apis.models import Item
 # Create your views here.
 # endpoint to get the list of riders under a given warehouse manager 
 class RiderListView(APIView):
@@ -153,7 +154,10 @@ class AddItemToRiderBag(APIView):
 
         currentItemList = currentBag.item_list["item"];
         print("The current bag list items is ", currentItemList);
-        currentBag.item_list["item"].append(item);
+        # here we have to append all the information of the items from the database for this purpose 
+        currentItem = Item.objects.get(item_name = item);
+        
+        currentBag.item_list["item"].append(currentItem);
         print("After adding the item the list of items is ", currentBag.item_list);
         currentBag.save();
 
@@ -162,3 +166,5 @@ class AddItemToRiderBag(APIView):
 
         # say everything went fine 
         return Response("successfully created the new bag");
+
+# end point to remove the item from the bag for this purpose 
