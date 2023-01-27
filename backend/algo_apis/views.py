@@ -390,7 +390,7 @@ def createBagForEachRiders(availableNRiders):
         print("The email of the current rider is ", rider);
         # creating new bag 
         newBag = Bag(bag_size = 30, item_list = {"item" : []});
-        # newBag.save();
+        newBag.save();
 
         # assigning the new bag to the rider for this particuar tour for this purpose 
         currentRider.bag_id = str(newBag.bag_id);
