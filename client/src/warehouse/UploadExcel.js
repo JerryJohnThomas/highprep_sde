@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ExcelUploader from "./ExcelUploader";
 import "./UploadExcel.css";
-
-function UploadExcel({ setShowUpload, token, islogged }) {
+import axios from "../axios"
+function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploadedExcel }) {
     const [riders, setRiders] = useState(5);
-    const [uploadedExcel, setUploadedExcel] = useState(null);
 
     let handleClick = (e) => {
         console.log(e.target.className);
@@ -14,12 +13,29 @@ function UploadExcel({ setShowUpload, token, islogged }) {
 
     let handle_Submission = () => {
         //TO DO
-        if (uploadedExcel == null) alert("Please choose an excel sheet");
-        // send both the files
+        if (uploadedExcel == null) 
+        {
+            alert("Please choose an excel sheet");
+            return;
+        }
         
+            const formData = new FormData();
+            formData.append('file', uploadedExcel);
+        // send both the files
+            axios.post('/upload', formData)
+            .then((res) => { 
+                // Handle response
+                console.log("Successfully sent file");                
+                setShowUpload(false);
+                // setRandomNumber(res.data)
 
-
-      setShowUpload(false);
+            })
+            .catch((err) => {
+                // Handle error
+                console.log(err)
+                alert("Try again");
+            })
+            
     };
 
     return (

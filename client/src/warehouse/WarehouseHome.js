@@ -13,6 +13,8 @@ function WarehouseHome({token, islogged}) {
   const[places, setPlaces]= useState(32)
   const[riders, setRiders]= useState(6)
   const[showUpload, setShowUpload] = useState(false)
+  const [uploadedExcel, setUploadedExcel] = useState(null);
+  const [randomNumber, setRandomNumber] = useState(null);
 
   
 
@@ -24,6 +26,8 @@ function WarehouseHome({token, islogged}) {
     //call backend and get the number of points and number of riders 
     // and set the     
     // TO DO @rupesh jerry
+
+    
 
   }
 
@@ -105,7 +109,12 @@ fetchData()
 
           </div>
         </div>
-        {showUpload?<UploadExcel setShowUpload={setShowUpload} />:null}
+        {showUpload?<UploadExcel 
+                                  setShowUpload={setShowUpload}
+                                  uploadedExcel={uploadedExcel}
+                                  setUploadedExcel={setUploadedExcel}
+                                  setRandomNumber={setRandomNumber}
+                                   />:null}
       </div>
       {/* <div>
         options

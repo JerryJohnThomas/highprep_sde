@@ -1,9 +1,15 @@
 
 import React, { useState } from 'react';
 import { Button, Input } from 'antd';
+import { useEffect } from 'react';
 
 const ExcelUploader = ({uploadedExcel,setUploadedExcel}) => {
+  useEffect(()=>{
+    setUploadedExcel(null);
+  })
+  
   const [uploadedFileName, setUploadedFileName] = useState();
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

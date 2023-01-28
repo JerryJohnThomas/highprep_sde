@@ -71,7 +71,7 @@ function  Directions2() {
         .post(`/algo/status/`, 
             {
               "token": "4a14c34983a572b87fce0255ec2a6c7ec5a52a91",
-              "randomNumber" : "lfe8m4uxkh"
+              "randomNumber" : "gutatlpv1o"
             }
         )
         .then((res) => {
@@ -150,11 +150,11 @@ function  Directions2() {
       },[trigger_api, window.google])
     // },[rider_places,window.google])
 
-  
-const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g',
-    libraries: ['places'],
-  })
+  let isLoaded=true;
+// const { isLoaded } = useJsApiLoader({
+//     googleMapsApiKey: 'AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g',
+//     libraries: ['places'],
+//   })
 
   const [ishighligted, setIshighligted] = useState(false)
   const [map, setMap] = useState(/** @type google.maps.Map */ (null))
@@ -244,7 +244,7 @@ const { isLoaded } = useJsApiLoader({
  <>
         <div className='jerry_directions2_contianer_top'>
         <div className='jerry_directions2_map_container'>
-        <GoogleMap
+        {/* <GoogleMap
           center={center}
           zoom={15}
           mapContainerStyle={{ width: '100%', height: '100%' }}
@@ -255,8 +255,8 @@ const { isLoaded } = useJsApiLoader({
               fullscreenControl: false,
             }}
             onLoad={map => setMap(map)}
-            >
-          <Marker position={center} />
+            > */}
+          {/* <Marker position={center} />
           {
               renderitem.map((data,index) => {
                 return(
@@ -268,9 +268,9 @@ const { isLoaded } = useJsApiLoader({
                 )
                 }
             )
-          }
+          } */}
 
-        </GoogleMap>
+        {/* </GoogleMap> */}
         </div>
 
 
@@ -287,10 +287,10 @@ const { isLoaded } = useJsApiLoader({
           <div> Average Dist: {sum_dist_state/stats.length}</div>
           <div> Total Riders: {stats.length}</div>
 
+          <button className='jj_stats_button' style={{marginTop:"30px"}} onClick={()=>handleClickHighLight(-1)}> see all </button>
              </div>
-             <div>
+             <div className='jerry_routes_bottom'>
 
-          <button className='jj_stats_button' onClick={()=>handleClickHighLight(-1)}> see all </button>
           {
             stats.map((data,index)=>(
               <RiderCard 
