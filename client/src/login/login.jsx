@@ -1,22 +1,20 @@
-import React, {useState, useEffect,useRef} from "react";
-import axios from 'axios';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import LinearProgress from '@mui/material/LinearProgress';
-import Typography from '@mui/material/Typography';
-
-
-import './login.css';
-
-
+import React, { useState, useEffect, useRef } from "react";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import Box from "@mui/material/Box";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import LinearProgress from "@mui/material/LinearProgress";
+import Typography from "@mui/material/Typography";
+import { useNavigate } from "react-router-dom";
+import "./login.css";
+// import axios from "axios";
+import axios from "../axios"
 
 function Login({ islogged, setIsLogged, token, setToken }) {
     const [formState, setFormState] = useState("IN_PROGRESS");
@@ -37,23 +35,38 @@ function Login({ islogged, setIsLogged, token, setToken }) {
         }
     };
 
+    const navigate = useNavigate();
     useEffect(() => {
+
         if (formState === "FETCHING_DATA") {
             axios
-                .post(`https://46af-14-139-174-50.in.ngrok.io/person/login/`, {
-                    email: query,
-                    password: resultNo,
-                })
+                .post(
+                    `/api-token-auth/`,
+                    {
+                        // email: query,
+                        username: query,
+                        password: resultNo,
+                    }
+                )
                 .then((res) => {
                     console.log(res);
                     setFormState("DONE");
                     setResultState(res.data);
 
+                    if (res.status == 200) {
+                        setIsLogged(true);
+                        console.log(res.data.token);
+                        setToken(res.data.token); // this should be the token
+
+                        // TO DO @shub
+                        // check if user is warehouse like that ...
+                        navigate("/warehouse/", { replace: true });
+                    }
                     // TO DO @shub
                     //if(res!=iNVALID)
                     // {
-                        // setIsLogged(true);
-                        // setToken(res.data."")            // this should be the token
+                    // setIsLogged(true);
+                    // setToken(res.data."")            // this should be the token
                     // }
                 })
                 .catch((error) => {
