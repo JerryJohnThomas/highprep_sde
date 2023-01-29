@@ -20,6 +20,8 @@ import Navbar from "./common/Navbar";
 import { useState } from "react";
 import UploadExcel from "./warehouse/UploadExcel";
 import RiderMap from "./rider/RiderMap";
+import RiderInfo from "./rider/RiderInfo";
+import RiderBag from "./rider/RiderBag";
 
 
 function App() {
@@ -96,14 +98,24 @@ function App() {
                         }
                     />
 
-
-                     <Route
+                    <Route
                         exact
                         path="/rider/maps"
-                        element={
-                            <RiderMap token={token} islogged={islogged} />
-                        }
+                        element={<RiderMap token={token} islogged={islogged} />}
                     />
+
+                    <Route
+                        exact
+                        path="/rider/info"
+                        element={<RiderInfo token={token} islogged={islogged} />}
+                    />
+
+                    <Route
+                        exact
+                        path="/rider/bag"
+                        element={<RiderBag token={token} islogged={islogged} />}
+                    />
+
                     <Route
                         exact
                         path="/home"
