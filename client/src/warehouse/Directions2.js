@@ -244,7 +244,9 @@ function  Directions2() {
  <>
         <div className='jerry_directions2_contianer_top'>
         <div className='jerry_directions2_map_container'>
-        {/* <GoogleMap
+        
+        {/* start comment here */}
+        <GoogleMap
           center={center}
           zoom={15}
           mapContainerStyle={{ width: '100%', height: '100%' }}
@@ -255,8 +257,8 @@ function  Directions2() {
               fullscreenControl: false,
             }}
             onLoad={map => setMap(map)}
-            > */}
-          {/* <Marker position={center} />
+            >
+          <Marker position={center} />
           {
               renderitem.map((data,index) => {
                 return(
@@ -268,9 +270,10 @@ function  Directions2() {
                 )
                 }
             )
-          } */}
+          }
 
-        {/* </GoogleMap> */}
+        </GoogleMap>
+        {/* end comment here */}
         </div>
 
 

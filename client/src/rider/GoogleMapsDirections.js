@@ -7,8 +7,30 @@ const GoogleMapsDirections = () => {
   useEffect(() => {
 
     if(!window.google)
-        return;
+    {
+      console.log("window google not loaded");
+      return;
+    }
+    else
+    {
+      console.log("window google loaded");
+      the_magic_do_it_all_function();
+    }
+  },[window.google]);
 
+  useEffect(() => {
+  const script = document.createElement('script');
+  script.src = 'https://apis.google.com/js/api.js';
+  script.async = true;
+  script.defer = true;
+  script.onload = () => {
+    window.google.load('picker', '1', { callback: the_magic_do_it_all_function });
+  };
+  document.body.appendChild(script);
+}, []);
+ 
+  let the_magic_do_it_all_function = () =>{
+    
     const directionsService = new window.google.maps.DirectionsService();
     navigator.geolocation.getCurrentPosition(position => {
       const start = {
@@ -28,6 +50,7 @@ const GoogleMapsDirections = () => {
         (result, status) => {
             console.log("res");
             console.log(result);
+            console.log(result.routes[0].legs[0].steps)
           if (status === window.google.maps.DirectionsStatus.OK) {
             setDirections(result);
           } else {
@@ -36,8 +59,8 @@ const GoogleMapsDirections = () => {
         }
       );
     });
-  },[window.google]);
- 
+  }
+
   return (
     <div className="gmd_container">
     {/*
@@ -76,7 +99,22 @@ const GoogleMapsDirections = () => {
     </LoadScript>
 
     <div>gmd</div>
-
+      <div>{directions.length}</div>
+    <div>gmd</div>
+      {
+        
+        directions.routes[0] && directions.routes[0].legs[0].steps.map((data,index)=>{
+          <>
+          <div>okk </div>
+        <div>
+            {index}
+            {data.distance}
+            {data.time}
+            {data.instructions}
+            </div>
+          </>
+        })
+      }
     
     </div>
   );
