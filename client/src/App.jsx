@@ -97,23 +97,6 @@ function App() {
                       element={<RiderHome token={token} islogged={islogged} />}
                   />
 
-                  <Route
-                      exact
-                      path="/rider/maps"
-                      element={<RiderMap token={token} islogged={islogged} />}
-                  />
-
-                  <Route
-                      exact
-                      path="/rider/maps22"
-                      element={<RiderMap2 token={token} islogged={islogged} />}
-                  />
-
-                  <Route
-                      exact
-                      path="/rider/maps22"
-                      element={<RiderMap2 token={token} islogged={islogged} />}
-                  />
 
                   <Route
                       exact
@@ -134,7 +117,7 @@ function App() {
                   />
                   <Route
                       exact
-                      path="/rider/maps_gm"
+                      path="/rider/maps"
                       element={<GoogleMapsDirections token={token} islogged={islogged} />}
                   />
 
