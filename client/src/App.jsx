@@ -97,7 +97,6 @@ function App() {
                       element={<RiderHome token={token} islogged={islogged} />}
                   />
 
-
                   <Route
                       exact
                       path="/rider/info"
@@ -118,14 +117,14 @@ function App() {
                   <Route
                       exact
                       path="/rider/maps"
-                      element={<GoogleMapsDirections token={token} islogged={islogged} />}
+                      element={
+                          <GoogleMapsDirections
+                              token={token}
+                              islogged={islogged}
+                          />
+                      }
                   />
 
-                  <Route
-                      exact
-                      path="/*"
-                      element={<Not_found token={token} islogged={islogged} />}
-                  />
                   <Route
                       exact
                       path="/login"
@@ -137,6 +136,25 @@ function App() {
                               setToken={setToken}
                           />
                       }
+                  />
+
+                  <Route
+                      exact
+                      path="/"
+                      element={
+                          <Login
+                              islogged={islogged}
+                              setIsLogged={setIsLogged}
+                              token={token}
+                              setToken={setToken}
+                          />
+                      }
+                  />
+
+                  <Route
+                      exact
+                      path="/*"
+                      element={<Not_found token={token} islogged={islogged} />}
                   />
               </Routes>
           </Router>
