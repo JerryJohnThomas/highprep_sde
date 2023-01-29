@@ -1,5 +1,34 @@
 .gmd_container{
     width: 100vw;
     height: 100vh;  
-    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+
+}
+.gmd_left{
+    flex: 3;
+    height: 100%;
+    width: 100%;
+}
+
+.gmd_right{
+    flex: 1;
+    height: 100%;
+    /* background-color: firebrick; */
+    overflow: scroll;
+}
+
+.gmd_right_title{
+    text-align: center;
+    padding: 10px 0 5px 0;
+    font-size: 25px;
+}
+.DirectionCard_container{
+    background-color: aliceblue;
+    border: 1px solid blue;
+    border-radius: 5px;
+    margin: 10px;
+    padding:5px;
 }
