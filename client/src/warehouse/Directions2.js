@@ -23,7 +23,7 @@ import {
 } from '@react-google-maps/api'
 import { useRef, useState } from 'react'
 import { useEffect } from 'react'
-import { addScaleCorrector } from 'framer-motion'
+//import { addScaleCorrector } from 'framer-motion'
 import RiderCard from './RiderCard'
 
 // const center = { lat: 48.8584, lng: 2.2945 }
