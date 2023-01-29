@@ -8,21 +8,46 @@ def midpoint(ptA, ptB):
 	return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
 # load the image, convert it to grayscale, and blur it slightly
+cv2.namedWindow("Resized_Window", cv2.WINDOW_NORMAL)
+  
+# Using resizeWindow()
+cv2.resizeWindow("Resized_Window", 300, 700)
 imagePath = './img1.jpg'
 image = cv2.imread(imagePath)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-gray = cv2.GaussianBlur(gray, (7, 7), 0)
-
 h,s,v = cv2.split(gray)
+gray = cv2.GaussianBlur(s, (9, 9), 0)
+
+thresh = cv2.adaptiveThreshold(gray, 255,
+	cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 21, 4)
+# exit()
+
+gX = cv2.Sobel(thresh, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=3)
+gY = cv2.Sobel(thresh, ddepth=cv2.CV_32F, dx=0, dy=1, ksize=3)
+
+
+gX = cv2.convertScaleAbs(gX)
+gY = cv2.convertScaleAbs(gY)
+# # combine the gradient representations into a single image
+combined = cv2.addWeighted(gX, 0.5, gY, 0.5, 0)
+# # show our output images
+# cv2.imshow("Resized_Window", gX)
+# cv2.imshow("Resized_Window", gY)
+cv2.imshow("Resized_Window", combined)
+cv2.waitKey(0) # waits until a key is pressed
+# cv2.destroyAllWindows() # destroys the window showing image
+# exit()
 
 ##(3) threshold the S channel using adaptive method(`THRESH_OTSU`) or fixed thresh
-th, gray = cv2.threshold(s, 30, 255, cv2.THRESH_BINARY_INV)
+# th, gray = cv2.threshold(s, 30, 255, cv2.THRESH_BINARY_INV)
 # perform edge detection, then perform a dilation + erosion to
 # close gaps in between object edges
-edged = cv2.Canny(gray, 80, 100)
+edged = cv2.Canny(thresh, 50, 80)
 edged = cv2.dilate(edged, None, iterations=1)
 edged = cv2.erode(edged, None, iterations=1)
-cv2.imwrite('temp.png', edged)
+# cv2.imwrite('temp.png', edged)
+cv2.imshow("Resized_Window", edged)
+cv2.waitKey(0)
 # exit()
 
 
