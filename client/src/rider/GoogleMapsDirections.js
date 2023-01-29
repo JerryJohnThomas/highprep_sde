@@ -8,10 +8,14 @@ const GoogleMapsDirections = () => {
  
   useEffect(() => {
 
+  // window.google.addEventListener('load', () => {
+  //   console.log("suprise");
+  // });
+
     if(!window.google)
     {
       console.log("window google not loaded");
-      return;
+      the_magic_do_it_all_function();
     }
     else
     {
@@ -20,18 +24,9 @@ const GoogleMapsDirections = () => {
     }
   },[window.google]);
 
-//   useEffect(() => {
-//   const script = document.createElement('script');
-//   script.src = 'https://apis.google.com/js/api.js';
-//   script.async = true;
-//   script.defer = true;
-//   script.onload = () => {
-//     window.google.load('picker', '1', { callback: the_magic_do_it_all_function });
-//   };
-//   document.body.appendChild(script);
-// }, []);
- 
-  let the_magic_do_it_all_function = () =>{
+
+// let the_magic_do_it_all_function = () =>{
+  async function the_magic_do_it_all_function  () {
     
     const directionsService = new window.google.maps.DirectionsService();
     navigator.geolocation.getCurrentPosition(position => {
@@ -79,8 +74,8 @@ const GoogleMapsDirections = () => {
         width:"100%",
       }}
         center={{
-        lat: 41.8507300,
-        lng: -87.6512600
+        lat: 10.8507300,
+        lng: 76.651260
       }}
         zoom={10}
       >
@@ -92,9 +87,16 @@ const GoogleMapsDirections = () => {
     <div className="gmd_right">
 
     <div className="gmd_right_title">Route Info</div>
-    {directions && directions.routes[0].legs[0].steps.map((data,index)=>
+    {directions ? directions.routes[0].legs[0].steps.map((data,index)=>
       <DirectionCard data={data} index={index} />
-    )}
+    ):
+    <div style={{height:"90%", display:"flex",justifyContent:"center", alignItems:"center" }}>
+    {/* <div className="gmd_right_title">Waiting for directions</div> */}
+    <div>
+      <button className="jj_stats_button" onClick={()=>the_magic_do_it_all_function()}> Get Directions </button>
+    </div>
+    </div>
+    }
     </div>
     
     </div>
