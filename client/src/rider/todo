@@ -1,0 +1,16 @@
+* pickup page
+* delivery page
+* bag page
+
+
+* main page should show a map with the route to follow
+
+* when delivering he needs package id, take his location, some pics,some otp?
+    after delivering I need to send delete request to remove the item
+
+* when picking up need item id, mayble take location too?
+    after picking up need to add the item to his bag
+
+* in bag page just show his bag contents
+
+* navbar showing options

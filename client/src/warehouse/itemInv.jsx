@@ -32,7 +32,7 @@ export default function BasicTable({ token, islogged }) {
     useEffect(() => {
         if (formState === "FETCHING_DATA") {
             axios
-                .get(`http://46af-14-139-174-50.in.ngrok.io/inventory/`)
+                .get(`https://mocki.io/v1/46dc98fb-590e-47d9-9b97-b829bf56221c`)
                 .then((res) => {
                     console.log(res.data);
                     setFormState("DONE");
