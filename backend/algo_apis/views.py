@@ -140,7 +140,8 @@ def api_call(origins, destinations):
         time = int(data["duration"][:-1])
 
 
-        if ind1 == ind2 or time==0:
+        # if ind1 == ind2 or time==0:  ## i made a mistake here before
+        if time==0:
             dist = 0
         else:
             dist = data["distanceMeters"]
@@ -270,8 +271,9 @@ def calculateDistanceTimeMatrix(filePath, userName, randomNumber):
                     # print("accessing indices", i-id_range_i[0])
                     key_i = i-id_range_i[0]
                     key_j = j-id_range_j[0]
-                    dist_mat.at[int(i),str(j)] = dist_batch[key_i][key_j]
-                    time_mat.at[int(i),str(j)] = time_batch[key_i][key_j]
+                    # i changed str(j) to int(j)
+                    dist_mat.at[int(i),int(j)] = dist_batch[key_i][key_j]
+                    time_mat.at[int(i),int(j)] = time_batch[key_i][key_j]
             time.sleep(15)
             print(id_i," and ",id_j," is over")
 
