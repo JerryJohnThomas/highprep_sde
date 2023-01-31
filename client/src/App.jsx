@@ -20,96 +20,114 @@ import Navbar from "./common/Navbar";
 import { useState } from "react";
 import UploadExcel from "./warehouse/UploadExcel";
 import RiderMap from "./rider/RiderMap";
-import RiderBag from "./rider/riderBag";
-import Delivery from "./rider/delivery";
+
 
 function App() {
-  const [islogged, setIsLogged] = useState(false);
-  // const[islogged, setIsLogged] = useState(true)
-  const [token, setToken] = useState("");
+    const[islogged, setIsLogged] = useState(false)
+    // const[islogged, setIsLogged] = useState(true)
+    const [token, setToken] = useState("");
 
   return (
-    <div>
-      <Router>
-        <Navbar islogged={islogged} setIsLogged={setIsLogged} />
-        <Routes>
-          <Route
-            exact
-            path="/warehouse/"
-            element={<WarehouseHome token={token} islogged={islogged} />}
-          />
+      <div>
+          <Router>
+              <Navbar islogged={islogged} setIsLogged={setIsLogged} />
+              <Routes>
+                  <Route
+                      exact
+                      path="/warehouse/"
+                      element={
+                          <WarehouseHome token={token} islogged={islogged} />
+                      }
+                  />
 
-          <Route
-            exact
-            path="/warehouse/items"
-            element={<DataTable token={token} islogged={islogged} />}
-          />
-          <Route
-            exact
-            path="/warehouse/home"
-            element={<WarehouseHome token={token} islogged={islogged} />}
-          />
+                  <Route
+                      exact
+                      path="/warehouse/items"
+                      element={<DataTable token={token} islogged={islogged} />}
+                  />
+                  <Route
+                      exact
+                      path="/warehouse/home"
+                      element={
+                          <WarehouseHome token={token} islogged={islogged} />
+                      }
+                  />
 
-          <Route
-            exact
-            path="/warehouse/upload"
-            element={<UploadExcel token={token} islogged={islogged} />}
-          />
+                  <Route
+                      exact
+                      path="/warehouse/upload"
+                      element={
+                          <UploadExcel token={token} islogged={islogged} />
+                      }
+                  />
 
-          <Route
-            exact
-            path="/warehouse/inventory"
-            element={<WarehouseInventory token={token} islogged={islogged} />}
-          />
-          <Route
-            exact
-            path="/warehouse/maps"
-            element={<WarehouseMaps token={token} islogged={islogged} />}
-          />
-          <Route
-            exact
-            path="/customer/home"
-            element={<CustomerHome token={token} islogged={islogged} />}
-          />
+                  <Route
+                      exact
+                      path="/warehouse/inventory"
+                      element={
+                          <WarehouseInventory
+                              token={token}
+                              islogged={islogged}
+                          />
+                      }
+                  />
+                  <Route
+                      exact
+                      path="/warehouse/maps"
+                      element={
+                          <WarehouseMaps token={token} islogged={islogged} />
+                      }
+                  />
+                  <Route
+                      exact
+                      path="/customer/home"
+                      element={
+                          <CustomerHome token={token} islogged={islogged} />
+                      }
+                  />
 
-          <Route
-            exact
-            path="/rider/home"
-            element={<RiderHome token={token} islogged={islogged} />}
-          />
-          <Route exact path="/rider/delivery" element={<Delivery />} />
-          <Route
-            exact
-            path="/rider/maps"
-            element={<RiderMap token={token} islogged={islogged} />}
-          />
-          <Route exact path="/rider/bag" element={<RiderBag />} />
-          <Route
-            exact
-            path="/home"
-            element={<Home token={token} islogged={islogged} />}
-          />
-          <Route
-            exact
-            path="/"
-            element={<Home token={token} islogged={islogged} />}
-          />
-          <Route
-            exact
-            path="/login"
-            element={
-              <Login
-                islogged={islogged}
-                setIsLogged={setIsLogged}
-                token={token}
-                setToken={setToken}
-              />
-            }
-          />
-        </Routes>
-      </Router>
-    </div>
-  );
+                    <Route
+                        exact
+                        path="/rider/home"
+                        element={
+                            <RiderHome token={token} islogged={islogged} />
+                        }
+                    />
+
+
+                     <Route
+                        exact
+                        path="/rider/maps"
+                        element={
+                            <RiderMap token={token} islogged={islogged} />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/home"
+                        element={<Home token={token} islogged={islogged} />}
+                    />
+                    <Route
+                        exact
+                        path="/"
+                        element={<Home token={token} islogged={islogged} />}
+                    />
+                    <Route
+                        exact
+                        path="/login"
+                        element={
+                            <Login
+                                islogged={islogged}
+                                setIsLogged={setIsLogged}
+                                token={token}
+                                setToken={setToken}
+                            />
+                        }
+                    />
+                </Routes>
+            </Router>
+        </div>
+    );
 }
 
 export default App;

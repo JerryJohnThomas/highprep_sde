@@ -11,10 +11,11 @@
 
 
 // //import the Google Maps React Component 
-// import { GoogleMap, withScriptjs, withGoogleMap } from "react-google-maps";
+// import { GoogleMap, withScriptjs, withGoogleMap, DirectionsRenderer } from "react-google-maps";
 
 // // define the function that will take in the current location and the destination and then return the necessary data to render the directions
-// const RiderMap = ({token,islogged}) => {
+// // const RiderMap = ({token,islogged}) => {
+// const RiderMap = () => {
   
 //   const { currentLocation, destination } = props;
 //   currentLocation.lat=10
@@ -66,21 +67,21 @@
 // };
 
 // // define the function that will be used to wrap the Directions component
-// const WrappedDirections = withScriptjs(withGoogleMap(Directions));
+// // const WrappedDirections = withScriptjs(withGoogleMap(Directions));
 
 // // return the WrappedDirections component
-// return (
-//   <WrappedDirections
-//     currentLocation={this.state.currentLocation}
-//     destination={this.state.destination}
-//     setDirections={this.setDirections}
-//     setErrorMessage={this.setErrorMessage}
-//     // googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_KEY}&v=3.exp&libraries=geometry,drawing,places`}
-//     googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_KEY}&v=3.exp&libraries=geometry,drawing,places`}
-//     loadingElement={<div style={{ height: `100%` }} />}
-//     containerElement={<div style={{ height: `400px` }} />}
-//     mapElement={<div style={{ height: `100%` }} />}
-//   />
-// );
+// // return (
+// //   <WrappedDirections
+// //     currentLocation={this.state.currentLocation}
+// //     destination={this.state.destination}
+// //     setDirections={this.setDirections}
+// //     setErrorMessage={this.setErrorMessage}
+// //     // googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_KEY}&v=3.exp&libraries=geometry,drawing,places`}
+// //     googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_KEY}&v=3.exp&libraries=geometry,drawing,places`}
+// //     loadingElement={<div style={{ height: `100%` }} />}
+// //     containerElement={<div style={{ height: `400px` }} />}
+// //     mapElement={<div style={{ height: `100%` }} />}
+// //   />
+// // );
 
 // export default RiderMap
