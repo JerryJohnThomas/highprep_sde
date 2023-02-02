@@ -4,9 +4,9 @@ import UploadExcel from './UploadExcel'
 import "./WarehouseHome.css"
 import axios from "../axios"
 // import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 
-function WarehouseHome({token, islogged}) {
+function WarehouseHome({randomNumber, setRandomNumber, token, islogged}) {
     const navigate = useNavigate();
 
 
@@ -14,7 +14,6 @@ function WarehouseHome({token, islogged}) {
   const[riders, setRiders]= useState(6)
   const[showUpload, setShowUpload] = useState(false)
   const [uploadedExcel, setUploadedExcel] = useState(null);
-  const [randomNumber, setRandomNumber] = useState(null);
 
   
 
@@ -40,8 +39,6 @@ function WarehouseHome({token, islogged}) {
 
 fetchData()
     // start calling get function tell we get a response 
-
-
     // if we get a response make the page shift to maps and that will do the rest 
 
 
@@ -71,26 +68,28 @@ fetchData()
 
   let sampleAlgo = ()=>{
 
+      navigate("/warehouse/maps")
+      // navigate("/warehouse/maps", { randomNumber:"gutatlpv1o", token: "33fc7ab5df252f5e197d8fbdb7f28a7d06421a5f",  replace: true });
+      // navigate("/warehouse/maps", state={{token: 12 ,randomNumber:"gutatlpv1o"}})
 
-    // .get(`/algo/start/`)
-    axios
-        .post(`/algo/status/`, 
-            {
-              "token": "4a14c34983a572b87fce0255ec2a6c7ec5a52a91",
-              "randomNumber" : "lfe8m4uxkh"
-            }
-        )
-        .then((res) => {
-            console.log(res.data);
-            navigate("/warehouse/maps", { replace: true });
+    // axios
+    //     .post(`/algo/status/`, 
+    //         {
+    //           "token": {token},
+    //           "randomNumber" : "lfe8m4uxkh"
+    //         }
+    //     )
+    //     .then((res) => {
+    //         console.log(res.data);
+    //         navigate("/warehouse/maps", { replace: true });
 
-            // setFormState("DONE");
-            // setResultState(res.data);
-        })
-        .catch((error) => {
-            // setFormState("ERROR");
-            console.log(error);
-        });
+    //         // setFormState("DONE");
+    //         // setResultState(res.data);
+    //     })
+    //     .catch((error) => {
+    //         // setFormState("ERROR");
+    //         console.log(error);
+    //     });
 
   }
 
@@ -105,7 +104,7 @@ fetchData()
             <button className='jj_stats_button' onClick={()=>setShowUpload(x=>!x)}>Upload New Excel</button>
             <button className='jj_stats_button' onClick={()=>startAlgo()}>Start Analysing</button>
             <button className='jj_stats_button' onClick={()=>sampleAlgo()}>Use Sample Dataset</button>
-
+{/* <Link to="/warehouse/maps" state={{  token: "value", randomNumber : "asd" }} >ok</Link> */}
 
           </div>
         </div>

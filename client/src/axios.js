@@ -2,11 +2,7 @@ import axios from  "axios";
 
 const instance = axios.create({
     // baseURL: "https://innovationsitev2.herokuapp.com/"
-    // baseURL: "https://4a20-14-139-174-50.in.ngrok.io"
-    // baseURL: "https://8f1f-2409-4073-4d8e-70c9-3091-6b34-1a8f-f73c.in.ngrok.io/"
-    // baseURL: "https://4040-2409-4073-4d88-b7b3-3091-6b34-1a8f-f73c.in.ngrok.io"
-    // baseURL: "https://1927-27-63-208-221.in.ngrok.io"
-    baseURL : "https://5acc-14-139-174-50.in.ngrok.io/"
+    baseURL : "https://giant-ads-walk-14-139-174-50.loca.lt/",
 })
 
 export default instance;

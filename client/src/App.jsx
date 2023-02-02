@@ -30,7 +30,10 @@ import Not_found from "./common/Not_found";
 function App() {
     const[islogged, setIsLogged] = useState(false)
     // const[islogged, setIsLogged] = useState(true)
-    const [token, setToken] = useState("");
+    const [token, setToken] = useState(
+        "33fc7ab5df252f5e197d8fbdb7f28a7d06421a5f"
+    );
+  const [randomNumber, setRandomNumber] = useState("gutatlpv1o");
 
   return (
       <div>
@@ -54,7 +57,12 @@ function App() {
                       exact
                       path="/warehouse/home"
                       element={
-                          <WarehouseHome token={token} islogged={islogged} />
+                          <WarehouseHome
+                              randomNumber={randomNumber}
+                              setRandomNumber={setRandomNumber}
+                              token={token}
+                              islogged={islogged}
+                          />
                       }
                   />
 
@@ -80,7 +88,12 @@ function App() {
                       exact
                       path="/warehouse/maps"
                       element={
-                          <WarehouseMaps token={token} islogged={islogged} />
+                          <WarehouseMaps
+                              randomNumber={randomNumber}
+                              setRandomNumber={setRandomNumber}
+                              token={token}
+                              islogged={islogged}
+                          />
                       }
                   />
                   <Route

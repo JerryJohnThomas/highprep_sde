@@ -29,7 +29,7 @@ import RiderCard from './RiderCard'
 // const center = { lat: 48.8584, lng: 2.2945 }
 const center = { lat: 9.95, lng: 76.25 }
 
-function  Directions2() {
+function  Directions2({randomNumber,token,islogged}) {
 
 
     
@@ -70,8 +70,11 @@ function  Directions2() {
      axios
         .post(`/algo/status/`, 
             {
-              "token": "4a14c34983a572b87fce0255ec2a6c7ec5a52a91",
-              "randomNumber" : "gutatlpv1o"
+              "token": token,
+              "randomNumber" : randomNumber, 
+              // "token": {lfe8m4uxkh},
+              // "token": "33fc7ab5df252f5e197d8fbdb7f28a7d06421a5f",
+              // "randomNumber" : "gutatlpv1o" 
             }
         )
         .then((res) => {
@@ -150,11 +153,11 @@ function  Directions2() {
       },[trigger_api, window.google])
     // },[rider_places,window.google])
 
-  let isLoaded=true;
-// const { isLoaded } = useJsApiLoader({
-//     googleMapsApiKey: 'AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g',
-//     libraries: ['places'],
-//   })
+  // let isLoaded=true;
+const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: 'AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g',
+    libraries: ['places'],
+  })
 
   const [ishighligted, setIshighligted] = useState(false)
   const [map, setMap] = useState(/** @type google.maps.Map */ (null))
@@ -178,7 +181,8 @@ function  Directions2() {
     const directionsService = new window.google.maps.DirectionsService()
     const results = await directionsService.route({
       origin: org,
-      waypoints : wp.slice(0,13),
+      // waypoints : wp.slice(0,13),
+      waypoints : wp,
       destination: dest,
       // eslint-disable-next-line no-undef
       travelMode: google.maps.TravelMode.DRIVING,
