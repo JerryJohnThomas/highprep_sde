@@ -10,26 +10,126 @@ import TurnRightIcon from "@mui/icons-material/TurnRight";
 import TurnLeftIcon from "@mui/icons-material/TurnLeft";
 import StraightIcon from "@mui/icons-material/Straight";
 import UTurnRightIcon from "@mui/icons-material/UTurnRight";
+import axios from "../axios";
 
-const GoogleMapsDirections = () => {
+const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
     const [directions, setDirections] = useState(null);
+    const [locdata, setLocdata] = useState(null);
+    const [rider_places, setRiderplaces] = useState([]);
+    const [trigger_api, setTrigger_api] = useState(1);
+    const [sum_time_state, setSum_time_state] = useState(0);
+    const [sum_dist_state, setSum_dist_state] = useState(0);
+    useEffect(() => {
+        // getLocations();
+        sequentialExecution();
+    }, []);
+
+    const sequentialExecution = async () => {
+        try {
+            const data1 = await getLocations();
+            const data2 = await convertTOgooglePoints();
+            return data2;
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const getLocations = async () => {
+        axios
+            .post(`/algo/status/`, {
+                token: token,
+                randomNumber: randomNumber,
+            })
+            .then((res) => {
+                setRiderplaces([]);
+                let data = res.data;
+                let rider_to_loc = data.rider_to_location;
+                for (let i = 0; i < rider_to_loc.length; i++) {
+                    let temp = [];
+                    let rid = { rider_id: rider_to_loc[i].email };
+                    if (rider_to_loc[i].email != "rk4@gmail.com") continue;
+                    let list_locations =
+                        rider_to_loc[i].location_ids.coordinates;
+                    temp.push(rid);
+
+                    for (let j = 0; j < list_locations.length; j++) {
+                        temp.push({
+                            lat: list_locations[j][1],
+                            lng: list_locations[j][2],
+                        });
+                    }
+                    setRiderplaces((old) => [...old, temp]);
+                    console.log(" getLocations over");
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            .finally(() => setTrigger_api((x) => x + 1));
+    };
 
     useEffect(() => {
-        // window.google.addEventListener('load', () => {
-        //   console.log("suprise");
-        // });
+        convertTOgooglePoints();
+    }, [trigger_api]);
 
-        if (!window.google) {
-            console.log("window google not loaded");
-            the_magic_do_it_all_function();
-        } else {
-            console.log("window google loaded");
-            the_magic_do_it_all_function();
+    const convertTOgooglePoints = () => {
+        console.log("started convertTOgooglePoints ", rider_places.length);
+        for (let index in rider_places) {
+            let data = rider_places[index];
+            let data_transformed = [];
+
+            let rider_id = data[0]["rider_id"];
+            data.shift();
+
+            // eslint-disable-next-line no-undef
+            for (let i = 0; i < data.length; i++) {
+                let temp = new window.google.maps.LatLng(
+                    data[i].lat,
+                    data[i].lng
+                );
+                data_transformed.push(temp);
+            }
+
+            let origin = data_transformed[0];
+            let waypoints_temp = data_transformed.slice(
+                1,
+                data_transformed.length - 1
+            );
+            let waypoints = [];
+            for (let ind3 in waypoints_temp)
+                waypoints.push({ location: waypoints_temp[ind3] });
+            let destination = data_transformed[data_transformed.length - 1];
+            console.log(" convert to google points over", origin);
+
+            let res = the_magic_do_it_all_function(
+                origin,
+                waypoints,
+                destination
+            );
         }
-    }, [window.google]);
+    };
+
+    // useEffect(() => {
+    //     // window.google.addEventListener('load', () => {
+    //     //   console.log("suprise");
+    //     // });
+
+    //     if (!window.google) {
+    //         console.log("window google not loaded");
+    //         the_magic_do_it_all_function();
+    //     } else {
+    //         console.log("window google loaded");
+    //         the_magic_do_it_all_function();
+    //     }
+    // }, [window.google]);
 
     // let the_magic_do_it_all_function = () =>{
-    async function the_magic_do_it_all_function() {
+    async function the_magic_do_it_all_function(
+        origin,
+        waypoints,
+        destination
+    ) {
+        console.log("Started magic function");
         const directionsService = new window.google.maps.DirectionsService();
         navigator.geolocation.getCurrentPosition((position) => {
             const start = {
@@ -44,7 +144,8 @@ const GoogleMapsDirections = () => {
             directionsService.route(
                 {
                     origin: start,
-                    destination: end,
+                    waypoints: waypoints,
+                    destination: destination,
                     travelMode: window.google.maps.TravelMode.DRIVING,
                 },
                 (result, status) => {
@@ -52,8 +153,30 @@ const GoogleMapsDirections = () => {
                     if (status === window.google.maps.DirectionsStatus.OK) {
                         console.log(result);
                         console.log(result.length);
-                        console.log(result.routes[0].legs[0].steps);
+                        // console.log(result.routes[0].legs[0].steps);
                         setDirections(result);
+
+                        //stats
+                        let totdist = 0;
+                        let tottime = 0;
+                        for (let i = 0; i < result.routes[0].legs.length; i++) {
+                            let item = result.routes[0].legs[i];
+                            totdist += item.distance.value;
+                            tottime += item.duration.value;
+                        }
+                        totdist = (totdist / 1000).toFixed(2);
+                        tottime = (tottime / 60).toFixed(2);
+                        // time in sec  and dist in meteres originally
+                        // when converting we get in min and km
+
+                        //metrics
+                        setSum_time_state((old) =>
+                            Math.round(Number(old) + Number(tottime))
+                        );
+
+                        setSum_dist_state((old) =>
+                            Math.round(Number(old) + Number(totdist))
+                        );
                     } else {
                         console.error(`error fetching directions ${result}`);
                     }
@@ -87,6 +210,12 @@ const GoogleMapsDirections = () => {
 
             <div className="gmd_right">
                 <div className="gmd_right_title">Route Info</div>
+                <div className="gmd_right_title">
+                    Total Distance : {sum_dist_state} km
+                </div>
+                <div className="gmd_right_title">
+                    Total time : {sum_time_state / 60} min
+                </div>
                 {directions ? (
                     directions.routes[0].legs[0].steps.map((data, index) => (
                         <DirectionCard data={data} index={index} />

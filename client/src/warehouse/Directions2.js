@@ -96,8 +96,6 @@ function  Directions2({randomNumber,token,islogged}) {
               }
               setRiderplaces(old => [...old,temp]);
               setShowRiderRoute(old => [...old,true]);
-              if(i==4)
-              break;
             }
             setTrigger_api(x => x+1);
         })

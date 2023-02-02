@@ -20,6 +20,7 @@ import Navbar from "./common/Navbar";
 import { useState } from "react";
 import UploadExcel from "./warehouse/UploadExcel";
 import RiderMap from "./rider/RiderMap";
+import GoogleMapsDirections from "./rider/GoogleMapsDirections";
 
 
 function App() {
@@ -99,48 +100,49 @@ function App() {
                       }
                   />
 
-                    <Route
-                        exact
-                        path="/rider/home"
-                        element={
-                            <RiderHome token={token} islogged={islogged} />
-                        }
-                    />
+                  <Route
+                      exact
+                      path="/rider/home"
+                      element={<RiderHome token={token} islogged={islogged} />}
+                  />
 
-
-                     <Route
-                        exact
-                        path="/rider/maps"
-                        element={
-                            <RiderMap token={token} islogged={islogged} />
-                        }
-                    />
-                    <Route
-                        exact
-                        path="/home"
-                        element={<Home token={token} islogged={islogged} />}
-                    />
-                    <Route
-                        exact
-                        path="/"
-                        element={<Home token={token} islogged={islogged} />}
-                    />
-                    <Route
-                        exact
-                        path="/login"
-                        element={
-                            <Login
-                                islogged={islogged}
-                                setIsLogged={setIsLogged}
-                                token={token}
-                                setToken={setToken}
-                            />
-                        }
-                    />
-                </Routes>
-            </Router>
-        </div>
-    );
+                  <Route
+                      exact
+                      path="/rider/maps"
+                      element={
+                          <GoogleMapsDirections
+                         token={token}
+                              islogged={islogged}
+                              randomNumber={randomNumber}
+                          />
+                      }
+                  />
+                  <Route
+                      exact
+                      path="/home"
+                      element={<Home token={token} islogged={islogged} />}
+                  />
+                  <Route
+                      exact
+                      path="/"
+                      element={<Home token={token} islogged={islogged} />}
+                  />
+                  <Route
+                      exact
+                      path="/login"
+                      element={
+                          <Login
+                              islogged={islogged}
+                              setIsLogged={setIsLogged}
+                              token={token}
+                              setToken={setToken}
+                          />
+                      }
+                  />
+              </Routes>
+          </Router>
+      </div>
+  );
 }
 
 export default App;

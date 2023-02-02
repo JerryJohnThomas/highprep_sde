@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ExcelUploader from "./ExcelUploader";
 import "./UploadExcel.css";
 import axios from "../axios"
-function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploadedExcel }) {
+function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploadedExcel, setRandomNumber }) {
     const [riders, setRiders] = useState(5);
 
     let handleClick = (e) => {
@@ -21,13 +21,13 @@ function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploade
         
             const formData = new FormData();
             formData.append('file', uploadedExcel);
-        // send both the files
-            axios.post('/upload', formData)
+            // send both the files
+            axios.post('/algo/upload/', formData)
             .then((res) => { 
                 // Handle response
                 console.log("Successfully sent file");                
                 setShowUpload(false);
-                // setRandomNumber(res.data)
+                setRandomNumber(res.randomNumber);
 
             })
             .catch((err) => {

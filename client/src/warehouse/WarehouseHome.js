@@ -37,6 +37,33 @@ function WarehouseHome({randomNumber, setRandomNumber, token, islogged}) {
     //   return;
     // }
 
+    /*
+
+      algo/start/
+          token:
+          randomNumner:
+
+
+
+      algo/status/
+        token:
+        randomNumner:
+
+        res.msg = "Algorithm Finished"
+          if complete
+
+          else
+            "Algo is still going on"
+        
+
+
+    */
+
+
+
+        
+
+
 fetchData()
     // start calling get function tell we get a response 
     // if we get a response make the page shift to maps and that will do the rest 
