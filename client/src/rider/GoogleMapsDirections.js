@@ -3,6 +3,7 @@ import {
     GoogleMap,
     DirectionsRenderer,
     LoadScript,
+    Data,
 } from "@react-google-maps/api";
 import "./GoogleMapsDirections.css";
 
@@ -185,6 +186,19 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
         });
     }
 
+    let PickUpAction = () => {
+        //axios code
+    };
+
+    //DeliveryAction
+
+    let DeliveryAction = () => {
+        //axios code
+    };
+
+    let RefreshAction = () => {
+        sequentialExecution();
+    };
     return (
         <div className="gmd_container">
             <div className="gmd_left">
@@ -210,20 +224,47 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
 
             <div className="gmd_right">
                 <div className="gmd_right_title">Route Info</div>
-                <div className="gmd_right_title">
-                    Total Distance : {sum_dist_state} km
+                <div className="jj_rider_maps_right_top">
+                    <div className="gmd_right_title">
+                        Total Distance : {sum_dist_state} km
+                    </div>
+                    <div className="gmd_right_title">
+                        Total time : {sum_time_state / 60} min
+                    </div>
+                    <div className="jj_btn_rider_horizontal">
+                        <button
+                            className="jj_stats_button"
+                            onClick={() => DeliveryAction()}
+                        >
+                            delivery
+                        </button>
+                        <button
+                            className="jj_stats_button"
+                            onClick={() => PickUpAction()}
+                        >
+                            {" "}
+                            pickup
+                        </button>
+
+                        <button
+                            className="jj_stats_button"
+                            onClick={() => RefreshAction()}
+                        >
+                            refresh
+                        </button>
+                    </div>
                 </div>
-                <div className="gmd_right_title">
-                    Total time : {sum_time_state / 60} min
-                </div>
+
                 {directions ? (
-                    directions.routes[0].legs[0].steps.map((data, index) => (
-                        <DirectionCard data={data} index={index} />
-                    ))
+                    directions.routes[0].legs.map((data0, index0) =>
+                        data0.steps.map((data, index) => (
+                            <DirectionCard data={data} index={index} />
+                        ))
+                    )
                 ) : (
                     <div
                         style={{
-                            height: "90%",
+                            height: "70%",
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center",
@@ -235,7 +276,6 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
                                 className="jj_stats_button"
                                 onClick={() => the_magic_do_it_all_function()}
                             >
-                                {" "}
                                 Get Directions{" "}
                             </button>
                         </div>
