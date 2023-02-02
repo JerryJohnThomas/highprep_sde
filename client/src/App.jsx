@@ -20,11 +20,6 @@ import Navbar from "./common/Navbar";
 import { useState } from "react";
 import UploadExcel from "./warehouse/UploadExcel";
 import RiderMap from "./rider/RiderMap";
-import RiderInfo from "./rider/RiderInfo";
-import RiderBag from "./rider/RiderBag";
-import RiderMap2 from "./rider/RiderMap2";
-import GoogleMapsDirections from "./rider/GoogleMapsDirections";
-import Not_found from "./common/Not_found";
 
 
 function App() {
@@ -104,75 +99,48 @@ function App() {
                       }
                   />
 
-                  <Route
-                      exact
-                      path="/rider/home"
-                      element={<RiderHome token={token} islogged={islogged} />}
-                  />
+                    <Route
+                        exact
+                        path="/rider/home"
+                        element={
+                            <RiderHome token={token} islogged={islogged} />
+                        }
+                    />
 
-                  <Route
-                      exact
-                      path="/rider/info"
-                      element={<RiderInfo token={token} islogged={islogged} />}
-                  />
 
-                  <Route
-                      exact
-                      path="/rider/bag"
-                      element={<RiderBag token={token} islogged={islogged} />}
-                  />
-
-                  <Route
-                      exact
-                      path="/home"
-                      element={<Home token={token} islogged={islogged} />}
-                  />
-                  <Route
-                      exact
-                      path="/rider/maps"
-                      element={
-                          <GoogleMapsDirections
-                              token={token}
-                              islogged={islogged}
-                          />
-                      }
-                  />
-
-                  <Route
-                      exact
-                      path="/login"
-                      element={
-                          <Login
-                              islogged={islogged}
-                              setIsLogged={setIsLogged}
-                              token={token}
-                              setToken={setToken}
-                          />
-                      }
-                  />
-
-                  <Route
-                      exact
-                      path="/"
-                      element={
-                          <Login
-                              islogged={islogged}
-                              setIsLogged={setIsLogged}
-                              token={token}
-                              setToken={setToken}
-                          />
-                      }
-                  />
-
-                  <Route
-                      exact
-                      path="/*"
-                      element={<Not_found token={token} islogged={islogged} />}
-                  />
-              </Routes>
-          </Router>
-      </div>
-  );
+                     <Route
+                        exact
+                        path="/rider/maps"
+                        element={
+                            <RiderMap token={token} islogged={islogged} />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/home"
+                        element={<Home token={token} islogged={islogged} />}
+                    />
+                    <Route
+                        exact
+                        path="/"
+                        element={<Home token={token} islogged={islogged} />}
+                    />
+                    <Route
+                        exact
+                        path="/login"
+                        element={
+                            <Login
+                                islogged={islogged}
+                                setIsLogged={setIsLogged}
+                                token={token}
+                                setToken={setToken}
+                            />
+                        }
+                    />
+                </Routes>
+            </Router>
+        </div>
+    );
 }
 
 export default App;

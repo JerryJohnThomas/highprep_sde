@@ -12,10 +12,17 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
+import { Link, useLocation } from "react-router-dom";
 
 import "./delivery.css";
+import RiderBag from "./riderBag";
+import { Router } from "react-router-dom";
 
-function Delivery({ islogged, setIsLogged, token, setToken }) {
+function Delivery() {
+  console.log("id");
+  const { state } = useLocation();
+  console.log(state);
+  const { itemIdP, deliver_toP } = state;
   const [formState, setFormState] = useState("IN_PROGRESS");
   const [itemId, setitemIdState] = useState("");
   const [otp, setotpState] = useState("");
@@ -32,7 +39,15 @@ function Delivery({ islogged, setIsLogged, token, setToken }) {
       setFormState("FETCHING_DATA");
     }
   };
+  // if(formState==="BACK"){
+  // console.log("back");
+  // return(
+  //   <div>
+  //     <Router>
 
+  //     </Router>
+  //   </div>
+  // )
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((position) => {
       setUserLat(position.coords.latitude);
@@ -84,13 +99,20 @@ function Delivery({ islogged, setIsLogged, token, setToken }) {
           id="Query"
           label="Item-ID"
           inputRef={itemRef}
-          required="true"
+          InputProps={{
+            readOnly: true,
+          }}
+          defaultValue={itemIdP}
         />
         <TextField
           InputLabelProps={{ style: { color: "red" }, shrink: true }}
           id="resultNo"
-          label="OTP"
+          label="Delivering to"
           inputRef={otpRef}
+          InputProps={{
+            readOnly: true,
+          }}
+          defaultValue={deliver_toP}
           //required="true"
         />
         <div>upload pic</div>
@@ -102,6 +124,15 @@ function Delivery({ islogged, setIsLogged, token, setToken }) {
         >
           Attempt Delivery
         </Button>
+        <Button
+          variant="outlined"
+          color="error"
+          component={Link}
+          to="/rider/bag"
+        >
+          go back
+        </Button>
+        <Link to="/rider/bag">Click Me</Link>
       </Box>
     );
   } else {
