@@ -12,6 +12,7 @@ import TurnLeftIcon from "@mui/icons-material/TurnLeft";
 import StraightIcon from "@mui/icons-material/Straight";
 import UTurnRightIcon from "@mui/icons-material/UTurnRight";
 import axios from "../axios";
+import Map_inside from "./Map_inside";
 
 const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
     const [directions, setDirections] = useState(null);
@@ -199,6 +200,7 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
     let RefreshAction = () => {
         sequentialExecution();
     };
+
     return (
         <div className="gmd_container">
             <div className="gmd_left">
@@ -256,10 +258,9 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
                 </div>
 
                 {directions ? (
-                    directions.routes[0].legs.map((data0, index0) =>
-                        data0.steps.map((data, index) => (
-                            <DirectionCard data={data} index={index} />
-                        ))
+                    directions.routes[0].legs.map(
+                        (data0, index0) => <Mapper_inside data0={data0} index0={index0} />
+                        // <Map_inside data0={data0} />
                     )
                 ) : (
                     <div
@@ -319,6 +320,19 @@ const DirectionCard = ({ data, index }) => {
                     data.maneuver == "uturn-left") && <UTurnRightIcon />}
             </div>
         </div>
+    );
+};
+
+const Mapper_inside = ({ data0, index0 }) => {
+    return (
+        <>
+            <div style={{ textAlign: "center", fontWeight:"bold", margin:"5px 0" }}>
+                Location {String.fromCharCode(index0+65)} 
+            </div>
+            {data0.steps.map((data, index) => (
+                <DirectionCard data={data} index={index} />
+            ))}
+        </>
     );
 };
 export default GoogleMapsDirections;
