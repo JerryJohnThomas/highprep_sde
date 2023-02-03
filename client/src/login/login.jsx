@@ -56,7 +56,11 @@ function Login({ query, setQueryState, islogged, setIsLogged, token, setToken })
 
                         // TO DO @shub
                         // check if user is warehouse like that ...
-                        navigate("/warehouse/", { replace: true });
+                        if (modelRef.current=="U2")
+                            navigate("/warehouse/", { replace: true });
+                        else if (modelRef.current == "U1")
+                            navigate("/rider/maps", { replace: true });
+
                     }
 
                     // else if (res.status == 400)
