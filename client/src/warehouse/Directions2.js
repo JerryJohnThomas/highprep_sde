@@ -59,7 +59,7 @@ function  Directions2({randomNumber,token,islogged}) {
     // const colors = [  "#A0E6FF",  "#FF8A80",  "#A4D3EE",  "#FFA07A",  "#90CAF9",  "#FF6347",  "#81D4FA",  "#FF7F50",  "#7FC4FD",  "#FF4500"]
   useEffect(()=>{
     console.log("starting rupesh db useeffect");
-
+    console.log("token", token);
     setMin_time_state(9999999)
     setMax_time_state(0)
     setSum_time_state(0)

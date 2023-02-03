@@ -14,7 +14,7 @@ import UTurnRightIcon from "@mui/icons-material/UTurnRight";
 import axios from "../axios";
 import Map_inside from "./Map_inside";
 
-const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
+const GoogleMapsDirections = ({ email, token, islogged, randomNumber }) => {
     const [directions, setDirections] = useState(null);
     const [locdata, setLocdata] = useState(null);
     const [rider_places, setRiderplaces] = useState([]);
@@ -49,7 +49,7 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
                 for (let i = 0; i < rider_to_loc.length; i++) {
                     let temp = [];
                     let rid = { rider_id: rider_to_loc[i].email };
-                    if (rider_to_loc[i].email != "rk4@gmail.com") continue;
+                    if (rider_to_loc[i].email != {email}) continue;
                     let list_locations =
                         rider_to_loc[i].location_ids.coordinates;
                     temp.push(rid);
