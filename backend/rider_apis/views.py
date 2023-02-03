@@ -42,18 +42,21 @@ class RiderListView(APIView):
 
 # end point to give the details about the locations that has been assigned to the riders 
 class RiderDropLocations(APIView):
-    def get(self, request):
+    def post(self, request):
         # i just need the email of the riders and thats it 
         email = request.data["email"];
 
         print("The email of the rider is ", email);
         
         currentRider = Rider.objects.get(email = email);
+        coordinates = currentRider.location_ids["coordinates"];
 
-        currentLocations = currentRider.location_ids;
-
-
+        if coordinates == []:
+            Response({"msg" : "not assigned any route ", "data" : []})
         
+        # else we will have to send these details to the frontend 
+        currentLocations = currentRider.location_ids;
+        print("The current locations is ", currentLocations);
         # say everything went fine 
         return Response({"msg": "success", "data" : currentLocations});
 
