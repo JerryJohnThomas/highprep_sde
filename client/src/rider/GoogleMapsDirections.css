@@ -46,3 +46,18 @@
     align-items: center;
 }
 
+.jj_rider_maps_right_top{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 1px;
+}
+
+.jj_btn_rider_horizontal{
+    margin: 5px 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}

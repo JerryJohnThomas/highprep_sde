@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import ExcelUploader from "./ExcelUploader";
 import "./UploadExcel.css";
 import axios from "../axios"
-function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploadedExcel }) {
-    const [riders, setRiders] = useState(5);
+function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploadedExcel, setRandomNumber,setRiders ,riders}) {
 
     let handleClick = (e) => {
-        console.log(e.target.className);
         if (e.target.className == "jj_uploadexcel_wrapper")
             setShowUpload(false);
+        console.log(token);
     };
 
     let handle_Submission = () => {
@@ -19,21 +18,26 @@ function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploade
             return;
         }
         
+            console.log("token is ", {token});
             const formData = new FormData();
             formData.append('file', uploadedExcel);
-        // send both the files
-            axios.post('/upload', formData)
+            // formData.append('token', "33fc7ab5df252f5e197d8fbdb7f28a7d06421a5f");
+            formData.append('token', token);
+            // send both the files
+            axios.post('/algo/upload/', formData)
             .then((res) => { 
                 // Handle response
                 console.log("Successfully sent file");                
                 setShowUpload(false);
-                // setRandomNumber(res.data)
-
+                console.log("res");
+                console.log(res.data.randomNumber);
+                setRandomNumber(res.data.randomNumber);
+                
             })
             .catch((err) => {
                 // Handle error
                 console.log(err)
-                alert("Try again");
+                // alert("Try again");
             })
             
     };

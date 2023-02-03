@@ -29,10 +29,10 @@ import RiderCard from './RiderCard'
 // const center = { lat: 48.8584, lng: 2.2945 }
 const center = { lat: 9.95, lng: 76.25 }
 
-function  Directions2() {
+function  Directions2({randomNumber,token,islogged}) {
 
 
-    
+    const [triggerUseEffect, setTriggerUseEffect] = useState(1);
     const [stats, setStats] = useState([])
     const [showRiderRoute, setShowRiderRoute] = useState([])
     const [rider_places, setRiderplaces] = useState([])
@@ -58,8 +58,9 @@ function  Directions2() {
       ]
     // const colors = [  "#A0E6FF",  "#FF8A80",  "#A4D3EE",  "#FFA07A",  "#90CAF9",  "#FF6347",  "#81D4FA",  "#FF7F50",  "#7FC4FD",  "#FF4500"]
   useEffect(()=>{
-    console.log("starting rupesh db useeffect");
-
+    console.log("starting Direction2 axiod useeffect");
+    console.log("token", token);
+    console.log("randomNumber", randomNumber);
     setMin_time_state(9999999)
     setMax_time_state(0)
     setSum_time_state(0)
@@ -70,12 +71,20 @@ function  Directions2() {
      axios
         .post(`/algo/status/`, 
             {
-              "token": "4a14c34983a572b87fce0255ec2a6c7ec5a52a91",
-              "randomNumber" : "gutatlpv1o"
+              "token": token,
+              "randomNumber" : randomNumber, 
+              // "token": {lfe8m4uxkh},
+              // "token": "33fc7ab5df252f5e197d8fbdb7f28a7d06421a5f",
+              // "randomNumber" : "gutatlpv1o" 
             }
         )
         .then((res) => {
             console.log(res.data);
+            if(res.data.msg=="Algo is still going on")
+            {
+              setTimeout(()=> {setTriggerUseEffect((x)=> x+1)},1000*15);
+              return;
+                        }
             setRiderplaces([]);
             setShowRiderRoute([])
             let data = res.data;
@@ -93,8 +102,6 @@ function  Directions2() {
               }
               setRiderplaces(old => [...old,temp]);
               setShowRiderRoute(old => [...old,true]);
-              if(i==4)
-              break;
             }
             setTrigger_api(x => x+1);
         })
@@ -105,7 +112,7 @@ function  Directions2() {
         //     [{rider_id: 1},{lat : 10.7992017 , lng:76.8221794},{lat:13.7992017 , lng:77.8221794}, {lat:12.5992017 , lng:76.9221794}, {lat:12.7992017 , lng:77.8221794}],
         //     [{rider_id: 2},{lat : 10.9992017 , lng:76.9221794}, {lat:12.6992017 , lng:77.5221794}],
         // ])
-      },[])
+      },[triggerUseEffect])
 
     useEffect(()=>
     {
@@ -150,11 +157,11 @@ function  Directions2() {
       },[trigger_api, window.google])
     // },[rider_places,window.google])
 
-  let isLoaded=true;
-// const { isLoaded } = useJsApiLoader({
-//     googleMapsApiKey: 'AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g',
-//     libraries: ['places'],
-//   })
+  // let isLoaded=true;
+const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: 'AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g',
+    libraries: ['places'],
+  })
 
   const [ishighligted, setIshighligted] = useState(false)
   const [map, setMap] = useState(/** @type google.maps.Map */ (null))
@@ -178,7 +185,8 @@ function  Directions2() {
     const directionsService = new window.google.maps.DirectionsService()
     const results = await directionsService.route({
       origin: org,
-      waypoints : wp.slice(0,13),
+      // waypoints : wp.slice(0,13),
+      waypoints : wp,
       destination: dest,
       // eslint-disable-next-line no-undef
       travelMode: google.maps.TravelMode.DRIVING,

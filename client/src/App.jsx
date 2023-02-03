@@ -3,10 +3,10 @@ import Demo from "./customer/demo";
 import DataTable from "./warehouse/itemInv";
 import "./App.css";
 import {
-  BrowserRouter as Router,
-  // Switch,
-  Route,
-  Redirect,
+    BrowserRouter as Router,
+    // Switch,
+    Route,
+    Redirect,
 } from "react-router-dom";
 
 import { Routes } from "react-router-dom";
@@ -20,71 +20,92 @@ import Navbar from "./common/Navbar";
 import { useState } from "react";
 import UploadExcel from "./warehouse/UploadExcel";
 import RiderMap from "./rider/RiderMap";
-
+import GoogleMapsDirections from "./rider/GoogleMapsDirections";
 
 function App() {
-    const[islogged, setIsLogged] = useState(false)
+    const [islogged, setIsLogged] = useState(false);
     // const[islogged, setIsLogged] = useState(true)
-    const [token, setToken] = useState("");
+    const [token, setToken] = useState(
+        "33fc7ab5df252f5e197d8fbdb7f28a7d06421a5f"
+    );
+    const [query, setQueryState] = useState("");
+    const [randomNumber, setRandomNumber] = useState("ka509l1tul");
 
-  return (
-      <div>
-          <Router>
-              <Navbar islogged={islogged} setIsLogged={setIsLogged} />
-              <Routes>
-                  <Route
-                      exact
-                      path="/warehouse/"
-                      element={
-                          <WarehouseHome token={token} islogged={islogged} />
-                      }
-                  />
+    return (
+        <div>
+            <Router>
+                <Navbar islogged={islogged} setIsLogged={setIsLogged} />
+                <Routes>
+                    <Route
+                        exact
+                        path="/warehouse/"
+                        element={
+                            <WarehouseHome
+                                randomNumber={randomNumber}
+                                setRandomNumber={setRandomNumber}
+                                token={token}
+                                islogged={islogged}
+                            />
+                        }
+                    />
 
-                  <Route
-                      exact
-                      path="/warehouse/items"
-                      element={<DataTable token={token} islogged={islogged} />}
-                  />
-                  <Route
-                      exact
-                      path="/warehouse/home"
-                      element={
-                          <WarehouseHome token={token} islogged={islogged} />
-                      }
-                  />
+                    <Route
+                        exact
+                        path="/warehouse/items"
+                        element={
+                            <DataTable token={token} islogged={islogged} />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/warehouse/home"
+                        element={
+                            <WarehouseHome
+                                randomNumber={randomNumber}
+                                setRandomNumber={setRandomNumber}
+                                token={token}
+                                islogged={islogged}
+                            />
+                        }
+                    />
 
-                  <Route
-                      exact
-                      path="/warehouse/upload"
-                      element={
-                          <UploadExcel token={token} islogged={islogged} />
-                      }
-                  />
+                    <Route
+                        exact
+                        path="/warehouse/upload"
+                        element={
+                            <UploadExcel token={token} islogged={islogged} />
+                        }
+                    />
 
-                  <Route
-                      exact
-                      path="/warehouse/inventory"
-                      element={
-                          <WarehouseInventory
-                              token={token}
-                              islogged={islogged}
-                          />
-                      }
-                  />
-                  <Route
-                      exact
-                      path="/warehouse/maps"
-                      element={
-                          <WarehouseMaps token={token} islogged={islogged} />
-                      }
-                  />
-                  <Route
-                      exact
-                      path="/customer/home"
-                      element={
-                          <CustomerHome token={token} islogged={islogged} />
-                      }
-                  />
+                    <Route
+                        exact
+                        path="/warehouse/inventory"
+                        element={
+                            <WarehouseInventory
+                                token={token}
+                                islogged={islogged}
+                            />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/warehouse/maps"
+                        element={
+                            <WarehouseMaps
+                                randomNumber={randomNumber}
+                                setRandomNumber={setRandomNumber}
+                                token={token}
+                                islogged={islogged}
+                            />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/customer/home"
+                        element={
+                            <CustomerHome token={token} islogged={islogged} />
+                        }
+                    />
 
                     <Route
                         exact
@@ -94,12 +115,16 @@ function App() {
                         }
                     />
 
-
-                     <Route
+                    <Route
                         exact
                         path="/rider/maps"
                         element={
-                            <RiderMap token={token} islogged={islogged} />
+                            <GoogleMapsDirections
+                                token={token}
+                                islogged={islogged}
+                                randomNumber={randomNumber}
+                                email={query}
+                            />
                         }
                     />
                     <Route
@@ -121,6 +146,8 @@ function App() {
                                 setIsLogged={setIsLogged}
                                 token={token}
                                 setToken={setToken}
+                                query={query}
+                                setQueryState={setQueryState}
                             />
                         }
                     />

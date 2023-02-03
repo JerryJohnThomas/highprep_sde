@@ -58,7 +58,7 @@ export default function BasicTable({ token, islogged }) {
                 // `https://0e50-27-63-208-221.in.ngrok.io/inventory/`
                 // )
                 axios
-                    .post(`/inventory/`)
+                    .get(`/inventory/`)
                     .then((res) => {
                         console.log(res.data);
                         setFormState("DONE");
