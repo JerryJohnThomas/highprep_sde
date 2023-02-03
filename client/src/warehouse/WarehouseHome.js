@@ -92,21 +92,20 @@ function WarehouseHome({ randomNumber, setRandomNumber, token, islogged }) {
                 setTimeout(() => {
                     result = isOver();
                     console.log(result);
+                    if(result)
+                        navigate("/warehouse/maps");
                     resolve(result);
                     console.log(result);
                 }, 1000 * 15)
             );
         }
-        if(result)
-            navigate("/warehouse/maps");
-
     };
 
     async function isOver() {
         console.log("token", token);
         console.log("randomNumber", randomNumber);
         const response = await axios
-            .get(
+            .post(
                 // 'https://8f1f-2409-4073-4d8e-70c9-3091-6b34-1a8f-f73c.in.ngrok.io/algo/status/',
                 "/algo/status/",
                 {
