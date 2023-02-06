@@ -27,128 +27,148 @@ import Delivery from "./rider/delivery";
 import Camera from "./Camera";
 import Camera2 from "./camera2";
 function App() {
-  const  [islogged, setIsLogged] = useState(false);;
-  // const[islogged, setIsLogged] = useState(true)
-  const [token, setToken] = useState(
-    "33fc7ab5df252f5e197d8fbdb7f28a7d06421a5f"
-  );
-    const [query, setQueryState] = useState("");
-    const [randomNumber, setRandomNumber] = useState("ka509l1tul");
+    const [islogged, setIsLogged] = useState(false);
+    // const[islogged, setIsLogged] = useState(true)
+    const [token, setToken] = useState(
+        "33fc7ab5df252f5e197d8fbdb7f28a7d06421a5f"
+    );
+    const [query, setQueryState] = useState("rk5@gmail.com");
+    const [randomNumber, setRandomNumber] = useState(
+        // "ka509l1tul"
+        "epb88up2ek"
+    );
 
     return (
-      <div>
-        <Router>
-          <Navbar islogged={islogged} setIsLogged={setIsLogged} />
-          <Routes>
-            <Route
-              exact
-              path="/warehouse/"
-              element={
-                <WarehouseHome
-                  randomNumber={randomNumber}
-                  setRandomNumber={setRandomNumber}
-                  token={token}
-                  islogged={islogged}
-                />
-              }
-            />
+        <div>
+            <Router>
+                <Navbar islogged={islogged} setIsLogged={setIsLogged} />
+                <Routes>
+                    <Route
+                        exact
+                        path="/warehouse/"
+                        element={
+                            <WarehouseHome
+                                randomNumber={randomNumber}
+                                setRandomNumber={setRandomNumber}
+                                token={token}
+                                islogged={islogged}
+                            />
+                        }
+                    />
 
-            <Route
-              exact
-              path="/warehouse/items"
-              element={<DataTable token={token} islogged={islogged} />}
-            />
-            <Route
-              exact
-              path="/warehouse/home"
-              element={
-                <WarehouseHome
-                  randomNumber={randomNumber}
-                  setRandomNumber={setRandomNumber}
-                  token={token}
-                  islogged={islogged}
-                />
-              }
-            />
+                    <Route
+                        exact
+                        path="/warehouse/items"
+                        element={
+                            <DataTable token={token} islogged={islogged} />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/warehouse/home"
+                        element={
+                            <WarehouseHome
+                                randomNumber={randomNumber}
+                                setRandomNumber={setRandomNumber}
+                                token={token}
+                                islogged={islogged}
+                            />
+                        }
+                    />
 
-            <Route
-              exact
-              path="/warehouse/upload"
-              element={<UploadExcel token={token} islogged={islogged} />}
-            />
+                    <Route
+                        exact
+                        path="/warehouse/upload"
+                        element={
+                            <UploadExcel token={token} islogged={islogged} />
+                        }
+                    />
 
-            <Route
-              exact
-              path="/warehouse/inventory"
-              element={<WarehouseInventory token={token} islogged={islogged} />}
-            />
-            <Route
-              exact
-              path="/warehouse/maps"
-              element={
-                <WarehouseMaps
-                  randomNumber={randomNumber}
-                  setRandomNumber={setRandomNumber}
-                  token={token}
-                  islogged={islogged}
-                />
-              }
-            />
-            <Route
-              exact
-              path="/customer/home"
-              element={<CustomerHome token={token} islogged={islogged} />}
-            />
+                    <Route
+                        exact
+                        path="/warehouse/inventory"
+                        element={
+                            <WarehouseInventory
+                                token={token}
+                                islogged={islogged}
+                            />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/warehouse/maps"
+                        element={
+                            <WarehouseMaps
+                                randomNumber={randomNumber}
+                                setRandomNumber={setRandomNumber}
+                                token={token}
+                                islogged={islogged}
+                            />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/customer/home"
+                        element={
+                            <CustomerHome token={token} islogged={islogged} />
+                        }
+                    />
 
-            <Route exact path="/cam" element={<Camera />} />
-            <Route exact path="/cam2" element={<Camera2 />} />
-            <Route
-              exact
-              path="/rider/home"
-              element={<RiderHome token={token} islogged={islogged} />}
-            />
-            <Route exact path="/rider/bag" element={<RiderBag />} />
-            <Route exact path="/rider/delivery" element={<Delivery />} />
+                    <Route exact path="/cam" element={<Camera />} />
+                    <Route exact path="/cam2" element={<Camera2 />} />
+                    <Route
+                        exact
+                        path="/rider/home"
+                        element={
+                            <RiderHome token={token} islogged={islogged} />
+                        }
+                    />
+                    <Route exact path="/rider/bag" element={<RiderBag />} />
+                    <Route
+                        exact
+                        path="/rider/delivery"
+                        element={<Delivery />}
+                    />
 
-            <Route
-              exact
-              path="/rider/maps"
-              element={
-                <GoogleMapsDirections
-                  token={token}
-                  islogged={islogged}
-                  randomNumber={randomNumber}
-                  email={query}
-                />
-              }
-            />
-            <Route
-              exact
-              path="/home"
-              element={<Home token={token} islogged={islogged} />}
-            />
-            <Route
-              exact
-              path="/"
-              element={<Home token={token} islogged={islogged} />}
-            />
-            <Route
-              exact
-              path="/login"
-              element={
-                <Login
-                  islogged={islogged}
-                  setIsLogged={setIsLogged}
-                  token={token}
-                  setToken={setToken}
-                  query={query}
-                  setQueryState={setQueryState}
-                />
-              }
-            />
-          </Routes>
-        </Router>
-      </div>
+                    <Route
+                        exact
+                        path="/rider/maps"
+                        element={
+                            <GoogleMapsDirections
+                                token={token}
+                                islogged={islogged}
+                                randomNumber={randomNumber}
+                                email={query}
+                            />
+                        }
+                    />
+                    <Route
+                        exact
+                        path="/home"
+                        element={<Home token={token} islogged={islogged} />}
+                    />
+                    <Route
+                        exact
+                        path="/"
+                        element={<Home token={token} islogged={islogged} />}
+                    />
+                    <Route
+                        exact
+                        path="/login"
+                        element={
+                            <Login
+                                islogged={islogged}
+                                setIsLogged={setIsLogged}
+                                token={token}
+                                setToken={setToken}
+                                query={query}
+                                setQueryState={setQueryState}
+                            />
+                        }
+                    />
+                </Routes>
+            </Router>
+        </div>
     );
 }
 

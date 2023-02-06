@@ -70,6 +70,7 @@ dest3 = [[50, 12.89963, 77.64903], [51, 12.9319, 77.60736], [52, 12.91586, 77.64
 # def api_call(a,b):
 #     return api_call_dummy(a,b)
     
+#  this is magic api @rupesh
 def api_call_pickup(new_point, list_old_pts):
     size = len(list_old_pts)
     distance_res = np.zeros([size])
