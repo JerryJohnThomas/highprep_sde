@@ -638,4 +638,92 @@ class StatusOfAlgo(APIView):
 
         # say everything went fine 
         return Response({"msg" : "Algo is still going on"}, status=status.HTTP_200_OK); 
+
+
+
+# defining the function to find the list of riders involved in this particular algorithm 
+def findListOfRidersInvolved(userName, randomNumber):
+    result = Rider.objects.filter(username = userName, random_number=randomNumber);
+    listOfRiders = [];
+    # using the for loop to get the email 
+    for rider in result:
+        listOfRiders.append(rider.email);
+    print("The list of emails of riders involved in this tour are as follows \n");
+    print(listOfRiders);
+
+    # say everything went fine 
+    return listOfRiders;
+
+
+
+
+# defining the function to remove the item from the list for this purpose 
+def removeItemFromBag(currentRider):
+    # print("The current rider is ", currentRider);
+    # print("The current bag id is ", type(currentRider.bag_id))
+    print("The current bag id is ", (currentRider.bag_id))
+
+    bag_id = int(currentRider.bag_id);
+    print("The bag_id for this rider is \n", bag_id);
+
+    currentBag = Bag.objects.get(bag_id = bag_id);
+
+    print("The list of items of items in this bag is ", currentBag.item_list["item"]);
+    print('The length of this item list is \n', len(currentBag.item_list["item"]));
+
+    # deleting this item at this particular index 
+    itemList =  currentBag.item_list["item"];
+    itemList = itemList[5:];
+    currentBag.item_list["item"] = itemList;
+
+    # saving this change 
+    currentBag.save();
+
+    print("the updated list of items is as follows \n", currentBag.item_list["item"]);
+    print("The length after deletion of one item from the bag is as follows \n", len(currentBag.item_list["item"]));
+
+
+    # say everything went fine 
+    return currentBag;
+
+
+
+# defining function to FastForward the delivery for the riders 
+def fastForwardDelivery(listOfRiders):
+    # using the for loop for this purpose 
+    for rider in listOfRiders:
+        currentRider = Rider.objects.get(email = rider);
+        coordinates = currentRider.location_ids["coordinates"];
+        coordinates = coordinates[5:];
+        currentRider.location_ids["coordinates"] = coordinates;
+        currentRider.save();
+
+        # calling the function to also delete the list of items that are present in the riders bag 
+        removeItemFromBag(currentRider);
+    # say everything went fine 
+    return;
+
+
+
+
+# end point to fast forward the delivery location by 5 
+class FastForward(APIView):
+    # this will be a post request 
+    def post(self, request):
+        token = request.data["token"];
+        randomNumber = request.data["randomNumber"];
+
+        userName = Token.objects.get(key=token).user
+
+        # we have to find the riders that were involved and then we have to delete the locations 
+        # to simulate the fast forward thingy 
+        listOfRiders = findListOfRidersInvolved(userName, randomNumber)
+
+        # once we get the list of riders we have to delete the first 5 entries in their locations 
+        # calling the function for this purpose 
+        fastForwardDelivery(listOfRiders);
+
     
+        # say everything went fine 
+        return Response({"msg" : "success"}, status=status.HTTP_200_OK);
+

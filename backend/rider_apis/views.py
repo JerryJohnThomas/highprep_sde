@@ -133,6 +133,8 @@ class MarkRiderLocationAsMarked(APIView):
         currentRider.location_ids["coordinates"] = newCoordinates; 
         
         currentRider.save();
+
+        # here function to remove the corresponding item to its location 
         currentBag = removeItemFromBag(currentRider, index);
 
         # say everything went fine 
@@ -173,8 +175,6 @@ class MarkPickUpCompleted(APIView):
         
         # say everything went fine 
         return Response("end point for rider to mark the pickup location as complete");
-
-
 
 
 # end point to create new bag 
