@@ -13,6 +13,7 @@ import StraightIcon from "@mui/icons-material/Straight";
 import UTurnRightIcon from "@mui/icons-material/UTurnRight";
 import axios from "../axios";
 import Map_inside from "./Map_inside";
+import { useNavigate } from "react-router-dom";
 
 const GoogleMapsDirections = ({ email, token, islogged, randomNumber }) => {
     const [directions, setDirections] = useState(null);
@@ -21,6 +22,7 @@ const GoogleMapsDirections = ({ email, token, islogged, randomNumber }) => {
     const [trigger_api, setTrigger_api] = useState(1);
     const [sum_time_state, setSum_time_state] = useState(0);
     const [sum_dist_state, setSum_dist_state] = useState(0);
+    const navigate = useNavigate();
     useEffect(() => {
         // getLocations();
         sequentialExecution();
@@ -46,8 +48,8 @@ const GoogleMapsDirections = ({ email, token, islogged, randomNumber }) => {
         console.log("email: ", email);
         axios
             .post(`/rider/locations/`, {
-                // email: email,
-                email: "rk5@gmail.com",
+                email: email,
+                // email: "rk5@gmail.com",
             })
             .then((res) => {
                 console.log(res);
@@ -192,12 +194,15 @@ const GoogleMapsDirections = ({ email, token, islogged, randomNumber }) => {
 
     let PickUpAction = () => {
         //axios code
+        navigate("/rider/pickup_pos", { replace: true });
     };
 
     //DeliveryAction
 
     let DeliveryAction = () => {
         //axios code
+        navigate("/rider/bag", { replace: true });
+
     };
 
     let RefreshAction = () => {
