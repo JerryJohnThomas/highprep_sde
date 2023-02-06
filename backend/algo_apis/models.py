@@ -25,6 +25,7 @@ class Rider(models.Model):
     status = models.CharField(max_length=20)
     location_ids = models.JSONField(null=True, blank=True)
     bag_id = models.CharField(max_length=100, default="-1")
+    temp_id = models.IntegerField(null=True)
     
     # need to add the bag which will store the ids of inventory items 
 
@@ -44,7 +45,9 @@ class AlgorithmStatusModel(models.Model):
     # excelSheetName = models.CharField(max_length=1000)
     excelSheetFile = models.FileField(upload_to=content_file_name ,null=True)
     dynamicPickUpExcelSheet = models.FileField(upload_to=content_file_name2, null=True)
-    rider_to_location = models.JSONField(default=[]);
+    rider_to_location = models.JSONField(default=[])
+    number_of_drivers = models.IntegerField(null=True)
+    number_of_locations = models.IntegerField(null=True)
 
 # # making the new model to store the results of the algorithm 
 # class ResultModel(models.Model):

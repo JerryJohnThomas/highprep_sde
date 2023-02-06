@@ -156,6 +156,9 @@ def api_call(origins, destinations):
 
 gmaps = googlemaps.Client(key='AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g')
 
+
+
+
 def get_geocordinates_not_working(place):
 
     place= place.replace(" ", "+ ")
@@ -177,6 +180,10 @@ def get_geocordinates_not_working(place):
     return 1000, 1000, "NIL" 
 
 
+
+
+
+
 def get_geocordinates(data):
 
     place = data.replace(" ", "+ ")
@@ -191,6 +198,11 @@ def get_geocordinates(data):
         return lat, lng, place, 1
     return 0, 0, 0, 0
     
+
+
+
+
+
 def rupesh_test1():
 
     place="palakkad"    
@@ -201,6 +213,10 @@ def rupesh_test1():
     print(lng);
     return lat, lng, place
     
+
+
+
+
 
 
 # defining the function to convert the address to lat long 
@@ -228,6 +244,9 @@ def addressToLocations(excelPath, userName, randomNumber):
     data = data[(data["lat"]!=-1) & (data["lng"]!=-1)]
     # data.to_csv("./data/bangalore_dispatch_address_finals_out.csv")
     data.to_csv(latLongCsvFilePath);
+
+
+
 
 
 
@@ -292,6 +311,10 @@ def calculateDistanceTimeMatrix(filePath, userName, randomNumber):
         time_mat.to_csv(f"./data/time/{timeMatrixFileName}", index=True)
 
 
+
+
+
+
 def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
 
         df = pd.read_csv(latLongCsvFilePath)
@@ -299,14 +322,17 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
         lng = df["lng"]
         print("The lat is ",type(lat));
         print("The long is ",type(lng));
+        # print("The type of item is ", type(i))
 
         # latitude = [];
         # longitude = [];
         coordinates = [];
-
+        random_string = "item" +  random_string_generator() ;
+        # here we will have to create the new item in the database as we are getting it from excel sheet 
+        newItem = Item.objects.create(item_name = random_string, item_volumne = df["item"][i])
         # using the for loop for this purpose 
         for i in range(lat.size):
-            coordinates.append([i+1, df['lat'][i], df['lng'][i]])
+            coordinates.append([i+1, df['lat'][i], df['lng'][i], newItem.item_name])
 
 
         location_names = [];
@@ -320,6 +346,10 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
         currentLocationEntry.save();
 
         print("The new entry is as follows\n\n", currentLocationEntry);
+
+
+
+
 
 
 
@@ -342,6 +372,9 @@ def findFirstNAvailableRiders(n):
     return availableRiders
 
 
+
+
+
 # function to mark the riders as not available 
 def markThemAsNonAvailable(availableRidersN):
     for i in range(len(availableRidersN)):
@@ -351,6 +384,9 @@ def markThemAsNonAvailable(availableRidersN):
 
     # say everything went fine 
     return;
+
+
+
 
 
 
@@ -370,7 +406,8 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
         print("The rider ", riderEmail);
         print("got the coordinates = ", riderIdVsLoc[i]);
         print("\n\n")
-
+        # here we also have to assign the temp id for easy purpose 
+        currentRider.temp_id = i+1;
         currentRider.save();
         riderDict[riderEmail] = riderIdVsLoc[i];
         i = i+1;
@@ -384,6 +421,12 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
     currentAlgorithm.save();
     # say everything went fine 
     return riderDict;
+
+
+
+
+
+
 
 
 
@@ -423,6 +466,45 @@ def createBagForEachRiders(availableNRiders):
 
     # say everything went fine 
     return;
+
+
+
+
+
+
+
+
+# defining the function to find the total number of locations 
+def findNumberOfLocations(currentAlgorithm, latLongCsvFilePath):
+
+    with open(latLongCsvFilePath, 'r') as f:
+        reader = csv.reader(f)
+        data = list(reader)
+
+    total_entries = len(data)
+
+    print(total_entries)
+
+    # say everything went fine 
+    return total_entries-2;
+
+
+
+
+
+
+# function to find the map of location_id and item weight 
+def findNodeWeights(currentLocation):
+    coordinates = currentLocation.location_array["coordinates"];
+
+    itemVolumeNodeWeights = {};
+
+    # using the for loop for this purpose 
+    for entry in coordinates:
+        itemName = entry[3];
+        itemVolume = Item.objects.get(item_name = itemName)
+        itemVolumeNodeWeights[entry[0]] 
+
 
 
 def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
@@ -465,6 +547,16 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 
         distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
         timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+
+        # here we also have to calculate the total number of locations under this algorithm 
+        # and finally save this to db 
+        totalLocations = findNumberOfLocations(currentAlgorithm, latLongCsvFilePath);
+        currentAlgorithm.number_of_locations = totalLocations;
+        currentAlgorithm.save();
+
+        # creating the dictionary for item weights 
+        locationToItemVolume_nodeWeights = findNodeWeights(currentLocation);
+        
         # timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
         # now i will be calling the NEEL's algo here 
         algoRes = think(timeMatrixFileName, n)
@@ -498,6 +590,11 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         createBagForEachRiders(availableNRiders);
 
 
+
+
+
+
+
 # endpoint to start the algorithm once warehouse guy presses start algo 
 class StartAlgoView(APIView):
     # post request to start the algo 
@@ -518,81 +615,21 @@ class StartAlgoView(APIView):
 
         # updating the status 
         currentAlgorithm.status = "Started";
+        currentAlgorithm.number_of_drivers = n;
         currentAlgorithm.save();
         my_tuple = (n, userName, currentAlgorithm, currentUser, randomNumber)
         threading.Thread(target=long_running_task, args=my_tuple).start()
-# ########################################################################################################
-#         #TODO 
-#         # n = 5
-#         # find the list of first n available riders from the database and store with id starting with 1 
-#         availableNRiders = findFirstNAvailableRiders(n);
-#         print("The available riders are as follows :", availableNRiders);
-#         if(availableNRiders == []):
-#             return Response({"msg" : "Not Enough Riders to deliver"}, status=status.HTTP_403_FORBIDDEN);
-        
-#         # # idMapForRiders = 
-#         # # now we have to mark these as non available 
-#         markThemAsNonAvailable(availableNRiders);
 
-# ########################################################################################################
-
-#         excelPath = currentAlgorithm.excelSheetFile;
-
-
-# ########################################################################################################
-#         #TODO ==> UNCOMMENT THE LINE 
-#         addressToLocations(excelPath, userName, randomNumber)
-# ########################################################################################################
-
-#         # excelData = pd.read_excel(excelPath);
-        
-#         # latLongCsvFilePath is the file in which the lat and long has been find out by the algorithm 
-#         latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
-#         storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser)
-
-# ########################################################################################################
-#         #TODO 
-#             # how to find the places given the latitude and longitude 
-
-#             # now we have to calculate the distance time matrix csv for the algorithm 
-#         calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
-# ########################################################################################################
-
-#         distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-#         timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-#         # timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
-#         # now i will be calling the NEEL's algo here 
-#         algoRes = think(timeMatrixFileName)
-
-# ########################################################################################################
-#         #TODO 
-#         #   observe the output and find the riders id correctly and locations correctly 
-#         # the output order to Neels algo is place_id vs rider_id
-#         riderIdVsLoc = [];
-#         currentLocation = Location.objects.get(username = currentUser.email, random_number = randomNumber);
-#         location_array = currentLocation.location_array;
-#         coordinates = location_array['coordinates']
-#         print("The location_array is as follows \n", coordinates)
-
-
-#         for i in range(n):
-#             riderIdVsLoc.append([]);
-
-#         # here we are assigning the locations to the riders 
-#         for key in algoRes:
-#             currentLatLong = coordinates[key-1];
-#             riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
-        
-
-#         print("The final mapping of riderid vs loc is as follows \n\n");
-#         print(riderIdVsLoc)
-
-#         riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders);
-
-#         # now we also have to create new bag for each of this riders 
-#         createBagForEachRiders(availableNRiders);
 
         return Response({"msg" : "Successfully Started the Algorithm", "data" : "some"}, status=status.HTTP_200_OK);
+
+
+
+
+
+
+
+
 
 
 # endpoint to check the status of the algorithm running 
