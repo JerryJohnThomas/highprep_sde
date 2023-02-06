@@ -24,6 +24,7 @@ from inventory_apis.models import Item
 import string
 import random
 from .Think import think
+from .maps_route_api import api_call_pickup
 
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
@@ -332,7 +333,8 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
         newItem = Item.objects.create(item_name = random_string, item_volumne = df["item"][i])
         # using the for loop for this purpose 
         for i in range(lat.size):
-            coordinates.append([i+1, df['lat'][i], df['lng'][i], newItem.item_name])
+            # coordinates.append([i+1, df['lat'][i], df['lng'][i], newItem.item_name])
+            coordinates.append([i+1, df['lat'][i], df['lng'][i]])
 
 
         location_names = [];
@@ -817,6 +819,35 @@ def findRemainingLocations(userName, randomNumber):
 
 
 
+
+# defining the function to convert the address to lat long 
+def addressToLocations2(excelPath, userName, randomNumber, currentAlgoStatus):
+    
+    data = pd.read_excel(excelPath)
+    places = data['address']
+    # limit = 218
+    data["lat"] =-1.00
+    data["lng"] =-1.00
+
+    for i in range(places.size):
+        x =places[i]
+        lat, lng, title , status= get_geocordinates(x)
+        print(title)
+        if lat==1000 or status==0:
+            continue
+        print()
+        data['lat'][i]= lat
+        data['lng'][i]= lng
+        time.sleep(1)
+        print(i," over")
+    latLongCsvFilePath = "./data/" + str(currentAlgoStatus.dynamicPickUpExcelSheet)  + ".csv"
+    print("The path of the geo_encoding with lat long coordinates is ", latLongCsvFilePath);
+    data = data[(data["lat"]!=-1) & (data["lng"]!=-1)]
+    # data.to_csv("./data/bangalore_dispatch_address_finals_out.csv")
+    data.to_csv(latLongCsvFilePath);
+
+
+
 # end point to add pick up points 
 class DynamicPickUpPoints(APIView):
     # in this we have to upload the excel sheet for the dynamic pickup points 
@@ -830,51 +861,69 @@ class DynamicPickUpPoints(APIView):
         file = request.FILES['file']
 
 
-        excelData = pd.read_excel(file);
+        # excelData = pd.read_excel(file);
 
 
-        #save the updated sheet
-        excelData.to_excel(file)
-        print("The content of the file is ", excelData);
+        # #save the updated sheet
+        # excelData.to_excel(file)
+        # print("The content of the file is ", excelData);
 
 
         userName = Token.objects.get(key=token).user
-        currentUser = PersonInfo.objects.get(email = str(userName))
-        print('The token belongs to the following user\n\n', currentUser);
-        userName = currentUser.email;
+        # currentUser = PersonInfo.objects.get(email = str(userName))
+        # print('The token belongs to the following user\n\n', currentUser);
+        # userName = currentUser.email;
         
 
         currentAlgoStatus = AlgorithmStatusModel.objects.get(username = userName, random_number = randomNumber);
-        currentAlgoStatus.dynamicPickUpExcelSheet = file;
-        currentAlgoStatus.save();
-
-   
+        # currentAlgoStatus.dynamicPickUpExcelSheet = file;
+        # currentAlgoStatus.save();
+        # # time.sleep(10)
+        # addressToLocations2(str(file), userName, randomNumber, currentAlgoStatus)
         # step1 ==> store the remaining locations 
-        oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict = findRemainingLocations(userName, randomNumber)
-        
-        # step2 ==> give this to magic api and it will return the distance and time matrix 
-        distance = [];
-        time = [];
+        latLongCsvFilePath = "./data/" + str(currentAlgoStatus.dynamicPickUpExcelSheet) + ".csv"
+        print("the file path is as follows \n\n\n");
+        print(latLongCsvFilePath)
+        df = pd.read_csv(latLongCsvFilePath)
+        lat = df["lat"]
+        lng = df["lng"]
+        print("The lat is ",(lat));
+        print("The long is ",(lng));
+        # print()
+        # oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict = findRemainingLocations(userName, randomNumber)
+        # new_pick_up = {"lat" : 12.7474, "lng" : 12.4567, "id" : -1}
+        # # step2 ==> give this to magic api and it will return the distance and time matrix 
+        # distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
+        # print('The distance array that i got is ', distanceArray);
+        # print("The time array that i got is ", timeArray)
+        # distance = [];
+        # time = [];
 
-        # step 3 ==> make the dictionary with location_id : distance 
-        distanceDictionary = {};
-        timeDictionary = {};
-        i = 0;
-        for ele in distance:
-            distanceDictionary[listOfIds[i]] = ele;
-            i = i+1;
+        # # step 3 ==> make the dictionary with location_id : distance 
+        # distanceDictionary = {};
+        # timeDictionary = {};
+        # i = 0;
+        # for ele in distance:
+        #     distanceDictionary[listOfIds[i]] = ele;
+        #     i = i+1;
         
-        i = 0;
-        for ele in time:
-            timeDictionary[listOfIds[i]] = ele;
-            i = i+1;
+        # i = 0;
+        # for ele in time:
+        #     timeDictionary[listOfIds[i]] = ele;
+        #     i = i+1;
         
 
-            # timeDictionary[listOfIds[i]] = 
-
-        storeLatLongInDb()
+        # here we have to call the neels algo and store the results 
 
         # calculate the distance 
         # say everything went fine 
         return Response({"msg" : "success", "data" : "Uploaded the Dynamic Pickup Points"}, status=status.HTTP_200_OK);
-        
+
+
+class CvPoint(APIView):
+    def post(self, request):
+        file1 = request.FILES["file1"];
+        file2 = request.FILES["file2"];
+        print("the file 1 is ", file1);
+        print("the file 2 is ", file2);
+        return Response("1");
