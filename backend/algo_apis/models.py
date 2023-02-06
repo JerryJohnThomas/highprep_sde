@@ -7,6 +7,12 @@ def content_file_name(instance, filename):
     filename = "%s_%s.%s" % (instance.username, instance.random_number, ext)
     return os.path.join('media', filename)
 
+
+def content_file_name2(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s_%s_%s.%s" % (instance.username, instance.random_number,"pickup", ext)
+    return os.path.join('dynamic_pickup_points', filename)
+
 # Create your models here.
 # models to store the information of the locations of rider that it needs to navigate 
 # do note that there the username is of the warehouse manager which has launched the start algo and under 
@@ -19,6 +25,7 @@ class Rider(models.Model):
     status = models.CharField(max_length=20)
     location_ids = models.JSONField(null=True, blank=True)
     bag_id = models.CharField(max_length=100, default="-1")
+    temp_id = models.IntegerField(null=True)
     
     # need to add the bag which will store the ids of inventory items 
 
@@ -37,7 +44,10 @@ class AlgorithmStatusModel(models.Model):
     status = models.CharField(max_length=200)
     # excelSheetName = models.CharField(max_length=1000)
     excelSheetFile = models.FileField(upload_to=content_file_name ,null=True)
-    rider_to_location = models.JSONField(default=[]);
+    dynamicPickUpExcelSheet = models.FileField(upload_to=content_file_name2, null=True)
+    rider_to_location = models.JSONField(default=[])
+    number_of_drivers = models.IntegerField(null=True)
+    number_of_locations = models.IntegerField(null=True)
 
 # # making the new model to store the results of the algorithm 
 # class ResultModel(models.Model):

@@ -32,7 +32,7 @@ const center = { lat: 9.95, lng: 76.25 }
 function  Directions2({randomNumber,token,islogged}) {
 
 
-    
+    const [triggerUseEffect, setTriggerUseEffect] = useState(1);
     const [stats, setStats] = useState([])
     const [showRiderRoute, setShowRiderRoute] = useState([])
     const [rider_places, setRiderplaces] = useState([])
@@ -58,8 +58,9 @@ function  Directions2({randomNumber,token,islogged}) {
       ]
     // const colors = [  "#A0E6FF",  "#FF8A80",  "#A4D3EE",  "#FFA07A",  "#90CAF9",  "#FF6347",  "#81D4FA",  "#FF7F50",  "#7FC4FD",  "#FF4500"]
   useEffect(()=>{
-    console.log("starting rupesh db useeffect");
-
+    console.log("starting Direction2 axiod useeffect");
+    console.log("token", token);
+    console.log("randomNumber", randomNumber);
     setMin_time_state(9999999)
     setMax_time_state(0)
     setSum_time_state(0)
@@ -79,6 +80,11 @@ function  Directions2({randomNumber,token,islogged}) {
         )
         .then((res) => {
             console.log(res.data);
+            if(res.data.msg=="Algo is still going on")
+            {
+              setTimeout(()=> {setTriggerUseEffect((x)=> x+1)},1000*15);
+              return;
+                        }
             setRiderplaces([]);
             setShowRiderRoute([])
             let data = res.data;
@@ -106,7 +112,7 @@ function  Directions2({randomNumber,token,islogged}) {
         //     [{rider_id: 1},{lat : 10.7992017 , lng:76.8221794},{lat:13.7992017 , lng:77.8221794}, {lat:12.5992017 , lng:76.9221794}, {lat:12.7992017 , lng:77.8221794}],
         //     [{rider_id: 2},{lat : 10.9992017 , lng:76.9221794}, {lat:12.6992017 , lng:77.5221794}],
         // ])
-      },[])
+      },[triggerUseEffect])
 
     useEffect(()=>
     {

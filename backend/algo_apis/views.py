@@ -1,3 +1,4 @@
+import threading
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -155,6 +156,9 @@ def api_call(origins, destinations):
 
 gmaps = googlemaps.Client(key='AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g')
 
+
+
+
 def get_geocordinates_not_working(place):
 
     place= place.replace(" ", "+ ")
@@ -176,18 +180,29 @@ def get_geocordinates_not_working(place):
     return 1000, 1000, "NIL" 
 
 
+
+
+
+
 def get_geocordinates(data):
 
     place = data.replace(" ", "+ ")
     # place = "MTH, Best of Bengal"
     geocode_result= gmaps.geocode(place)
     print("The result", geocode_result);
-    lat = geocode_result[0]['geometry']['location'] ['lat']
-    lng = geocode_result[0]['geometry']['location'] ['lng']
-    print("lat: ", lat)
-    print("lng: ", lng)
-    return lat, lng, place
+    if len(geocode_result)>=1 and 'geometry'in geocode_result[0]:
+        lat = geocode_result[0]['geometry']['location'] ['lat']
+        lng = geocode_result[0]['geometry']['location'] ['lng']
+        print("lat: ", lat)
+        print("lng: ", lng)
+        return lat, lng, place, 1
+    return 0, 0, 0, 0
     
+
+
+
+
+
 def rupesh_test1():
 
     place="palakkad"    
@@ -200,20 +215,24 @@ def rupesh_test1():
     
 
 
+
+
+
+
 # defining the function to convert the address to lat long 
 def addressToLocations(excelPath, userName, randomNumber):
     
     data = pd.read_excel(excelPath)
     places = data['address']
-    limit = 218
+    # limit = 218
     data["lat"] =-1.00
     data["lng"] =-1.00
 
     for i in range(places.size):
         x =places[i]
-        lat, lng, title = get_geocordinates(x)
+        lat, lng, title , status= get_geocordinates(x)
         print(title)
-        if lat==1000:
+        if lat==1000 or status==0:
             continue
         print()
         data['lat'][i]= lat
@@ -222,8 +241,12 @@ def addressToLocations(excelPath, userName, randomNumber):
         print(i," over")
     latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
     print("The path of the geo_encoding with lat long coordinates is ", latLongCsvFilePath);
+    data = data[(data["lat"]!=-1) & (data["lng"]!=-1)]
     # data.to_csv("./data/bangalore_dispatch_address_finals_out.csv")
     data.to_csv(latLongCsvFilePath);
+
+
+
 
 
 
@@ -288,6 +311,10 @@ def calculateDistanceTimeMatrix(filePath, userName, randomNumber):
         time_mat.to_csv(f"./data/time/{timeMatrixFileName}", index=True)
 
 
+
+
+
+
 def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
 
         df = pd.read_csv(latLongCsvFilePath)
@@ -295,14 +322,17 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
         lng = df["lng"]
         print("The lat is ",type(lat));
         print("The long is ",type(lng));
+        # print("The type of item is ", type(i))
 
         # latitude = [];
         # longitude = [];
         coordinates = [];
-
+        random_string = "item" +  random_string_generator() ;
+        # here we will have to create the new item in the database as we are getting it from excel sheet 
+        newItem = Item.objects.create(item_name = random_string, item_volumne = df["item"][i])
         # using the for loop for this purpose 
         for i in range(lat.size):
-            coordinates.append([i+1, df['lat'][i], df['lng'][i]])
+            coordinates.append([i+1, df['lat'][i], df['lng'][i], newItem.item_name])
 
 
         location_names = [];
@@ -316,6 +346,10 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
         currentLocationEntry.save();
 
         print("The new entry is as follows\n\n", currentLocationEntry);
+
+
+
+
 
 
 
@@ -338,6 +372,9 @@ def findFirstNAvailableRiders(n):
     return availableRiders
 
 
+
+
+
 # function to mark the riders as not available 
 def markThemAsNonAvailable(availableRidersN):
     for i in range(len(availableRidersN)):
@@ -350,7 +387,11 @@ def markThemAsNonAvailable(availableRidersN):
 
 
 
-# defining the function to store the locationids in database in proper location 
+
+
+
+# this function will store the list of location_ids assigned to rider in their collection. 
+# (location_id is the field)
 def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availableNRiders):
     i = 0;
     riderDict = {};
@@ -365,7 +406,8 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
         print("The rider ", riderEmail);
         print("got the coordinates = ", riderIdVsLoc[i]);
         print("\n\n")
-
+        # here we also have to assign the temp id for easy purpose 
+        currentRider.temp_id = i+1;
         currentRider.save();
         riderDict[riderEmail] = riderIdVsLoc[i];
         i = i+1;
@@ -379,6 +421,12 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
     currentAlgorithm.save();
     # say everything went fine 
     return riderDict;
+
+
+
+
+
+
 
 
 
@@ -421,122 +469,48 @@ def createBagForEachRiders(availableNRiders):
 
 
 
-# endpoint to start the algorithm once warehouse guy presses start algo 
-# this endpoint is for testing the start algorithm by commenting some parts of this api 
-class StartAlgoView2(APIView):
-    # post request to start the algo 
-    def post(self, request):
-        # first we have to make the status as started 
-        # token = request.data['token'];
-        # randomNumber = request.data['randomNumber']
 
-        # # find the entry on this random number 
-        # userName = Token.objects.get(key=token).user
-        # currentUser = PersonInfo.objects.get(email = str(userName))
-        # currentAlgorithm = AlgorithmStatusModel.objects.get(random_number = randomNumber, username=userName);
-        # print("The current algorith excel sheet model is ", currentAlgorithm);
-        # print("The current user is  ", currentUser);
 
-        # # updating the status 
-        # currentAlgorithm.status = "Started";
-        # currentAlgorithm.save();
 
-########################################################################################################
+
+
+# defining the function to find the total number of locations 
+def findNumberOfLocations(currentAlgorithm, latLongCsvFilePath):
+
+    with open(latLongCsvFilePath, 'r') as f:
+        reader = csv.reader(f)
+        data = list(reader)
+
+    total_entries = len(data)
+
+    print(total_entries)
+
+    # say everything went fine 
+    return total_entries-2;
+
+
+
+
+
+
+# function to find the map of location_id and item weight 
+def findNodeWeights(currentLocation):
+    coordinates = currentLocation.location_array["coordinates"];
+
+    itemVolumeNodeWeights = {};
+
+    # using the for loop for this purpose 
+    for entry in coordinates:
+        itemName = entry[3];
+        itemVolume = Item.objects.get(item_name = itemName)
+        itemVolumeNodeWeights[entry[0]] 
+
+
+
+def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
+    ########################################################################################################
         #TODO 
-        n = 5
-        # find the list of first n available riders from the database and store with id starting with 1 
-        availableNRiders = findFirstNAvailableRiders(n);
-        print("The available riders are as follows :", availableNRiders);
-        if(availableNRiders == []):
-            return Response({"msg" : "Not Enough Riders to deliver"}, status=status.HTTP_403_FORBIDDEN);
-        
-        # # idMapForRiders = 
-        # # now we have to mark these as non available 
-        # markThemAsNonAvailable(availableNRiders);
-
-########################################################################################################
-
-        # excelPath = currentAlgorithm.excelSheetFile;
-
-
-########################################################################################################
-        #TODO ==> UNCOMMENT THE LINE 
-        # addressToLocations(excelPath, userName, randomNumber)
-########################################################################################################
-
-        # excelData = pd.read_excel(excelPath);
-        
-        # latLongCsvFilePath is the file in which the lat and long has been find out by the algorithm 
-        # latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
-        # storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser)
-
-########################################################################################################
-        #TODO 
-            # how to find the places given the latitude and longitude 
-
-            # now we have to calculate the distance time matrix csv for the algorithm 
-        # calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
-########################################################################################################
-
-        # distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-        # timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-        timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
-        # now i will be calling the NEEL's algo here 
-        # algoRes = think(timeMatrixFileName)
-
-########################################################################################################
-        #TODO 
-        #   observe the output and find the riders id correctly and locations correctly 
-        # the output order to Neels algo is place_id vs rider_id
-        riderIdVsLoc = [];
-        # currentLocation = Location.objects.get(username = currentUser.email, random_number = randomNumber);
-        # location_array = currentLocation.location_array;
-        # coordinates = location_array['coordinates']
-        # print("The location_array is as follows \n", coordinates)
-
-
-        # for i in range(n):
-        #     riderIdVsLoc.append([]);
-
-        
-        # for key in algoRes:
-        #     currentLatLong = coordinates[key-1];
-        #     riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
-        
-
-        # print("The final mapping of riderid vs loc is as follows \n\n");
-        # print(riderIdVsLoc)
-
-        # riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders);
-
-        # now we also have to create new bag for each of this riders 
-        createBagForEachRiders(availableNRiders);
-
-        return Response({"msg" : "Successfully Started the Algorithm", "data" : "some"}, status=status.HTTP_200_OK);
-
-
-# endpoint to start the algorithm once warehouse guy presses start algo 
-class StartAlgoView(APIView):
-    # post request to start the algo 
-    def post(self, request):
-        # first we have to make the status as started 
-        token = request.data['token'];
-        randomNumber = request.data['randomNumber']
-
-        # find the entry on this random number 
-        userName = Token.objects.get(key=token).user
-        currentUser = PersonInfo.objects.get(email = str(userName))
-        currentAlgorithm = AlgorithmStatusModel.objects.get(random_number = randomNumber, username=userName);
-        print("The current algorith excel sheet model is ", currentAlgorithm);
-        print("The current user is  ", currentUser);
-
-        # updating the status 
-        currentAlgorithm.status = "Started";
-        currentAlgorithm.save();
-
-########################################################################################################
-        #TODO 
-        n = 5
+        # n = 5
         # find the list of first n available riders from the database and store with id starting with 1 
         availableNRiders = findFirstNAvailableRiders(n);
         print("The available riders are as follows :", availableNRiders);
@@ -572,10 +546,20 @@ class StartAlgoView(APIView):
 ########################################################################################################
 
         distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-        # timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-        timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
+        timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+
+        # here we also have to calculate the total number of locations under this algorithm 
+        # and finally save this to db 
+        totalLocations = findNumberOfLocations(currentAlgorithm, latLongCsvFilePath);
+        currentAlgorithm.number_of_locations = totalLocations;
+        currentAlgorithm.save();
+
+        # creating the dictionary for item weights 
+        locationToItemVolume_nodeWeights = findNodeWeights(currentLocation);
+        
+        # timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
         # now i will be calling the NEEL's algo here 
-        algoRes = think(timeMatrixFileName)
+        algoRes = think(timeMatrixFileName, n)
 
 ########################################################################################################
         #TODO 
@@ -591,7 +575,7 @@ class StartAlgoView(APIView):
         for i in range(n):
             riderIdVsLoc.append([]);
 
-        
+        # here we are assigning the locations to the riders 
         for key in algoRes:
             currentLatLong = coordinates[key-1];
             riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
@@ -605,16 +589,61 @@ class StartAlgoView(APIView):
         # now we also have to create new bag for each of this riders 
         createBagForEachRiders(availableNRiders);
 
+
+
+
+
+
+
+# endpoint to start the algorithm once warehouse guy presses start algo 
+class StartAlgoView(APIView):
+    # post request to start the algo 
+    def post(self, request):
+        # first we have to make the status as started 
+        token = request.data['token'];
+        randomNumber = request.data['randomNumber']
+        n = int(request.data["n"]);
+
+        print("the number of riders is ", n);
+
+        # find the entry on this random number 
+        userName = Token.objects.get(key=token).user
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        currentAlgorithm = AlgorithmStatusModel.objects.get(random_number = randomNumber, username=userName);
+        print("The current algorith excel sheet model is ", currentAlgorithm);
+        print("The current user is  ", currentUser);
+
+        # updating the status 
+        currentAlgorithm.status = "Started";
+        currentAlgorithm.number_of_drivers = n;
+        currentAlgorithm.save();
+        my_tuple = (n, userName, currentAlgorithm, currentUser, randomNumber)
+        threading.Thread(target=long_running_task, args=my_tuple).start()
+
+
         return Response({"msg" : "Successfully Started the Algorithm", "data" : "some"}, status=status.HTTP_200_OK);
+
+
+
+
+
+
+
+
 
 
 # endpoint to check the status of the algorithm running 
 class StatusOfAlgo(APIView):
     def post(self, request):
-        token = request.data['token'];
         randomNumber = request.data['randomNumber'];
+        print("The random nuber  that is got is ", randomNumber);
+        token = request.data['token'];
+        print("The token that is got is ", token);
         userName = Token.objects.get(key=token).user
+
+        # getting the current user 
         currentUser = PersonInfo.objects.get(email = str(userName))
+        # getting the algorithm given the username and random string 
         currentAlgorithm = AlgorithmStatusModel.objects.get(username = currentUser.email, random_number = randomNumber);
 
         print("The current algorithm is ", currentAlgorithm);
@@ -625,11 +654,16 @@ class StatusOfAlgo(APIView):
             # then the algorithm is finished hence we can send back the final result 
             rider_to_locations = currentAlgorithm.rider_to_location;
             ridersInformation = [];
+
+            # do note that in the rider collection the username field will store the username of warehouse 
+            # guy who has started the algorithm 
             currentAlgoRiders = Rider.objects.filter(username = userName, random_number = randomNumber)
             for currentRider in currentAlgoRiders:
+                currentRiderPersonInfo = PersonInfo.objects.get(email = currentRider.email)
                 # currentRider = Rider.objects.get(email = riderEmail);
                 currentRiderJson = {
                     "email" : currentRider.email,
+                    "name" : currentRiderPersonInfo.name,
                     "status" : currentRider.status,
                     "location_ids" : currentRider.location_ids
                 }
@@ -641,3 +675,129 @@ class StatusOfAlgo(APIView):
 
         # say everything went fine 
         return Response({"msg" : "Algo is still going on"}, status=status.HTTP_200_OK); 
+
+
+
+# defining the function to find the list of riders involved in this particular algorithm 
+def findListOfRidersInvolved(userName, randomNumber):
+    result = Rider.objects.filter(username = userName, random_number=randomNumber);
+    listOfRiders = [];
+    # using the for loop to get the email 
+    for rider in result:
+        listOfRiders.append(rider.email);
+    print("The list of emails of riders involved in this tour are as follows \n");
+    print(listOfRiders);
+
+    # say everything went fine 
+    return listOfRiders;
+
+
+
+
+# defining the function to remove the item from the list for this purpose 
+def removeItemFromBag(currentRider):
+    # print("The current rider is ", currentRider);
+    # print("The current bag id is ", type(currentRider.bag_id))
+    print("The current bag id is ", (currentRider.bag_id))
+
+    bag_id = int(currentRider.bag_id);
+    print("The bag_id for this rider is \n", bag_id);
+
+    currentBag = Bag.objects.get(bag_id = bag_id);
+
+    print("The list of items of items in this bag is ", currentBag.item_list["item"]);
+    print('The length of this item list is \n', len(currentBag.item_list["item"]));
+
+    # deleting this item at this particular index 
+    itemList =  currentBag.item_list["item"];
+    itemList = itemList[5:];
+    currentBag.item_list["item"] = itemList;
+
+    # saving this change 
+    currentBag.save();
+
+    print("the updated list of items is as follows \n", currentBag.item_list["item"]);
+    print("The length after deletion of one item from the bag is as follows \n", len(currentBag.item_list["item"]));
+
+
+    # say everything went fine 
+    return currentBag;
+
+
+
+# defining function to FastForward the delivery for the riders 
+def fastForwardDelivery(listOfRiders):
+    # using the for loop for this purpose 
+    for rider in listOfRiders:
+        currentRider = Rider.objects.get(email = rider);
+        coordinates = currentRider.location_ids["coordinates"];
+        coordinates = coordinates[5:];
+        currentRider.location_ids["coordinates"] = coordinates;
+        currentRider.save();
+
+        # calling the function to also delete the list of items that are present in the riders bag 
+        removeItemFromBag(currentRider);
+    # say everything went fine 
+    return;
+
+
+
+
+# end point to fast forward the delivery location by 5 
+class FastForward(APIView):
+    # this will be a post request 
+    def post(self, request):
+        token = request.data["token"];
+        randomNumber = request.data["randomNumber"];
+
+        userName = Token.objects.get(key=token).user
+
+        # we have to find the riders that were involved and then we have to delete the locations 
+        # to simulate the fast forward thingy 
+        listOfRiders = findListOfRidersInvolved(userName, randomNumber)
+
+        # once we get the list of riders we have to delete the first 5 entries in their locations 
+        # calling the function for this purpose 
+        fastForwardDelivery(listOfRiders);
+
+    
+        # say everything went fine 
+        return Response({"msg" : "success"}, status=status.HTTP_200_OK);
+
+
+
+# end point to add pick up points 
+class DynamicPickUpPoints(APIView):
+    # in this we have to upload the excel sheet for the dynamic pickup points 
+    # this will be a post request 
+    def post(self, request):
+        print(request.data);
+        print(request.FILES);
+        data = request.data;
+        token = data['token'];
+        randomNumber = request.data["randomNumber"]
+        file = request.FILES['file']
+
+
+        excelData = pd.read_excel(file);
+
+
+        #save the updated sheet
+        excelData.to_excel(file)
+        print("The content of the file is ", excelData);
+
+
+        userName = Token.objects.get(key=token).user
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        print('The token belongs to the following user\n\n', currentUser);
+        userName = currentUser.email;
+        
+
+        currentAlgoStatus = AlgorithmStatusModel.objects.get(username = userName, random_number = randomNumber);
+        currentAlgoStatus.dynamicPickUpExcelSheet = file;
+        currentAlgoStatus.save();
+
+
+        # say everything went fine 
+        return Response({"msg" : "success", "data" : "Uploaded the Dynamic Pickup Points"}, status=status.HTTP_200_OK);
+        

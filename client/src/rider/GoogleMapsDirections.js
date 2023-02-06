@@ -14,7 +14,7 @@ import UTurnRightIcon from "@mui/icons-material/UTurnRight";
 import axios from "../axios";
 import Map_inside from "./Map_inside";
 
-const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
+const GoogleMapsDirections = ({ email, token, islogged, randomNumber }) => {
     const [directions, setDirections] = useState(null);
     const [locdata, setLocdata] = useState(null);
     const [rider_places, setRiderplaces] = useState([]);
@@ -27,6 +27,7 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
     }, []);
 
     const sequentialExecution = async () => {
+        console.log("startedd seq execution");
         try {
             const data1 = await getLocations();
             const data2 = await convertTOgooglePoints();
@@ -37,32 +38,34 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
     };
 
     const getLocations = async () => {
+        // axios
+        //     .post(`/algo/status/`, {
+        //         token: token,
+        //         randomNumber: randomNumber,
+        //     })
+        console.log("email: ", email);
         axios
-            .post(`/algo/status/`, {
-                token: token,
-                randomNumber: randomNumber,
+            .post(`/rider/locations/`, {
+                // email: email,
+                email: "rk5@gmail.com",
             })
             .then((res) => {
+                console.log(res);
                 setRiderplaces([]);
                 let data = res.data;
-                let rider_to_loc = data.rider_to_location;
-                for (let i = 0; i < rider_to_loc.length; i++) {
-                    let temp = [];
-                    let rid = { rider_id: rider_to_loc[i].email };
-                    if (rider_to_loc[i].email != "rk4@gmail.com") continue;
-                    let list_locations =
-                        rider_to_loc[i].location_ids.coordinates;
-                    temp.push(rid);
 
-                    for (let j = 0; j < list_locations.length; j++) {
-                        temp.push({
-                            lat: list_locations[j][1],
-                            lng: list_locations[j][2],
-                        });
-                    }
-                    setRiderplaces((old) => [...old, temp]);
-                    console.log(" getLocations over");
+                let rider_to_loc = data.rider_to_location;
+
+                let temp = [];
+                let list_locations = res.data.data.coordinates;
+                for (let j = 0; j < list_locations.length; j++) {
+                    temp.push({
+                        lat: list_locations[j][1],
+                        lng: list_locations[j][2],
+                    });
                 }
+                setRiderplaces((old) => [...old, temp]);
+                console.log(" getLocations over");
             })
             .catch((error) => {
                 console.log(error);
@@ -259,7 +262,9 @@ const GoogleMapsDirections = ({ token, islogged, randomNumber }) => {
 
                 {directions ? (
                     directions.routes[0].legs.map(
-                        (data0, index0) => <Mapper_inside data0={data0} index0={index0} />
+                        (data0, index0) => (
+                            <Mapper_inside data0={data0} index0={index0} />
+                        )
                         // <Map_inside data0={data0} />
                     )
                 ) : (
@@ -326,8 +331,14 @@ const DirectionCard = ({ data, index }) => {
 const Mapper_inside = ({ data0, index0 }) => {
     return (
         <>
-            <div style={{ textAlign: "center", fontWeight:"bold", margin:"5px 0" }}>
-                Location {String.fromCharCode(index0+65)} 
+            <div
+                style={{
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    margin: "5px 0",
+                }}
+            >
+                Location {String.fromCharCode(index0 + 65)}
             </div>
             {data0.steps.map((data, index) => (
                 <DirectionCard data={data} index={index} />

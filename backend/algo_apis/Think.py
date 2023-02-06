@@ -10,7 +10,7 @@ import numpy as np
 from .Neel import solve 
 
 # time_matrix218_2023-01-21T17.04.47.497441
-def think(time_filename):
+def think(time_filename, n):
     time = pd.read_csv(time_filename)
     # print(time)
 
@@ -21,7 +21,7 @@ def think(time_filename):
     np_matrix = np.append([np.zeros(num_cols+1)], np_matrix, axis=0 )
     np_matrix[np_matrix == 0] = np.inf 
 
-    res = solve(5,218,np_matrix)
+    res = solve(n,num_rows,np_matrix)
     print("\n\n\n\n")
     print(res)
     return res;

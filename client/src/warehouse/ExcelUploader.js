@@ -6,13 +6,14 @@ import { useEffect } from 'react';
 const ExcelUploader = ({uploadedExcel,setUploadedExcel}) => {
   useEffect(()=>{
     setUploadedExcel(null);
-  })
+  },[])
   
   const [uploadedFileName, setUploadedFileName] = useState();
 
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    console.log(file);
     setUploadedExcel(file);
     setUploadedFileName(file.name);
   };
@@ -26,7 +27,7 @@ const ExcelUploader = ({uploadedExcel,setUploadedExcel}) => {
     <div>
       <Input
         type="file"
-        onChange={handleFileChange}
+        onChange={(e)=>handleFileChange(e)}
         accept=".xlsx, .xls, .csv"
       />
       {uploadedFileName && (

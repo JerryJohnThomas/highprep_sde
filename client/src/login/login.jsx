@@ -16,9 +16,8 @@ import "./login.css";
 // import axios from "axios";
 import axios from "../axios"
 
-function Login({ islogged, setIsLogged, token, setToken }) {
+function Login({ query, setQueryState, islogged, setIsLogged, token, setToken }) {
     const [formState, setFormState] = useState("IN_PROGRESS");
-    const [query, setQueryState] = useState("");
     const [model, setModelState] = useState("BM25");
     const [resultNo, setResultNoState] = useState("");
     const [result, setResultState] = useState("");
@@ -37,17 +36,13 @@ function Login({ islogged, setIsLogged, token, setToken }) {
 
     const navigate = useNavigate();
     useEffect(() => {
-
         if (formState === "FETCHING_DATA") {
             axios
-                .post(
-                    `/api-token-auth/`,
-                    {
-                        // email: query,
-                        username: query,
-                        password: resultNo,
-                    }
-                )
+                .post(`/api-token-auth/`, {
+                    // email: query,
+                    username: query,
+                    password: resultNo,
+                })
                 .then((res) => {
                     console.log(res);
                     setFormState("DONE");
@@ -56,12 +51,23 @@ function Login({ islogged, setIsLogged, token, setToken }) {
                     if (res.status == 200) {
                         setIsLogged(true);
                         console.log(res.data.token);
+                        // setToken(() => res.data.token); // this should be the token
                         setToken(res.data.token); // this should be the token
 
                         // TO DO @shub
                         // check if user is warehouse like that ...
-                        navigate("/warehouse/", { replace: true });
+                        if (modelRef.current=="U2")
+                            navigate("/warehouse/", { replace: true });
+                        else if (modelRef.current == "U1")
+                            navigate("/rider/maps", { replace: true });
+
                     }
+
+                    // else if (res.status == 400)
+                    // {
+                    //     setFormState("ERROR");
+                    //     console.log("error");
+                    // }
                     // TO DO @shub
                     //if(res!=iNVALID)
                     // {
