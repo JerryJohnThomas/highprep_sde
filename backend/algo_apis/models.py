@@ -25,7 +25,7 @@ class Rider(models.Model):
     status = models.CharField(max_length=20)
     location_ids = models.JSONField(null=True, blank=True)
     bag_id = models.CharField(max_length=100, default="-1")
-    temp_id = models.IntegerField(null=True)
+    temp_id = models.IntegerField(null=True, default=1)
     
     # need to add the bag which will store the ids of inventory items 
 

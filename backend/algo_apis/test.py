@@ -15,9 +15,11 @@ def tsp(graph):
 			nodes.add(j)
 
 	m = {}
+	mRev = {}
 	nodes = list(nodes)
 	for i in range(len(nodes)):
 		m[nodes[i]] = i
+		mRev[i] = nodes[i]
 		
 	for i in G:
 		newG[m[i]] = {}
@@ -57,13 +59,14 @@ def tsp(graph):
 			length += G[current][v]
 			current = v
 
-	length +=G[current][eulerian_tour[0]]
+	length += G[current][eulerian_tour[0]]
 	path.append(eulerian_tour[0])
 
 	# print("Result path: ", path)
 	# print("Result length of the path: ", length)
 
-	return length, path
+	newPath = [mRev[i] for i in path]
+	return length, newPath
 
 
 class UnionFind:
@@ -199,11 +202,8 @@ def remove_edge_from_matchedMST(MatchedMST, v1, v2):
 	return MatchedMST
 
 
-# ret = tsp({1: {3: 1}, 3: {1: 1}})
+# ret = tsp({148: {1: 0.33605971195607465, 2: float('inf')}, 1: {148: 0.33605971195607465, 2: float('inf')}, 2: {148: float('inf'), 1: float('inf')}})
 
-# ret = tsp(
-# {61: {1: 0.9951049241160452, 2: 3.5214885559944666}, 1: {61: 0.9951049241160452}, 2: {61: 3.5214885559944666}})
+# ret = tsp({61: {1: 0.9951049241160452, 2: 3.5214885559944666}, 1: {61: 0.9951049241160452, 2: 0}, 2: {61: 3.5214885559944666, 1:0}})
 
 # print(ret)
-
-

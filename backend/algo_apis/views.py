@@ -25,7 +25,7 @@ import string
 import random
 from .Think import think
 from .maps_route_api import api_call_pickup
-
+from .main import solve;
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
     def get(self, request):
@@ -324,17 +324,22 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
         print("The lat is ",type(lat));
         print("The long is ",type(lng));
         # print("The type of item is ", type(i))
+        if 'Volume' in df.columns:
+            print("Volume column already exists")
+        else:
+            df['Volume'] = np.random.uniform(low=15000, high=40000, size=(len(df)))
 
+        # print(df)
         # latitude = [];
         # longitude = [];
         coordinates = [];
-        random_string = "item" +  random_string_generator() ;
         # here we will have to create the new item in the database as we are getting it from excel sheet 
-        newItem = Item.objects.create(item_name = random_string, item_volumne = df["item"][i])
         # using the for loop for this purpose 
-        for i in range(lat.size):
-            # coordinates.append([i+1, df['lat'][i], df['lng'][i], newItem.item_name])
-            coordinates.append([i+1, df['lat'][i], df['lng'][i]])
+        for i in range(len(lat)):
+            random_string = "item" +  random_string_generator() ;
+            newItem = Item.objects.create(item_name = random_string, item_volume = df["Volume"][i])
+            coordinates.append([i+1, df['lat'][i], df['lng'][i], newItem.item_name])
+            # coordinates.append([i+1, df['lat'][i], df['lng'][i]])
 
 
         location_names = [];
@@ -409,7 +414,7 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
         print("got the coordinates = ", riderIdVsLoc[i]);
         print("\n\n")
         # here we also have to assign the temp id for easy purpose 
-        currentRider.temp_id = i+1;
+        currentRider.temp_id = i;
         currentRider.save();
         riderDict[riderEmail] = riderIdVsLoc[i];
         i = i+1;
@@ -505,7 +510,7 @@ def findNodeWeights(currentLocation):
     for entry in coordinates:
         itemName = entry[3];
         itemVolume = Item.objects.get(item_name = itemName).item_volume
-        itemVolumeNodeWeights[entry[0]] = itemVolume;
+        itemVolumeNodeWeights[entry[0]] = float(itemVolume);
 
 
     # say everything went fine 
@@ -541,7 +546,7 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         
         # # idMapForRiders = 
         # # now we have to mark these as non available 
-        markThemAsNonAvailable(availableNRiders);
+        # markThemAsNonAvailable(availableNRiders);
 
 ########################################################################################################
 
@@ -575,15 +580,21 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         totalLocations = findNumberOfLocations(currentAlgorithm, latLongCsvFilePath);
         currentAlgorithm.number_of_locations = totalLocations;
         currentAlgorithm.save();
-
+        currentLocation = Location.objects.get(username = userName, random_number = randomNumber)
         # creating the dictionary for item weights 
         locationToItemVolume_nodeWeights = findNodeWeights(currentLocation);
+        print("the node item weight is \n\n\n", locationToItemVolume_nodeWeights)
 
         deliveryManBagWeight = findBagWeightsOfRiders(availableNRiders);
+
+        print("the bag weight is \n\n\n", deliveryManBagWeight)
         
         # timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
         # now i will be calling the NEEL's algo here 
-        algoRes = think(timeMatrixFileName, n)
+        time_matrix_data = think(timeMatrixFileName, n)
+        dist_matrix_data = think(distMatrixFileName, n)
+        algoRes, totalCost = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+        print("The algo result is as follows \n\n\n", algoRes)
 
 ########################################################################################################
         #TODO 
@@ -601,8 +612,10 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 
         # here we are assigning the locations to the riders 
         for key in algoRes:
-            currentLatLong = coordinates[key-1];
-            riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
+            for location in algoRes[key]:
+                riderIdVsLoc[key].append(coordinates[location-1])
+            # currentLatLong = coordinates[key-1];
+            # riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
         
 
         print("The final mapping of riderid vs loc is as follows \n\n");
@@ -861,25 +874,25 @@ class DynamicPickUpPoints(APIView):
         file = request.FILES['file']
 
 
-        # excelData = pd.read_excel(file);
+        excelData = pd.read_excel(file);
 
 
-        # #save the updated sheet
-        # excelData.to_excel(file)
-        # print("The content of the file is ", excelData);
+        #save the updated sheet
+        excelData.to_excel(file)
+        print("The content of the file is ", excelData);
 
 
         userName = Token.objects.get(key=token).user
-        # currentUser = PersonInfo.objects.get(email = str(userName))
-        # print('The token belongs to the following user\n\n', currentUser);
-        # userName = currentUser.email;
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        print('The token belongs to the following user\n\n', currentUser);
+        userName = currentUser.email;
         
 
         currentAlgoStatus = AlgorithmStatusModel.objects.get(username = userName, random_number = randomNumber);
-        # currentAlgoStatus.dynamicPickUpExcelSheet = file;
-        # currentAlgoStatus.save();
-        # # time.sleep(10)
-        # addressToLocations2(str(file), userName, randomNumber, currentAlgoStatus)
+        currentAlgoStatus.dynamicPickUpExcelSheet = file;
+        currentAlgoStatus.save();
+        # time.sleep(10)
+        addressToLocations2(str(file), userName, randomNumber, currentAlgoStatus)
         # step1 ==> store the remaining locations 
         latLongCsvFilePath = "./data/" + str(currentAlgoStatus.dynamicPickUpExcelSheet) + ".csv"
         print("the file path is as follows \n\n\n");
@@ -889,13 +902,18 @@ class DynamicPickUpPoints(APIView):
         lng = df["lng"]
         print("The lat is ",(lat));
         print("The long is ",(lng));
+
+        # using the for loop to find the distance for this purpose
+        for i in range(0, len(lat)):
+            new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : -1}
+            oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict = findRemainingLocations(userName, randomNumber)
+            distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
+            print('The distance array that i got is ', distanceArray);
+            print("The time array that i got is ", timeArray)
+
+
         # print()
-        # oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict = findRemainingLocations(userName, randomNumber)
-        # new_pick_up = {"lat" : 12.7474, "lng" : 12.4567, "id" : -1}
         # # step2 ==> give this to magic api and it will return the distance and time matrix 
-        # distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
-        # print('The distance array that i got is ', distanceArray);
-        # print("The time array that i got is ", timeArray)
         # distance = [];
         # time = [];
 

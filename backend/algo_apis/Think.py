@@ -19,11 +19,11 @@ def think(time_filename, n):
 
     np_matrix = np.column_stack((np.zeros(num_rows), np_matrix ))
     np_matrix = np.append([np.zeros(num_cols+1)], np_matrix, axis=0 )
-    np_matrix[np_matrix == 0] = np.inf 
+    np_matrix[np_matrix == 0] = 10^10 
 
-    res = solve(n,num_rows,np_matrix)
-    print("\n\n\n\n")
-    print(res)
-    return res;
+    # res = solve(n,num_rows,np_matrix)
+    # print("\n\n\n\n")
+    # print(res)
+    return np_matrix;
 
 
