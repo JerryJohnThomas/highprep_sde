@@ -4,7 +4,7 @@ from django.urls import path, include
 
 
 from algo_apis.views import LatLongView, UploadExcelSheetView
-from algo_apis.views import StartAlgoView, StatusOfAlgo, FastForward
+from algo_apis.views import StartAlgoView, StatusOfAlgo, FastForward, DynamicPickUpPoints
 # , StartAlgoView2
 
 
@@ -18,5 +18,6 @@ urlpatterns = [
     path("upload/", UploadExcelSheetView.as_view(), name="UploadExcelSheetView"),
     path("status/", StatusOfAlgo.as_view(), name="StatusOfAlgo"),
     path("fastforward/", FastForward.as_view(), name="FastForward"),
+    path("dynamicpickup/", DynamicPickUpPoints.as_view(), name="DynamicPickUpPoints"),
 
 ]

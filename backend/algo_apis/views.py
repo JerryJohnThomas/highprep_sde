@@ -727,3 +727,40 @@ class FastForward(APIView):
         # say everything went fine 
         return Response({"msg" : "success"}, status=status.HTTP_200_OK);
 
+
+
+# end point to add pick up points 
+class DynamicPickUpPoints(APIView):
+    # in this we have to upload the excel sheet for the dynamic pickup points 
+    # this will be a post request 
+    def post(self, request):
+        print(request.data);
+        print(request.FILES);
+        data = request.data;
+        token = data['token'];
+        randomNumber = request.data["randomNumber"]
+        file = request.FILES['file']
+
+
+        excelData = pd.read_excel(file);
+
+
+        #save the updated sheet
+        excelData.to_excel(file)
+        print("The content of the file is ", excelData);
+
+
+        userName = Token.objects.get(key=token).user
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        print('The token belongs to the following user\n\n', currentUser);
+        userName = currentUser.email;
+        
+
+        currentAlgoStatus = AlgorithmStatusModel.objects.get(username = userName, random_number = randomNumber);
+        currentAlgoStatus.dynamicPickUpExcelSheet = file;
+        currentAlgoStatus.save();
+
+
+        # say everything went fine 
+        return Response({"msg" : "success", "data" : "Uploaded the Dynamic Pickup Points"}, status=status.HTTP_200_OK);
+        
