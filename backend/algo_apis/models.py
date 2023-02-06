@@ -44,7 +44,9 @@ class AlgorithmStatusModel(models.Model):
     # excelSheetName = models.CharField(max_length=1000)
     excelSheetFile = models.FileField(upload_to=content_file_name ,null=True)
     dynamicPickUpExcelSheet = models.FileField(upload_to=content_file_name2, null=True)
-    rider_to_location = models.JSONField(default=[]);
+    rider_to_location = models.JSONField(default=[])
+    number_of_drivers = models.IntegerField(null=True)
+    number_of_locations = models.IntegerField(null=True)
 
 # # making the new model to store the results of the algorithm 
 # class ResultModel(models.Model):

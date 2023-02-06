@@ -425,6 +425,23 @@ def createBagForEachRiders(availableNRiders):
     return;
 
 
+
+
+# defining the function to find the total number of locations 
+def findNumberOfLocations(currentAlgorithm, latLongCsvFilePath):
+
+    with open(latLongCsvFilePath, 'r') as f:
+        reader = csv.reader(f)
+        data = list(reader)
+
+    total_entries = len(data)
+
+    print(total_entries)
+
+    # say everything went fine 
+    return total_entries-2;
+
+
 def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
     ########################################################################################################
         #TODO 
@@ -465,6 +482,13 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 
         distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
         timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+
+        # here we also have to calculate the total number of locations under this algorithm 
+        # and finally save this to db 
+        totalLocations = findNumberOfLocations(currentAlgorithm, latLongCsvFilePath);
+        currentAlgorithm.number_of_locations = totalLocations;
+        currentAlgorithm.save();
+
         # timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
         # now i will be calling the NEEL's algo here 
         algoRes = think(timeMatrixFileName, n)
@@ -518,6 +542,7 @@ class StartAlgoView(APIView):
 
         # updating the status 
         currentAlgorithm.status = "Started";
+        currentAlgorithm.number_of_drivers = n;
         currentAlgorithm.save();
         my_tuple = (n, userName, currentAlgorithm, currentUser, randomNumber)
         threading.Thread(target=long_running_task, args=my_tuple).start()
