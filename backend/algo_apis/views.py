@@ -502,8 +502,28 @@ def findNodeWeights(currentLocation):
     # using the for loop for this purpose 
     for entry in coordinates:
         itemName = entry[3];
-        itemVolume = Item.objects.get(item_name = itemName)
-        itemVolumeNodeWeights[entry[0]] 
+        itemVolume = Item.objects.get(item_name = itemName).item_volume
+        itemVolumeNodeWeights[entry[0]] = itemVolume;
+
+
+    # say everything went fine 
+    return itemVolumeNodeWeights
+
+
+
+
+
+# defining the function to find the weight of bags of each rider involved in tour 
+def findBagWeightsOfRiders(availableNRiders):
+    riderVsBagWeight = {}
+    for rider in availableNRiders:
+        currentRider = Rider.objects.get(email = rider);
+        currentBag = Bag.objects.get(bag_id = currentRider.bag_id);
+        riderVsBagWeight[currentRider.temp_id] = currentBag.bag_size;
+    
+    # say everything went fine 
+    return riderVsBagWeight;
+
 
 
 
@@ -556,6 +576,8 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 
         # creating the dictionary for item weights 
         locationToItemVolume_nodeWeights = findNodeWeights(currentLocation);
+
+        deliveryManBagWeight = findBagWeightsOfRiders(availableNRiders);
         
         # timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
         # now i will be calling the NEEL's algo here 
@@ -766,6 +788,35 @@ class FastForward(APIView):
 
 
 
+# function to find the remaining location and make excel sheet 
+def findRemainingLocations(userName, randomNumber):
+    # we have to find all the riders 
+    listOfRiders = Rider.objects.filter(username = userName, random_number = randomNumber);
+    
+    oldLocationsDictForMagicApi = [];
+    RiderVsRemainingLocationsDict = {};
+    listOfIds = []
+
+    # using the for loop 
+    for rider in listOfRiders:
+        coordinates = rider.location_ids["coordinates"]
+        RiderVsRemainingLocationsDict[rider.temp_id] = [];
+
+        tempDict = {}
+        for point in coordinates:
+            tempDict["id"] = point[0];
+            tempDict["lat"] = point[1];
+            tempDict["lng"] = point[2];
+            tempArray = [point[1], point[2]];
+            RiderVsRemainingLocationsDict[rider.temp_id].append(tempArray)
+            listOfIds.append(point[0]);
+            oldLocationsDictForMagicApi.append(tempDict);
+
+    # say everything went fine 
+    return oldLocationsDictForMagicApi, listOfIds, RiderVsRemainingLocationsDict;
+
+
+
 # end point to add pick up points 
 class DynamicPickUpPoints(APIView):
     # in this we have to upload the excel sheet for the dynamic pickup points 
@@ -797,7 +848,33 @@ class DynamicPickUpPoints(APIView):
         currentAlgoStatus.dynamicPickUpExcelSheet = file;
         currentAlgoStatus.save();
 
+   
+        # step1 ==> store the remaining locations 
+        oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict = findRemainingLocations(userName, randomNumber)
+        
+        # step2 ==> give this to magic api and it will return the distance and time matrix 
+        distance = [];
+        time = [];
 
+        # step 3 ==> make the dictionary with location_id : distance 
+        distanceDictionary = {};
+        timeDictionary = {};
+        i = 0;
+        for ele in distance:
+            distanceDictionary[listOfIds[i]] = ele;
+            i = i+1;
+        
+        i = 0;
+        for ele in time:
+            timeDictionary[listOfIds[i]] = ele;
+            i = i+1;
+        
+
+            # timeDictionary[listOfIds[i]] = 
+
+        storeLatLongInDb()
+
+        # calculate the distance 
         # say everything went fine 
         return Response({"msg" : "success", "data" : "Uploaded the Dynamic Pickup Points"}, status=status.HTTP_200_OK);
         
