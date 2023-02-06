@@ -70,3 +70,50 @@ dest3 = [[50, 12.89963, 77.64903], [51, 12.9319, 77.60736], [52, 12.91586, 77.64
 # def api_call(a,b):
 #     return api_call_dummy(a,b)
     
+def api_call_pickup(new_point, list_old_pts):
+    size = len(list_old_pts)
+    distance_res = np.zeros([size])
+    time_res = np.zeros([size])
+
+    body = { "origins": [], "destinations" : [], "travelMode": "DRIVE",
+    #   "routingPreference": "TRAFFIC_AWARE"        ## uncommenting this will make the api higher priced and can do a max of 10 points as opposed to 25 points in a singel call
+    }
+
+    for location in [new_point]:
+        body['origins'].append({"waypoint": {"location": {"latLng": {"latitude": location.lat, "longitude": location.lng}}}})
+    
+    for location in list_old_pts:
+        body['destinations'].append({"waypoint": {"location": {"latLng": {"latitude": location.lat, "longitude": location.lng}}}})
+
+    # print(body)
+
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': 'AIzaSyC-BWemSByl9AoF7KNOzaFDL503NNrjB_g',
+        'X-Goog-FieldMask': 'originIndex,destinationIndex,duration,distanceMeters,status,condition',
+    }
+
+    call = requests.post('https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix', json=body, headers=headers)
+    res = call.text
+
+    print(call.status_code, call.reason)
+    json_object = json.loads(call.text)
+
+    print(len(json_object))
+    for id,data in enumerate(json_object):
+        # print(id, data)
+        ind2 = data["destinationIndex"]
+        time = int(data["duration"][:-1])
+        
+        if time==0:
+            dist = 0
+        else:
+            dist = data["distanceMeters"]
+
+        distance_res[ind2] = dist
+        time_res[ind2] = time
+
+    return distance_res , time_res
+
+
+
