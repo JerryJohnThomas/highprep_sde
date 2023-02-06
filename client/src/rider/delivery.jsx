@@ -60,12 +60,7 @@ function Delivery() {
   useEffect(() => {
     if (formState === "FETCHING_DATA") {
       axios
-        .post(`https://46af-14-139-174-50.in.ngrok.io/person/login/`, {
-          item_id: itemId,
-          otp: otp,
-          lat: userLat,
-          lng: userLong,
-        })
+        .get("https://dummy.restapiexample.com/api/v1/employees")
         .then((res) => {
           console.log(res);
           setFormState("DONE");
@@ -115,7 +110,6 @@ function Delivery() {
           defaultValue={deliver_toP}
           //required="true"
         />
-        <div>upload pic</div>
 
         <Button
           onClick={handleSubmission}
@@ -125,6 +119,7 @@ function Delivery() {
           Attempt Delivery
         </Button>
         <Button
+          style={{ width: "32ch" }}
           variant="outlined"
           color="error"
           component={Link}
@@ -132,7 +127,6 @@ function Delivery() {
         >
           go back
         </Button>
-        <Link to="/rider/bag">Click Me</Link>
       </Box>
     );
   } else {
@@ -149,7 +143,43 @@ function Delivery() {
       );
     }
   }
-
+  if (formState === "DONE") {
+    console.log("suxx");
+    return (
+      <div className="codeforces-id-input">
+        <Typography variant="h5" component="div" color="Black" gutterBottom>
+          Delivery Successful!
+        </Typography>
+        <Button
+          variant="outlined"
+          color="error"
+          component={Link}
+          style={{ width: "32ch" }}
+          to="/rider/bag"
+        >
+          Home
+        </Button>
+      </div>
+    );
+  }
+  if(formState==="ERROR"){
+    return (
+      <div className="codeforces-id-input">
+        <Typography variant="h5" component="div" color="Black" gutterBottom>
+          Could Not deliver!
+        </Typography>
+        <Button
+          variant="outlined"
+          color="error"
+          component={Link}
+          style={{ width: "32ch" }}
+          to="/rider/bag"
+        >
+          Home
+        </Button>
+      </div>
+    );
+  }
   return (
     <div className="App">
       <div className="results">
