@@ -47,7 +47,7 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 	clusterValuesSum = 0
 	newPoints = []
 	h =  (mexVal ** (1.5) / nodes)
-	print("H value is : ", h)
+	#print("H value is : ", h)
 	
 	for i in points:
 		mx = float('inf')
@@ -88,15 +88,15 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 		clustersNodes[idx].append(i)
 		clustersGraphs[idx] = mxGraph
 		clusterWeightSum[idx] += nodeWeights[i]
-		# print("And the node i goes to :", clustersNodes[idx][0])
+		# #print("And the node i goes to :", clustersNodes[idx][0])
 
-	# print(len(newPoints))
+	# #print(len(newPoints))
 
 	nodesDone = 0 
 	for i in clustersNodes:
 		nodesDone += len(i)
 
-	print("nodesDone = ", nodesDone)
+	#print("nodesDone = ", nodesDone)
 
 	for i in newPoints:
 		mx = float('inf')
@@ -134,14 +134,14 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 		clustersNodes[idx].append(i)
 		clustersGraphs[idx] = mxGraph
 		clusterWeightSum[idx] += nodeWeights[i]
-		# print("And the node i goes to :", clustersNodes[idx][0])
+		# #print("And the node i goes to :", clustersNodes[idx][0])
 	
 	totalCost = 0
 	for i in range(drivers):
 		x, _ = tsp(clustersGraphs[i])
 		totalCost += x
 
-	# print("Total Cost == ", totalCost)
+	# #print("Total Cost == ", totalCost)
 	# driver id, path
 	ans = {}
 	for i in range(drivers):
@@ -155,12 +155,12 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 				menCost = tmp[0]
 			# path = tmp[1]
 		ans[i] = path
-		# print("path before", path)
+		# #print("path before", path)
 		assert(len(path) > 1)
 		if (len(path) == 2): 
 			assert(path[0] == path[1])
 			ans[i] = [1] + path[0] + [1]
-			# print("path after", path)
+			# #print("path after", path)
 			continue
 		
 		mnDistDiff = float('inf')
@@ -172,8 +172,8 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 				mnIdx = j
 		assert(idx != -1)
 		path = [1] + path[mnIdx+1:] + path[1:mnIdx+1] + [1]
-		# print("path after", path)
+		# #print("path after", path)
 		ans[i] = path
-	# print("my length", len(ans))
+	# #print("my length", len(ans))
 
 	return ans, totalCost

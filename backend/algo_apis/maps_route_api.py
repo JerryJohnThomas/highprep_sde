@@ -79,12 +79,14 @@ def api_call_pickup(new_point, list_old_pts):
     body = { "origins": [], "destinations" : [], "travelMode": "DRIVE",
     #   "routingPreference": "TRAFFIC_AWARE"        ## uncommenting this will make the api higher priced and can do a max of 10 points as opposed to 25 points in a singel call
     }
+    print("jj: origin" ,new_point)
+    print("jj: dest" ,list_old_pts)
 
     for location in [new_point]:
-        body['origins'].append({"waypoint": {"location": {"latLng": {"latitude": location.lat, "longitude": location.lng}}}})
+        body['origins'].append({"waypoint": {"location": {"latLng": {"latitude": location["lat"], "longitude": location["lng"]}}}})
     
     for location in list_old_pts:
-        body['destinations'].append({"waypoint": {"location": {"latLng": {"latitude": location.lat, "longitude": location.lng}}}})
+        body['destinations'].append({"waypoint": {"location": {"latLng": {"latitude": location["lat"], "longitude": location["lng"]}}}})
 
     # print(body)
 
