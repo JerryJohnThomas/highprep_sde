@@ -27,7 +27,7 @@ import { useEffect } from "react";
 import RiderCard from "./RiderCard";
 import UploadExcel_Pickup from "./UploadExcel_Pickup";
 // import { Alert } from "@material-ui/core";
-
+import {Alert} from  "@mui/material"
 // const center = { lat: 48.8584, lng: 2.2945 }
 const center = { lat: 9.95, lng: 76.25 };
 function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
@@ -50,7 +50,7 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
     const [max_dist_state, setMax_dist_state] = useState(0);
     const [sum_dist_state, setSum_dist_state] = useState(0);
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(true);
 
 
     let colors = [
@@ -266,9 +266,9 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
 
     return (
         <>
-            {/* <Alert open={open} onClose={() => setOpen(false)}>
+            <Alert open={false} onClose={() => setOpen(false)}>
                 Maps Updated
-            </Alert> */}
+            </Alert>
             <div className="jerry_directions2_contianer_top">
                 <div className="jerry_directions2_map_container">
                     {/* start comment here */}
