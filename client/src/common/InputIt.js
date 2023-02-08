@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
+import { useNavigate } from "react-router-dom";
 
 function InputIt({token,setToken, randomNumber, setRandomNumber}) {
   
     const[token_inp,setToken_inp] = useState("");
     const[rand_inp,setRand_inp] = useState("");
     
+    const navigate = useNavigate();
+
+
     let handle =()=>{
         console.log("token", token)
         console.log("randomNumber", randomNumber)
@@ -24,7 +28,9 @@ function InputIt({token,setToken, randomNumber, setRandomNumber}) {
     </div>
 
 
-    <button onClick={(e)=>handle()}>tnx</button>
+    <button onClick={(e)=>navigate("/warehouse/", { replace: true })}>warehouse </button>
+    <button onClick={(e)=>navigate("/rider/maps", { replace: true })}>rider </button>
+    
     </>
 
 
