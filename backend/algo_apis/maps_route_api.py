@@ -1,6 +1,7 @@
 import numpy as np
 import json
 import requests
+from numpy import random 
 
 def api_call_dummy(a,b):
     size1 = len(a)
@@ -120,3 +121,9 @@ def api_call_pickup(new_point, list_old_pts):
 
 
 
+def api_call_pickup_dummy(new_point, list_old_pts):
+    size = len(list_old_pts)
+    distance_res = np.random.randint(0, 100, size)
+    time_res = np.random.randint(0, 100, size)
+    
+    return distance_res , time_res
