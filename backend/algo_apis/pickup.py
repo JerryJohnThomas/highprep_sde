@@ -43,6 +43,8 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
     distances1 = []
 
     for i in range(1, nodes + 1):
+        if(i == nodes):
+            distances1.append(0)
         if(i in allLocations):
             distances1.append(distances[i])
         else:
@@ -51,14 +53,14 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
     adjMtrxDist.append(list(distances1))
 
 
-	for i in range(1, nodes + 1):
+    for i in range(1, nodes + 1):
         if(i == nodes):
             adjMtrxDist[i].append(0)
             continue
-		if i in allLocations:
-			adjMtrxDist[i].append(distances[i])
-		else:
-			adjMtrxDist[i].append(10 ** 10)
+        if i in allLocations:
+            adjMtrxDist[i].append(distances[i])
+        else:
+            adjMtrxDist[i].append(10 ** 10)
 
 
     # adjMtrxDist.append([])
@@ -157,7 +159,7 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
         mxGraph = {}
         for l in range(100):
             for j in range(drivers):
-                if len(clustersNodes[j]) > 25 : continue
+                # if len(clustersNodes[j]) > 25 : continue
                 newGraph = copy.deepcopy(clustersGraphs[j])
                 newGraph[i] = {}
                 for n in clustersNodes[j]:
@@ -180,7 +182,7 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
         # please add nodes in cluster nodes
         # please update the value 
         # update cluster sum as well
-        if (mx == float('inf')): continue
+        # if (mx == float('inf')): continue
         # print("added ", i , "to cluster : ", idx)
         # print()
         clusterValuesSum += (valueCoorToMx - clusterValues[idx])

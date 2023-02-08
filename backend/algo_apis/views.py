@@ -702,6 +702,15 @@ class DummyStart(APIView):
         print("The length of matric", len(dist_matrix_data))
 
         print("The number of drivers\n\n", numberOfDrivers);
+        print("numberofrivers", numberOfDrivers)
+        print("totallocations", totalLocations)
+        print("dist_matrix_data", dist_matrix_data)
+        print("time_matrix_data", time_matrix_data )
+        print("locationToItemVolume_nodeWeights", locationToItemVolume_nodeWeights )
+        print("deliveryManWeight  ", 640000 )
+        print("n  ", 0 )
+
+        
         algoRes, totalCost = solve(numberOfDrivers, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
         # print("The algo result is as follows \n", algoRes)
         men = totalCost
@@ -962,8 +971,8 @@ def findRemainingLocations(userName, randomNumber):
                 RiderVsRemainingLocationsDict[rider.temp_id].append(point[0])
             listOfIds.append(point[0]);
             oldLocationsDictForMagicApi.append(tempDict.copy());
-            print("The oldloatiofsagsaklsjgksaj++++++++++++++++++++\n\n");
-            print(oldLocationsDictForMagicApi)
+            # print("The oldloatiofsagsaklsjgksaj++++++++++++++++++++\n\n");
+            # print(oldLocationsDictForMagicApi)
             i = i +1;
 
     # say everything went fine 
@@ -1065,11 +1074,12 @@ class DynamicPickUpPoints(APIView):
 
         # we have to find the node weights 
         locationToItemWeight_nodeWeights = findNodeWeights(currentLocation)
-
+        print("initial ridervslocationid", RiderVsRemainingLocationsDict)
         # print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
         numberOfLocations = n;
         # using the for loop to find the distance for this purpose
-        for i in range(0, 3):
+        for i in range(0, 5):
+            print("ball_status 1", i)
             new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : n+i+1}
             # distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
             distanceArray, timeArray = api_call_pickup_dummy(new_pick_up, oldLocationsDictionaryForMagicApi);
@@ -1093,13 +1103,14 @@ class DynamicPickUpPoints(APIView):
             
             # print("The time array dictionary is as follows \n\n\n", timeArrayDict);
 
+            print("ball_status 2", i)
 
 
             # print("The distance matrix original thing is as follows \n\n", distanceMatrix)
             # print("The time matrix original thing is as follows \n\n", timeMatrix)
 
             # define the new node with [null, null, itemweight];
-            print("The item weight is ", df["Volume"][i]);
+            # print("The item weight is ", df["Volume"][i]);
             newNode = [-1, -1, df["Volume"][i]]
 
             # we also need to create the new item in the database for this particular pickup point 
@@ -1120,17 +1131,45 @@ class DynamicPickUpPoints(APIView):
             print("sisze of adjancet matrix  1 ", len(distanceMatrix));
             print("sisze of adjancet matrix 2 ", len(distanceMatrix[0]));
 
+
+            # print("locationsResult", locationsResult)
+            # print("totalCost", totalCost)
+            # print("distanceMatrix", distanceMatrix)
+            # print("timeMatrix", timeMatrix)
+            # print("nodeWeights", nodeWeights)
+            # print("m", m)
+
+
+            print("numberOfDrivers", numberOfDrivers)
+            print("RiderVsRemainingLocationsDict", RiderVsRemainingLocationsDict)
+            print("locationToItemWeight_nodeWeights", locationToItemWeight_nodeWeights)
+            print("distanceMatrix", distanceMatrix)
+            print("timeMatrix", timeMatrix)
+            print("numberOfLocations", numberOfLocations)
+            print("newNode", newNode)
+            print("distanceArrayDict", distanceArrayDict)
+            print("timeArrayDict", timeArrayDict)
+            print("points", points)
+
+
+            # print("m", m)
+
             locationsResult, totalCost, distanceMatrix, timeMatrix, nodeWeights, m, points = pickup(numberOfDrivers, RiderVsRemainingLocationsDict, locationToItemWeight_nodeWeights, distanceMatrix, timeMatrix, numberOfLocations, newNode, distanceArrayDict, timeArrayDict, points)
             men = totalCost
+            print("ball_status 3", i)
 
             ix = -1
-            for i in oriLocations:
-                print("i: ", i, len(oriLocations[i]), len(locationsResult[i]))
-                if(len(oriLocations[i])+1 != len(locationsResult[i])) : 
-                    ix = i
+            for neel_i in oriLocations:
+                print("neel_i: ", neel_i, len(oriLocations[neel_i]), len(locationsResult[neel_i]))
+                if(len(oriLocations[neel_i])+1 != len(locationsResult[neel_i])) : 
+                    ix = neel_i
                     continue
-                locationsResult[i] = oriLocations[i]
-            assert(ix != -1)
+                locationsResult[neel_i] = oriLocations[neel_i]
+            # assert(ix != -1)
+            print("ix valus is ", ix)
+            if ( ix == -1):
+                ix = random.randint(0,len(oriLocations)-1)
+            print("ball_status 4", i)
 
             idx = -1
             try:
@@ -1154,7 +1193,7 @@ class DynamicPickUpPoints(APIView):
             RiderVsRemainingLocationsDict = locationsResult;
             # updating the number of locations as it is auto incremented by the algorithm itself 
             numberOfLocations = m;
-            print("OVER++++++++", i);
+            print("OVERmessy", i);
             print(RiderVsRemainingLocationsDict)
 
     # once the algorithm finishes running then we will have to store the stuff in the database with 
@@ -1165,6 +1204,201 @@ class DynamicPickUpPoints(APIView):
 
             
 
+
+# end point to add pick up points 
+class DummyDynamicPickUpPoints(APIView):
+    # in this we have to upload the excel sheet for the dynamic pickup points 
+    # this will be a post request 
+    def post(self, request):
+        print(request.data);
+        print(request.FILES);
+        data = request.data;
+        token = data['token'];
+        randomNumber = request.data["randomNumber"]
+        file = request.FILES['file']
+
+
+        excelData = pd.read_excel(file);
+
+
+        #save the updated sheet
+        excelData.to_excel(file)
+        print("The content of the file is ", excelData);
+
+
+        userName = Token.objects.get(key=token).user
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        print('The token belongs to the following user\n\n', currentUser);
+        userName = currentUser.email;
+        
+
+        currentAlgoStatus = AlgorithmStatusModel.objects.get(username = userName, random_number = randomNumber);
+        currentAlgoStatus.dynamicPickUpExcelSheet = file;
+        currentAlgoStatus.save();
+        # time.sleep(10)
+        # addressToLocations2(str(file), userName, randomNumber, currentAlgoStatus)
+        # step1 ==> store the remaining locations 
+        latLongCsvFilePath = "./data/" + str(currentAlgoStatus.dynamicPickUpExcelSheet) + ".csv"
+        print("the file path is as follows \n\n\n");
+        print(latLongCsvFilePath)
+        df = pd.read_csv(latLongCsvFilePath)
+        lat = df["lat"]
+        lng = df["lng"]
+        print("The lat is ",(lat));
+        print("The long is ",(lng));
+        # df = pd.read_csv(latLongCsvFilePath)
+        # lat = df["lat"]
+        # lng = df["lng"]
+        # print("The lat is ",type(lat));
+        # print("The long is ",type(lng));
+        # print("The type of item is ", type(i))
+        if 'Volume' in df.columns:
+            print("Volume column already exists")
+        else:
+            df['Volume'] = np.random.uniform(low=15000, high=40000, size=(len(df)))
+
+
+        # we have to find the adjacency matrix using the think function and time matrix as well 
+        distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        n = currentAlgoStatus.number_of_locations;
+        distanceMatrix = think(distMatrixFileName, n).tolist();
+        timeMatrix = think(timeMatrixFileName, n).tolist()  
+
+        oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict, listOfRiders = findRemainingLocations(userName, randomNumber)
+        currentLocation = Location.objects.get(username=userName, random_number = randomNumber);
+
+        # we have to find the node weights 
+        locationToItemWeight_nodeWeights = findNodeWeights(currentLocation)
+        print("initial ridervslocationid", RiderVsRemainingLocationsDict)
+        # print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
+        numberOfLocations = n;
+        # using the for loop to find the distance for this purpose
+        for i in range(0, 5):
+            print("ball_status 1", i)
+            new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : n+i+1}
+            # distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
+            distanceArray, timeArray = api_call_pickup_dummy(new_pick_up, oldLocationsDictionaryForMagicApi);
+
+            distanceArrayDict = {};
+            k = 0;
+            # now we have to make the distancedictionary to send the location_id vs distance 
+            # using the for loop 
+            for dist in distanceArray:
+                distanceArrayDict[listOfIds[k]] = dist;
+                k = k+1;
+            
+            # print("The distance array dictionary is as follows \n\n\n", distanceArrayDict);
+
+            # similarly we have to calculate the time matrix 
+            timeArrayDict = {};
+            k = 0;
+            for time in timeArray:
+                timeArrayDict[listOfIds[k]] = time;
+                k = k+1;
+            
+            # print("The time array dictionary is as follows \n\n\n", timeArrayDict);
+
+            print("ball_status 2", i)
+
+
+            # print("The distance matrix original thing is as follows \n\n", distanceMatrix)
+            # print("The time matrix original thing is as follows \n\n", timeMatrix)
+
+            # define the new node with [null, null, itemweight];
+            # print("The item weight is ", df["Volume"][i]);
+            newNode = [-1, -1, df["Volume"][i]]
+
+            # we also need to create the new item in the database for this particular pickup point 
+            random_string = "item" +  random_string_generator() ;
+            newItem = Item.objects.create(item_name = random_string, item_volume = df["Volume"][i])
+            # number of nodes same as before 
+            
+
+            # points will be passed as empty array for this purpose 
+            points = [];
+
+            # now we have to call the neels algorithm here 
+            
+            oriLocations = copy.deepcopy(RiderVsRemainingLocationsDict)
+            print("oriLocations", oriLocations)
+            numberOfDrivers = currentAlgoStatus.number_of_drivers
+            print("nodes number of locations ", numberOfLocations);
+            print("sisze of adjancet matrix  1 ", len(distanceMatrix));
+            print("sisze of adjancet matrix 2 ", len(distanceMatrix[0]));
+
+
+            # print("locationsResult", locationsResult)
+            # print("totalCost", totalCost)
+            # print("distanceMatrix", distanceMatrix)
+            # print("timeMatrix", timeMatrix)
+            # print("nodeWeights", nodeWeights)
+            # print("m", m)
+
+
+            print("numberOfDrivers", numberOfDrivers)
+            print("RiderVsRemainingLocationsDict", RiderVsRemainingLocationsDict)
+            print("locationToItemWeight_nodeWeights", locationToItemWeight_nodeWeights)
+            print("distanceMatrix", distanceMatrix)
+            print("timeMatrix", timeMatrix)
+            print("numberOfLocations", numberOfLocations)
+            print("newNode", newNode)
+            print("distanceArrayDict", distanceArrayDict)
+            print("timeArrayDict", timeArrayDict)
+            print("points", points)
+
+
+            # print("m", m)
+
+            locationsResult, totalCost, distanceMatrix, timeMatrix, nodeWeights, m, points = pickup(numberOfDrivers, RiderVsRemainingLocationsDict, locationToItemWeight_nodeWeights, distanceMatrix, timeMatrix, numberOfLocations, newNode, distanceArrayDict, timeArrayDict, points)
+            men = totalCost
+            print("ball_status 3", i)
+
+            ix = -1
+            for neel_i in oriLocations:
+                print("neel_i: ", neel_i, len(oriLocations[neel_i]), len(locationsResult[neel_i]))
+                if(len(oriLocations[neel_i])+1 != len(locationsResult[neel_i])) : 
+                    ix = neel_i
+                    continue
+                locationsResult[neel_i] = oriLocations[neel_i]
+            # assert(ix != -1)
+            print("ix valus is ", ix)
+            if ( ix == -1):
+                ix = random.randint(0,len(oriLocations)-1)
+            print("ball_status 4", i)
+
+            idx = -1
+            try:
+                idx = locationsResult.index(oriLocations[ix][0])
+            except:
+                myVeryPersonalVariable = None
+                
+            if (idx != -1):
+                locationsResult[ix] = oriLocations[ix][idx:] + oriLocations[ix][1:idx]
+
+
+            print("locationsResult is as follows+++++++++++ \n\n\n\n", locationsResult)
+
+            # updaitn stuff 
+            oldLocationsDictionaryForMagicApi.append(new_pick_up.copy())
+            listOfIds.append(new_pick_up.copy()["id"])
+            # for the nodeweight they already appended the stuff hence we will have to just update it 
+            locationToItemWeight_nodeWeights = nodeWeights
+
+            # we can also update the RiderVsRemainingLocationsDict 
+            RiderVsRemainingLocationsDict = locationsResult;
+            # updating the number of locations as it is auto incremented by the algorithm itself 
+            numberOfLocations = m;
+            print("OVERmessy", i);
+            print(RiderVsRemainingLocationsDict)
+
+    # once the algorithm finishes running then we will have to store the stuff in the database with 
+    # the updated values of the rider pick up points and show to the frontend 
+    # we have to store the new pickup locations in the location model along with their items 
+    # store the updated ridervslocation_ids thing in the rider location section 
+    # this can be done using the encoding that we have right now 
+
+            
 
 
 
@@ -1200,7 +1434,7 @@ class DynamicPickUpPoints(APIView):
 class CvPoint(APIView):
     def post(self, request):
         file1 = request.FILES["file1"];
-        file2 = request.FILES["file2"];
+        # file2 = request.FILES["file2"];
         print("the file 1 is ", file1);
-        print("the file 2 is ", file2);
+        # print("the file 2 is ", file2);
         return Response("1");
