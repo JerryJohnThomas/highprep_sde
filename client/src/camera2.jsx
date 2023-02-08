@@ -12,6 +12,7 @@ class Camera2 extends React.Component {
 
     this.state = {
       imageDataURL: null,
+      result: 0,
     };
   }
 
@@ -147,7 +148,10 @@ class Camera2 extends React.Component {
     //Filter video outputs (for devices with multiple cameras)
     return enumerateDevices.filter((device) => device.kind === "videoinput");
   };
-
+  getResult = async () => {
+    //do get request
+    this.setState({ result: 50 });
+  };
   render() {
     const playerORImage = Boolean(this.state.imageDataURL) ? (
       <img src={this.state.imageDataURL} alt="cameraPic" />
@@ -171,17 +175,24 @@ class Camera2 extends React.Component {
           >
             Live Feed
           </Button>
+          <br></br>
           <Button
-            varinat="outlined"
+            variant="contained"
             color="error"
             onClick={this.capturePicture}
           >
             Click
           </Button>
+          <br></br>
           <Button variant="contained" onClick={this.switchCamera}>
             Switch
           </Button>
-          <div>Results:</div>
+          <br></br>
+          <Button variant="outlined" color="error" onClick={this.getResult}>
+            Get Volume
+          </Button>
+          <br></br>
+          <Button variant="text">Volume={this.state.result}</Button>
         </div>
       </div>
     );
