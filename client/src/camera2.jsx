@@ -1,8 +1,9 @@
 import React from "react";
-import axios from "axios";
+// import axios from "axios";
 import "./camera2.css";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
+import axios from "./axios"
 
 class Camera2 extends React.Component {
   constructor() {
@@ -83,7 +84,7 @@ class Camera2 extends React.Component {
       // Post via axios or other transport method
       axios
         .post(
-          "http://057a-2409-40f4-102c-494f-c4cc-47b2-91a4-3be2.in.ngrok.io/algo/cv/",
+          "/algo/cv/",
           formData
         )
         .then((response) => response.text())

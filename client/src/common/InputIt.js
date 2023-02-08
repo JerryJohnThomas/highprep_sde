@@ -24,7 +24,8 @@ function InputIt({token,setToken, randomNumber, setRandomNumber}) {
     </div>
 
 
-    <button onClick={(e)=>handle()}>tnx</button>
+    <button onClick={(e)=>handle()}>tnx </button>
+    
     </>
 
 
