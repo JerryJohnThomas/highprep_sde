@@ -39,8 +39,13 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
     distances1 = [10**10 for i in range(nodes + 1)]
     for i in distances.keys():
         distances1[i] = distances[i]
-        
-    numpy.append(adjMtrxDist, numpy.array(list(distances1)))
+    
+    
+    print("sixe of matrix++++", len(adjMtrxDist))
+    # we have to append the distance1 array at mthe end of adjmtrxdist  dont know in numpy 
+    # adjMtrxDist =  numpy.append(adjMtrxDist, numpy.array(list(distances1)))
+    adjMtrxDist.append(list(distances1))
+    print("sixe of matrix++++", len(adjMtrxDist))
 
     nodes += 1
     points.append([nodes-1, newNode[0], newNode[1], newNode[2]])
@@ -56,15 +61,20 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
     for i in locations:
         for j in locations[i]:
             allLocations.add(j)
-
+    # print("len of distances ", len)
+    # print("shape ", adjMtrxDist.shape());
+    print("matrix ", adjMtrxDist);
     for i in locations:
         for j in locations[i]:
             if j in allLocations:
-                numpy.append(adjMtrxDist[i], distances[j])
+                # adjMtrxDist[j] =  numpy.append(adjMtrxDist[j], distances1[j])
+                adjMtrxDist[j].append(distances1[j])
             else:
-                numpy.append(adjMtrxDist[i], 10**10)
+                adjMtrxDist[j].append(10**10)
+                # adjMtrxDist[j] =  numpy.append(adjMtrxDist[j], 10**10)
 
-
+    print("sixe of matrix++++", len(adjMtrxDist[0]))
+    print("sixe of matrix++++", len(adjMtrxDist))
     for i in range(1, nodes+1):
         for j in range(1, nodes+1):
             if i == j :

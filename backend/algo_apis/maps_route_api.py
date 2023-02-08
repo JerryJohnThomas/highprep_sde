@@ -120,3 +120,8 @@ def api_call_pickup(new_point, list_old_pts):
 
 
 
+def api_call_pickup_dummy(new_point, list_old_pts):
+    size = len(list_old_pts)
+    distance_res = np.random.randn(size)
+    time_res = np.random.randn(size)
+    return distance_res , time_res

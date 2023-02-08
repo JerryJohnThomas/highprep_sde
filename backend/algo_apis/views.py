@@ -26,7 +26,7 @@ from inventory_apis.models import Item
 import string
 import random
 from .Think import think
-from .maps_route_api import api_call_pickup
+from .maps_route_api import api_call_pickup, api_call_pickup_dummy
 from .main import solve;
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
@@ -617,7 +617,7 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 
                 algoRes = temp
 
-
+        # call rudrs algorithm  continue the minimum 
 
 
         print("Final Total Cost : ", totalCost)
@@ -1057,21 +1057,22 @@ class DynamicPickUpPoints(APIView):
         distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
         timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
         n = currentAlgoStatus.number_of_locations;
-        distanceMatrix = think(distMatrixFileName, n);
-        timeMatrix = think(timeMatrixFileName, n)
+        distanceMatrix = think(distMatrixFileName, n).tolist();
+        timeMatrix = think(timeMatrixFileName, n).tolist()  
 
-        oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict = findRemainingLocations(userName, randomNumber)
+        oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict, listOfRiders = findRemainingLocations(userName, randomNumber)
         currentLocation = Location.objects.get(username=userName, random_number = randomNumber);
 
         # we have to find the node weights 
         locationToItemWeight_nodeWeights = findNodeWeights(currentLocation)
 
-        print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
+        # print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
         numberOfLocations = n;
         # using the for loop to find the distance for this purpose
         for i in range(0, 3):
             new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : n+i+1}
-            distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
+            # distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
+            distanceArray, timeArray = api_call_pickup_dummy(new_pick_up, oldLocationsDictionaryForMagicApi);
 
             distanceArrayDict = {};
             k = 0;
@@ -1081,7 +1082,7 @@ class DynamicPickUpPoints(APIView):
                 distanceArrayDict[listOfIds[k]] = dist;
                 k = k+1;
             
-            print("The distance array dictionary is as follows \n\n\n", distanceArrayDict);
+            # print("The distance array dictionary is as follows \n\n\n", distanceArrayDict);
 
             # similarly we have to calculate the time matrix 
             timeArrayDict = {};
@@ -1090,7 +1091,7 @@ class DynamicPickUpPoints(APIView):
                 timeArrayDict[listOfIds[k]] = time;
                 k = k+1;
             
-            print("The time array dictionary is as follows \n\n\n", timeArrayDict);
+            # print("The time array dictionary is as follows \n\n\n", timeArrayDict);
 
 
 
@@ -1115,6 +1116,10 @@ class DynamicPickUpPoints(APIView):
             oriLocations = copy.deepcopy(RiderVsRemainingLocationsDict)
             print("oriLocations", oriLocations)
             numberOfDrivers = currentAlgoStatus.number_of_drivers
+            print("nodes number of locations ", numberOfLocations);
+            print("sisze of adjancet matrix  1 ", len(distanceMatrix));
+            print("sisze of adjancet matrix 2 ", len(distanceMatrix[0]));
+
             locationsResult, totalCost, distanceMatrix, timeMatrix, nodeWeights, m, points = pickup(numberOfDrivers, RiderVsRemainingLocationsDict, locationToItemWeight_nodeWeights, distanceMatrix, timeMatrix, numberOfLocations, newNode, distanceArrayDict, timeArrayDict, points)
             men = totalCost
 
@@ -1149,6 +1154,9 @@ class DynamicPickUpPoints(APIView):
             RiderVsRemainingLocationsDict = locationsResult;
             # updating the number of locations as it is auto incremented by the algorithm itself 
             numberOfLocations = m;
+            print("OVER++++++++", i);
+            print(RiderVsRemainingLocationsDict)
+
     # once the algorithm finishes running then we will have to store the stuff in the database with 
     # the updated values of the rider pick up points and show to the frontend 
     # we have to store the new pickup locations in the location model along with their items 
