@@ -83,7 +83,7 @@ class PersonLoginView(APIView):
             else :
                 return Response({'errors' : {'non_field_errors' : ['Email or Password is not valid']}}, status=status.HTTP_404_NOT_FOUND)
             
-            # say everything went fine 
+            # say everything went fine  
             return Response(serializedDAta.errors, status=status.HTTP_400_BAD_REQUEST)
         pass
 
@@ -108,7 +108,7 @@ class PersonRegister(APIView):
         person = PersonInfo.objects.get(email = serializedData.data['email']);
         if person.person_type == "rider":
             # then we also have to store this information in the rider table as well 
-            newRider = Rider(email = person.email, status = "NotAvailable", location_ids = {});
+            newRider = Rider(email = person.email, status = "Available", location_ids = {});
             newRider.save();
         
         # print("The new user which is registering is ==> \n\n\n", person);

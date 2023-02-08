@@ -1,6 +1,7 @@
 import numpy as np
 import json
 import requests
+from numpy import random 
 
 def api_call_dummy(a,b):
     size1 = len(a)
@@ -70,6 +71,7 @@ dest3 = [[50, 12.89963, 77.64903], [51, 12.9319, 77.60736], [52, 12.91586, 77.64
 # def api_call(a,b):
 #     return api_call_dummy(a,b)
     
+#  this is magic api @rupesh
 def api_call_pickup(new_point, list_old_pts):
     size = len(list_old_pts)
     distance_res = np.zeros([size])
@@ -78,12 +80,14 @@ def api_call_pickup(new_point, list_old_pts):
     body = { "origins": [], "destinations" : [], "travelMode": "DRIVE",
     #   "routingPreference": "TRAFFIC_AWARE"        ## uncommenting this will make the api higher priced and can do a max of 10 points as opposed to 25 points in a singel call
     }
+    print("jj: origin" ,new_point)
+    print("jj: dest" ,list_old_pts)
 
     for location in [new_point]:
-        body['origins'].append({"waypoint": {"location": {"latLng": {"latitude": location.lat, "longitude": location.lng}}}})
+        body['origins'].append({"waypoint": {"location": {"latLng": {"latitude": location["lat"], "longitude": location["lng"]}}}})
     
     for location in list_old_pts:
-        body['destinations'].append({"waypoint": {"location": {"latLng": {"latitude": location.lat, "longitude": location.lng}}}})
+        body['destinations'].append({"waypoint": {"location": {"latLng": {"latitude": location["lat"], "longitude": location["lng"]}}}})
 
     # print(body)
 
@@ -117,3 +121,9 @@ def api_call_pickup(new_point, list_old_pts):
 
 
 
+def api_call_pickup_dummy(new_point, list_old_pts):
+    size = len(list_old_pts)
+    distance_res = np.random.randint(0, 100, size)
+    time_res = np.random.randint(0, 100, size)
+    
+    return distance_res , time_res

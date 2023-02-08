@@ -6,7 +6,10 @@ const instance = axios.create({
     // baseURL: "https://short-mugs-double-14-139-174-50.loca.lt/"
     // baseURL: "https://sad-suns-see-14-139-174-50.loca.lt/"
     // baseURL: "https://short-trees-attend-14-139-174-50.loca.lt/",
-    baseURL: "https://many-mails-brush-14-139-174-50.loca.lt/"
+    // baseURL: "https://many-mails-brush-14-139-174-50.loca.lt/"
+    // baseURL: "https://9f5b-2409-4073-2e8b-dfa5-c4cc-47b2-91a4-3be2.in.ngrok.io/"
+    // baseURL: "https://b699-2409-4073-48b-d532-c4cc-47b2-91a4-3be2.in.ngrok.io/"
+    baseURL: "https://9325-2409-4073-48b-d532-c4cc-47b2-91a4-3be2.in.ngrok.io/"
 })
 
 export default instance;

@@ -6,4 +6,4 @@ from django.db import models
 class Bag(models.Model):
     bag_id = models.AutoField(primary_key=True)
     item_list = models.JSONField(default={"item" : []})
-    bag_size = models.IntegerField(default=0)
+    bag_size = models.IntegerField(default=640000)
