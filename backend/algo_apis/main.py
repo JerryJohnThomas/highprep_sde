@@ -159,7 +159,7 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 		assert(len(path) >= 1)
 		if (len(path) == 2): 
 			assert(path[0] == path[1])
-			ans[i] = [1] + path[0] + [1]
+			ans[i] = [1] + [path[0]] + [1]
 			# #print("path after", path)
 			continue
 		

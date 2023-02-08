@@ -4,7 +4,7 @@ import copy
 def tsp(graph):
 	G = copy.deepcopy(graph)
 	if (len(G) == 1):
-		return [0, [(list(G.keys()))[0], (list(G.keys()))[0]]]
+		return [0, [(list(G.keys()))[0]]]
 
 	newG = {}
 	nodes = set()

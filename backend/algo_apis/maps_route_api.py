@@ -125,5 +125,6 @@ def api_call_pickup_dummy(new_point, list_old_pts):
     size = len(list_old_pts)
     distance_res = np.random.randint(0, 100, size)
     time_res = np.random.randint(0, 100, size)
-    
+    print("distance res ", distance_res)
+    print("time res ", time_res)
     return distance_res , time_res

@@ -1122,12 +1122,12 @@ class DynamicPickUpPoints(APIView):
 
         # we have to find the adjacency matrix using the think function and time matrix as well 
         distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-        print("distMatrixFileName ====== ", distMatrixFileName)
+        # print("distMatrixFileName ====== ", distMatrixFileName)
         timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
         n = currentAlgoStatus.number_of_locations;
         distanceMatrix = think(distMatrixFileName, n).tolist();
         timeMatrix = think(timeMatrixFileName, n).tolist()  
-        print(" distancematrix before====== ", distanceMatrix)
+        # print(" distancematrix before====== ", distanceMatrix)
 
     # distance_matrix_war1@gmail.com_jquh71dq5b.csv
         # distanceMatrix=distanceMatrix.tolist();
@@ -1138,17 +1138,19 @@ class DynamicPickUpPoints(APIView):
 
         # we have to find the node weights 
         locationToItemWeight_nodeWeights = findNodeWeights(currentLocation)
-        print("initial ridervslocationid", RiderVsRemainingLocationsDict)
+        # print("initial ridervslocationid", RiderVsRemainingLocationsDict)
         # print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
         numberOfLocations = n;
         print("started\n\n\n\n");
+        print("len of latitude", len(lat))
         # using the for loop to find the distance for this purpose
-        for i in range(0, 5):
+        for i in range(0, len(lat)):
             print("ball_status 1", i)
             new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : n+i+1}
             # distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
             distanceArray, timeArray = api_call_pickup_dummy(new_pick_up, oldLocationsDictionaryForMagicApi);
-
+            # print("distane array ", distanceArray)
+            # print("time array ", timeArray)
             distanceArrayDict = {};
             k = 0;
             # now we have to make the distancedictionary to send the location_id vs distance 
@@ -1190,11 +1192,11 @@ class DynamicPickUpPoints(APIView):
             # now we have to call the neels algorithm here 
             
             oriLocations = copy.deepcopy(RiderVsRemainingLocationsDict)
-            print("oriLocations", oriLocations)
+            # print("oriLocations", oriLocations)
             numberOfDrivers = currentAlgoStatus.number_of_drivers
-            print("nodes number of locations ", numberOfLocations);
-            print("sisze of adjancet matrix  1 ", len(distanceMatrix));
-            print("sisze of adjancet matrix 2 ", len(distanceMatrix[0]));
+            # print("nodes number of locations ", numberOfLocations);
+            # print("sisze of adjancet matrix  1 ", len(distanceMatrix));
+            # print("sisze of adjancet matrix 2 ", len(distanceMatrix[0]));
 
 
             # print("locationsResult", locationsResult)
@@ -1205,16 +1207,16 @@ class DynamicPickUpPoints(APIView):
             # print("m", m)
 
 
-            print("numberOfDrivers", numberOfDrivers)
-            print("RiderVsRemainingLocationsDict", RiderVsRemainingLocationsDict)
-            print("locationToItemWeight_nodeWeights", locationToItemWeight_nodeWeights)
-            print("distanceMatrix", distanceMatrix)
-            print("timeMatrix", timeMatrix)
-            print("numberOfLocations", numberOfLocations)
-            print("newNode", newNode)
-            print("distanceArrayDict", distanceArrayDict)
-            print("timeArrayDict", timeArrayDict)
-            print("points", points)
+            # print("numberOfDrivers", numberOfDrivers)
+            # print("RiderVsRemainingLocationsDict", RiderVsRemainingLocationsDict)
+            # print("locationToItemWeight_nodeWeights", locationToItemWeight_nodeWeights)
+            # print("distanceMatrix", distanceMatrix)
+            # print("timeMatrix", timeMatrix)
+            # print("numberOfLocations", numberOfLocations)
+            # print("newNode", newNode)
+            # print("distanceArrayDict", distanceArrayDict)
+            # print("timeArrayDict", timeArrayDict)
+            # print("points", points)
 
 
             # print("m", m)
@@ -1233,20 +1235,38 @@ class DynamicPickUpPoints(APIView):
             # assert(ix != -1)
             print("ix valus is ", ix)
             if ( ix == -1):
+                for ko in range(len(oriLocations)):
+                    print("ko")
+                    print(oriLocations[ko])
+                for ko in range(len(locationsResult)):
+                    print("ko for location result ")
+                    print(locationsResult[ko])
                 ix = random.randint(0,len(oriLocations)-1)
             print("ball_status 4", i)
 
             idx = -1
-            try:
-                idx = locationsResult.index(oriLocations[ix][0])
-            except:
-                myVeryPersonalVariable = None
+            mnVal = float('inf')
+            for i in range(len(oriLocations[ix])-1):
+                x = oriLocations[ix][i]
+                y = oriLocations[ix][i+1]
+                val = -distanceMatrix[x][y] + distanceMatrix[x][m] + distanceMatrix[m][y]
+                if (val < mnVal):
+                    mnVal = val
+                    idx = i
+
+            assert(idx != -1)
+            locationsResult[ix] = oriLocations[ix][:idx+1] + [m] + oriLocations[ix][idx+1:]
+            # idx = -1
+            # try:
+            #     idx = locationsResult.index(oriLocations[ix][0])
+            # except:
+            #     myVeryPersonalVariable = None
                 
-            if (idx != -1):
-                locationsResult[ix] = oriLocations[ix][idx:] + oriLocations[ix][1:idx]
+            # if (idx != -1):
+            #     locationsResult[ix] = oriLocations[ix][idx:] + oriLocations[ix][1:idx]
 
 
-            print("locationsResult is as follows+++++++++++ \n\n\n\n", locationsResult)
+            # print("locationsResult is as follows+++++++++++ \n\n\n\n", locationsResult)
 
             # updaitn stuff 
             oldLocationsDictionaryForMagicApi.append(new_pick_up.copy())
@@ -1260,7 +1280,8 @@ class DynamicPickUpPoints(APIView):
             numberOfLocations = m;
             print("OVERmessy", i);
             print(RiderVsRemainingLocationsDict)
-
+        print("the final result is \n\n");
+        print(RiderVsRemainingLocationsDict)
     # once the algorithm finishes running then we will have to store the stuff in the database with 
     # the updated values of the rider pick up points and show to the frontend 
     # we have to store the new pickup locations in the location model along with their items 
@@ -1336,7 +1357,7 @@ class DummyDynamicPickUpPoints(APIView):
 
         # we have to find the node weights 
         locationToItemWeight_nodeWeights = findNodeWeights(currentLocation)
-        print("initial ridervslocationid", RiderVsRemainingLocationsDict)
+        # print("initial ridervslocationid", RiderVsRemainingLocationsDict)
         # print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
         numberOfLocations = n;
         # using the for loop to find the distance for this purpose
@@ -1387,11 +1408,11 @@ class DummyDynamicPickUpPoints(APIView):
             # now we have to call the neels algorithm here 
             
             oriLocations = copy.deepcopy(RiderVsRemainingLocationsDict)
-            print("oriLocations", oriLocations)
+            # print("oriLocations", oriLocations)
             numberOfDrivers = currentAlgoStatus.number_of_drivers
-            print("nodes number of locations ", numberOfLocations);
-            print("sisze of adjancet matrix  1 ", len(distanceMatrix));
-            print("sisze of adjancet matrix 2 ", len(distanceMatrix[0]));
+            # print("nodes number of locations ", numberOfLocations);
+            # print("sisze of adjancet matrix  1 ", len(distanceMatrix));
+            # print("sisze of adjancet matrix 2 ", len(distanceMatrix[0]));
 
 
             # print("locationsResult", locationsResult)
@@ -1402,16 +1423,16 @@ class DummyDynamicPickUpPoints(APIView):
             # print("m", m)
 
 
-            print("numberOfDrivers", numberOfDrivers)
-            print("RiderVsRemainingLocationsDict", RiderVsRemainingLocationsDict)
-            print("locationToItemWeight_nodeWeights", locationToItemWeight_nodeWeights)
-            print("distanceMatrix", distanceMatrix)
-            print("timeMatrix", timeMatrix)
-            print("numberOfLocations", numberOfLocations)
-            print("newNode", newNode)
-            print("distanceArrayDict", distanceArrayDict)
-            print("timeArrayDict", timeArrayDict)
-            print("points", points)
+            # print("numberOfDrivers", numberOfDrivers)
+            # print("RiderVsRemainingLocationsDict", RiderVsRemainingLocationsDict)
+            # print("locationToItemWeight_nodeWeights", locationToItemWeight_nodeWeights)
+            # print("distanceMatrix", distanceMatrix)
+            # print("timeMatrix", timeMatrix)
+            # print("numberOfLocations", numberOfLocations)
+            # print("newNode", newNode)
+            # print("distanceArrayDict", distanceArrayDict)
+            # print("timeArrayDict", timeArrayDict)
+            # print("points", points)
 
 
             # print("m", m)
@@ -1430,6 +1451,12 @@ class DummyDynamicPickUpPoints(APIView):
             # assert(ix != -1)
             print("ix valus is ", ix)
             if ( ix == -1):
+                for ko in oriLocations:
+                    print("ko")
+                    print(ko)
+                for ko in locationsResult:
+                    print("ko for location result ")
+                    print(ko)
                 ix = random.randint(0,len(oriLocations)-1)
             print("ball_status 4", i)
 
