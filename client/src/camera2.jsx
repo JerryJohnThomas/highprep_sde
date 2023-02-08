@@ -1,4 +1,8 @@
 import React from "react";
+import axios from "axios";
+import "./camera2.css";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
 
 class Camera2 extends React.Component {
   constructor() {
@@ -69,6 +73,42 @@ class Camera2 extends React.Component {
 
     console.log(canvas.toDataURL());
     this.setState({ imageDataURL: canvas.toDataURL() });
+
+    const imgData = canvas.toDataURL("image/png");
+    console.log(imgData);
+    canvas.toBlob(function (blob) {
+      const formData = new FormData();
+      formData.append("file1", blob, "filename.png");
+
+      // Post via axios or other transport method
+      axios
+        .post(
+          "http://057a-2409-40f4-102c-494f-c4cc-47b2-91a4-3be2.in.ngrok.io/algo/cv/",
+          formData
+        )
+        .then((response) => response.text())
+        .then((result) => console.log(result))
+        .catch((error) => console.log("error", error));
+    });
+
+    // this.setState({ imageDataURL: canvas.toDataURL() });
+    // formdata.append("file1", canvas.toDataURL(), "[PROXY]");
+    // console.log(formdata);
+    // //formdata.append("", fileInput.files[0], "[PROXY]");
+
+    // var requestOptions = {
+    //   method: "POST",
+    //   body: formdata,
+    //   redirect: "follow",
+    // };
+
+    // fetch(
+    //   "https://057a-2409-40f4-102c-494f-c4cc-47b2-91a4-3be2.in.ngrok.io/algo/cv/",
+    //   requestOptions
+    // )
+    //   .then((response) => response.text())
+    //   .then((result) => console.log(result))
+    //   .catch((error) => console.log("error", error));
   };
 
   switchCamera = async () => {
@@ -121,11 +161,28 @@ class Camera2 extends React.Component {
     );
 
     return (
-      <div className="App">
-        {playerORImage}
-        <button onClick={this.initializeMedia}>Take Photo</button>
-        <button onClick={this.capturePicture}>Capture</button>
-        <button onClick={this.switchCamera}>Switch</button>
+      <div className="container">
+        <div className="left">{playerORImage}</div>
+        <div className="right">
+          <Button
+            style={{ width: "30ch", bold: true }}
+            variant="contained"
+            onClick={this.initializeMedia}
+          >
+            Live Feed
+          </Button>
+          <Button
+            varinat="outlined"
+            color="error"
+            onClick={this.capturePicture}
+          >
+            Click
+          </Button>
+          <Button variant="contained" onClick={this.switchCamera}>
+            Switch
+          </Button>
+          <div>Results:</div>
+        </div>
       </div>
     );
   }

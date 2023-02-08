@@ -1,6 +1,6 @@
 import Home from "./Home";
 import Demo from "./customer/demo";
-import DataTable from "./warehouse/itemInv";
+import BasicTable from "./warehouse/itemInv";
 import "./App.css";
 import {
     BrowserRouter as Router,
@@ -56,7 +56,7 @@ function App() {
             <Route
               exact
               path="/warehouse/items"
-              element={<DataTable token={token} islogged={islogged} />}
+              element={<BasicTable token={token} islogged={islogged} />}
             />
             <Route
               exact
