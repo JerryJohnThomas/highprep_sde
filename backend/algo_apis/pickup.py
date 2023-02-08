@@ -32,23 +32,48 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
         for j in range(1, nodes+1):
             graph[i][j] = adjMtrxDist[i][j]
 
+    nodes += 1
+	
+	allLocations = set()
+	allLocations.add(nodes)
+	for i in locations:
+		for j in locations[i]:
+			allLocations.add(j)
+
+	distances1 = []
+
+	for i in range(1, nodes + 1):
+		if(i in allLocations):
+			distances1.append(distances[i])
+		else:
+			distances1.append(10 ** 10)
+
+	adjMtrxDist.append(list(distances.values()))
+
+
+	for i in range(1, nodes + 1):
+		if j in allLocations:
+			adjMtrxDist[i].append(distances[i])
+		else:
+			adjMtrxDist[i].append(10 ** 10)
+
 
     # adjMtrxDist.append([])
     # adjMtrxDist.append(list(distances.values()))
     # np.concatenate(adjMtrxDist, list(distances.values()))
-    distances1 = [10**10 for i in range(nodes + 1)]
-    for i in distances.keys():
-        distances1[i] = distances[i]
+    # distances1 = [10**10 for i in range(nodes + 1)]
+    # for i in distances.keys():
+    #     distances1[i] = distances[i]
     
     
     print("sixe of matrix++++", len(adjMtrxDist))
     # we have to append the distance1 array at mthe end of adjmtrxdist  dont know in numpy 
     # adjMtrxDist =  numpy.append(adjMtrxDist, numpy.array(list(distances1)))
-    adjMtrxDist.append(list(distances1))
+    # adjMtrxDist.append(list(distances1))
     print("sixe of matrix++++", len(adjMtrxDist))
 
-    nodes += 1
-    points.append([nodes-1, newNode[0], newNode[1], newNode[2]])
+    # nodes += 1
+    # points.append([nodes-1, newNode[0], newNode[1], newNode[2]])
 
 
 
@@ -56,22 +81,22 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
     # 	# print(type(adjMtrxDist[i]))
     # 	adjMtrxDist[i].append(times[i])
 
-    allLocations = set()
-    allLocations.add(nodes)
-    for i in locations:
-        for j in locations[i]:
-            allLocations.add(j)
-    # print("len of distances ", len)
-    # print("shape ", adjMtrxDist.shape());
-    print("matrix ", adjMtrxDist);
-    for i in locations:
-        for j in locations[i]:
-            if j in allLocations:
-                # adjMtrxDist[j] =  numpy.append(adjMtrxDist[j], distances1[j])
-                adjMtrxDist[j].append(distances1[j])
-            else:
-                adjMtrxDist[j].append(10**10)
-                # adjMtrxDist[j] =  numpy.append(adjMtrxDist[j], 10**10)
+    # allLocations = set()
+    # allLocations.add(nodes)
+    # for i in locations:
+    #     for j in locations[i]:
+    #         allLocations.add(j)
+    # # print("len of distances ", len)
+    # # print("shape ", adjMtrxDist.shape());
+    # print("matrix ", adjMtrxDist);
+    # for i in locations:
+    #     for j in locations[i]:
+    #         if j in allLocations:
+    #             # adjMtrxDist[j] =  numpy.append(adjMtrxDist[j], distances1[j])
+    #             adjMtrxDist[j].append(distances1[j])
+    #         else:
+    #             adjMtrxDist[j].append(10**10)
+    #             # adjMtrxDist[j] =  numpy.append(adjMtrxDist[j], 10**10)
 
     print("sixe of matrix++++", len(adjMtrxDist[0]))
     print("sixe of matrix++++", len(adjMtrxDist))
