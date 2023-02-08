@@ -266,10 +266,18 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
 
     return (
         <>
-            <Alert open={false} onClose={() => setOpen(false)}>
+        {
+            open?
+                        <Alert  
+            onClose={() => setOpen(false)}
+            >
                 Maps Updated
             </Alert>
-            <div className="jerry_directions2_contianer_top">
+            :
+            null
+        }
+    
+                <div className="jerry_directions2_contianer_top">
                 <div className="jerry_directions2_map_container">
                     {/* start comment here */}
                     <GoogleMap
@@ -343,7 +351,7 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                     <div className="jerry_routes_bottom">
                         {stats.map((data, index) => (
                             <RiderCard
-                                name={"Name"}
+                                name={`rk${index+1}@gmail.com`}
                                 key={index}
                                 index={index}
                                 onClick_fn={handleClickHighLight}

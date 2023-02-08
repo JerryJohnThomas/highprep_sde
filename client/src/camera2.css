@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+    width: 800px;
+    margin-left: 70px;
+    margin-top: 80px;
+}
+
+.right {
+    display: flex;
+    flex-direction: column;
+    margin-left: 300px;
+    height: 150px;
+    margin-top: 250px;
+}
