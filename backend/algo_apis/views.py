@@ -489,7 +489,7 @@ def createBagForEachRiders(availableNRiders):
 
 
 
-def find_path_cost(path):
+def find_path_cost(path, node_travel_time):
     if len(path) == 0:
         return 0
     temp_path = copy.deepcopy(path)
@@ -500,36 +500,56 @@ def find_path_cost(path):
     return path_sum
 
 
-def find_loc(n, m, node_travel_distance, node_travel_time, node_weights, deliveryManWeight, positions):
-	clusters = markov_clusters(node_travel_distance, positions, False)
+def find_loc(n, m, node_travel_distance, node_travel_time, node_weights, deliveryManWeight, positions=[]):
+    clusters = markov_clusters(node_travel_distance, positions, False)
 
 
-	print(clusters)
+    print(clusters)
 
-	# starting_points = random.sample(range(1, m+1), n)
-	# locations, _ = find_path_for_all_drivers(n, m, node_travel_time, node_weights, deliveryManWeight, starting_points, 20)
-	clusters = clusters[1:]
-	for i in range(len(clusters)):
-		clusters[i] = list(clusters[i])
+    # starting_points = random.sample(range(1, m+1), n)
+    # locations, _ = find_path_for_all_drivers(n, m, node_travel_time, node_weights, deliveryManWeight, starting_points, 20)
+    clusters = clusters[1:]
+    for i in range(len(clusters)):
+        clusters[i] = list(clusters[i])
 
 
-	best_cost = infinity
-	best_locations = {}
-	for i in range(100):
-		locations, cost = find_travel_clusters(n, m, node_travel_time, copy.deepcopy(
-			clusters), node_weights, deliveryManWeight)
+    best_cost = infinity
+    best_locations = {}
+    for i in range(100):
+        print("Iteration number:", i)
+        # pdb.set_trace()
+        locations, cost = find_travel_clusters(n, m, node_travel_time, copy.deepcopy(
+            clusters), node_weights, deliveryManWeight)
 
-		all_path_sum = 0
-		for loc in locations.values():
-			all_path_sum += find_path_cost(loc)
+        all_path_sum = 0
+        for loc in locations.values():
+            all_path_sum += find_path_cost(loc, node_travel_time)
 
-		cost = max(cost, all_path_sum)
+        cost = max(cost, all_path_sum)
 
-		if cost < best_cost:
-			best_locations = locations
-			best_cost = cost
+        if cost < best_cost:
+            best_locations = locations
+            best_cost = cost
+    for d in best_locations:
+        idx = -1
+        if (1 in best_locations[d]):
+            idx = best_locations[d].index(1)
+            best_locations[d] = best_locations[d][idx:] + best_locations[d][:idx] + [1]
+        else :
+            mnVal = float('inf')
+            mnIdx = -1
+            for i in range(len(best_locations[d])-1):
+                x = best_locations[d][i]
+                y = best_locations[d][i+1]
+                val = -1 * node_travel_distance[x][y] + node_travel_distance[x][1] + node_travel_distance[1][y]
+                if (val< mnVal):
+                    mnVal = val
+                    mnIdx = i
+            assert(mnIdx != -1)
+            best_locations[d] = [1] + best_locations[d][mnIdx+1:] + best_locations[d][:mnIdx+1] + [1]
 
-	return best_locations, best_cost
+    # print("B", best_locations)
+    return best_locations, best_cost
 
 
 # defining the function to find the total number of locations 
@@ -646,36 +666,38 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         dist_matrix_data = think(distMatrixFileName, n)
         print("The length of matrix", len(dist_matrix_data))
 
-        # node_travel_distance = [[0 for i in range(totalLocations+1)] for j in range(totalLocations+1)]
+        node_travel_distance = [[0 for i in range(totalLocations+1)] for j in range(totalLocations+1)]
 
-        # for i in range(totalLocations):
-        #     for j in range(i+1, totalLocations):
-        #         node_travel_distance[int(points[i][0])][int(
-        #             points[j][0])] = 1 / adjMtrxDist[int(points[i][0])][int(points[j][0])]
-        #         node_travel_distance[int(points[j][0])][int(
-        #             points[i][0])] = 1 / adjMtrxDist[int(points[j][0])][int(points[i][0])]
+        for i in range(1, len(dist_matrix_data)):
+            for j in range(1, len(dist_matrix_data[i])):
+                if dist_matrix_data[i][j] != 0:
+                    node_travel_distance[i][j] = 1 / dist_matrix_data[i][j]
 
-        
-        algoRes, totalCost = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
-        # print("The algo result is as follows \n\n\n", algoRes)
-        men = totalCost
+        algoRes, totalCost = find_loc(
+        n, totalLocations, node_travel_distance, time_matrix_data, locationToItemVolume_nodeWeights, 640000, [])
+
+        algoRes_temp1, totalCost_temp1 = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+        # print("The algo result is as follows \n", algoRes_temp1)
+        men = totalCost_temp1
         for i in range(100):
 
-            temp, totalCost = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+            temp, totalCost_temp1 = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
 
-            print("iteration ", i , " over");
-            # print(totalCost)
+            debug_string = "";
+            for key in temp:
+                debug_string+=str(key)+" : "+str(len(temp[key]))+" , "
+            print("iteration ", i , " over ::::  ",debug_string);
+            # print(totalCost_temp1)
 
-            if(totalCost < men):
+            if(totalCost_temp1 < men):
 
-                totalCost = totalCost
+                men = totalCost_temp1
 
-                men = totalCost
+                algoRes_temp1 = temp
 
-                algoRes = temp
-
-        # call rudrs algorithm  continue the minimum 
-
+        if (totalCost_temp1 < totalCost):
+            algoRes = algoRes_temp1
+            totalCost = totalCost_temp1
 
         print("Final Total Cost : ", totalCost)
 
@@ -768,30 +790,37 @@ class DummyStart(APIView):
         print("deliveryManWeight  ", 640000 )
         print("n  ", 0 )
 
-        
-        algoRes, totalCost = solve(numberOfDrivers, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
-        # print("The algo result is as follows \n", algoRes)
-        men = totalCost
+        node_travel_distance = [[0 for i in range(totalLocations+1)] for j in range(totalLocations+1)]
+
+        for i in range(1, len(dist_matrix_data)):
+            for j in range(1, len(dist_matrix_data[i])):
+                if dist_matrix_data[i][j] != 0:
+                    node_travel_distance[i][j] = 1 / dist_matrix_data[i][j]
+
+        algoRes, totalCost = find_loc(
+        n, totalLocations, node_travel_distance, time_matrix_data, locationToItemVolume_nodeWeights, 640000, [])
+        algoRes_temp1, totalCost_temp1 = solve(numberOfDrivers, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+        # print("The algo result is as follows \n", algoRes_temp1)
+        men = totalCost_temp1
         for i in range(100):
 
-            temp, totalCost = solve(numberOfDrivers, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+            temp, totalCost_temp1 = solve(numberOfDrivers, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
 
             debug_string = "";
             for key in temp:
                 debug_string+=str(key)+" : "+str(len(temp[key]))+" , "
             print("iteration ", i , " over ::::  ",debug_string);
-            # print(totalCost)
+            # print(totalCost_temp1)
 
-            if(totalCost < men):
+            if(totalCost_temp1 < men):
 
-                totalCost = totalCost
+                men = totalCost_temp1
 
-                men = totalCost
+                algoRes_temp1 = temp
 
-                algoRes = temp
-
-
-
+        if (totalCost_temp1 < totalCost):
+            algoRes = algoRes_temp1
+            totalCost = totalCost_temp1
 
         print("Final Total Cost : ", totalCost)
 
@@ -1269,6 +1298,20 @@ class DynamicPickUpPoints(APIView):
             # print("locationsResult is as follows+++++++++++ \n\n\n\n", locationsResult)
 
             # updaitn stuff 
+            print("The rider to which pickup point has been added is ", ix, "\n\n")
+            print("the pickup point added is ", new_pick_up, "\n\n");
+            # location_id_prev = -1;
+            # current_id = n+i+1;
+            # for key in RiderVsRemainingLocationsDict:
+            #     index = 0;
+            #     for value in RiderVsRemainingLocationsDict[key]:
+            #         if current_id == value:
+            #             break;
+            #         index = index + 1;
+            #     location_id_prev = index-1;
+
+            # print("the ")
+
             oldLocationsDictionaryForMagicApi.append(new_pick_up.copy())
             listOfIds.append(new_pick_up.copy()["id"])
             # for the nodeweight they already appended the stuff hence we will have to just update it 
@@ -1279,9 +1322,11 @@ class DynamicPickUpPoints(APIView):
             # updating the number of locations as it is auto incremented by the algorithm itself 
             numberOfLocations = m;
             print("OVERmessy", i);
-            print(RiderVsRemainingLocationsDict)
+            # print(RiderVsRemainingLocationsDict)
         print("the final result is \n\n");
         print(RiderVsRemainingLocationsDict)
+        print("the final list of ids\n", listOfIds);
+        print("the total number of locations ", numberOfLocations)
     # once the algorithm finishes running then we will have to store the stuff in the database with 
     # the updated values of the rider pick up points and show to the frontend 
     # we have to store the new pickup locations in the location model along with their items 

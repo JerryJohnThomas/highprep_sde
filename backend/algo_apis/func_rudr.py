@@ -1,5 +1,5 @@
 from networkx.algorithms.core import k_truss
-from .test import tsp
+from .tsp_rudr import tsp
 from .rudr import *
 
 
@@ -140,6 +140,8 @@ def find_path(clusters, prev_cluster, nodes, cap, node_travel_time, node_weights
     # print("Closest cluster", closest_cluster)
 
     if all_empty == len(clusters):
+        for i in range(len(glob_driver_completed)):
+            glob_driver_completed[i] = 1
         return []
 
     starting_point = random.choice(closest_cluster)
@@ -183,6 +185,7 @@ def find_path(clusters, prev_cluster, nodes, cap, node_travel_time, node_weights
 
 def find_travel_clusters(drivers, nodes, node_travel_time, clusters, node_weights, delivery_man_weight):
 
+    # pdb.set_trace()
     global glob_driver_path
     global glob_driver_completed
     global glob_cluster_assigned_to_driver
