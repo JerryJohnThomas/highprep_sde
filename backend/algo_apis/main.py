@@ -19,8 +19,8 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 	mexVal = -1
 	for i in range(1, nodes+1):
 		for j in range(1, nodes+1):
-			graph[i][j] = adjMtrxDist[i][j]
-			mexVal = max(mexVal, adjMtrxDist[i][j])
+			graph[i][j] = adjMtrxTimes[i][j]
+			mexVal = max(mexVal, adjMtrxTimes[i][j])
 			
 	
 	drivers = min(drivers, nodes)
@@ -46,7 +46,7 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 	clusterValues = [0 for i in range(drivers)]
 	clusterValuesSum = 0
 	newPoints = []
-	h =  (mexVal ** (1.5) / nodes)
+	h =  (mexVal ** (1.80) / nodes)	
 	#print("H value is : ", h)
 	
 	for i in points:
@@ -55,19 +55,19 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 		valueCoorToMx = 0
 		idx = 0
 		mxGraph = {}
-		for l in range(5):
+		for l in range(1):
 			for j in range(drivers):
 				if (clusterWeightSum[j] + nodeWeights[i] > deliveryManWeight or len(clustersNodes[j]) > 20): continue
 				newGraph = copy.deepcopy(clustersGraphs[j])
 				newGraph[i] = {}
 				for n in clustersNodes[j]:
-					newGraph[i][n] = adjMtrxDist[i][n]
-					newGraph[n][i] = adjMtrxDist[n][i]
+					newGraph[i][n] = adjMtrxTimes[i][n]
+					newGraph[n][i] = adjMtrxTimes[n][i]
 				
 				[value, _] = tsp(newGraph)
 				totVal = value - clusterValues[j] + clusterValuesSum
-				# if (totVal < mx):
-				if (value < mxValue):
+				if (totVal < mx):
+				# if (value < mxValue):
 					mx = totVal
 					mxValue = value
 					valueCoorToMx = value
@@ -104,19 +104,19 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 		valueCoorToMx = 0
 		idx = 0
 		mxGraph = {}
-		for l in range(5):
+		for l in range(1):
 			for j in range(drivers):
 				if (clusterWeightSum[j] + nodeWeights[i] > deliveryManWeight or len(clustersNodes[j]) > 20): continue
 				newGraph = copy.deepcopy(clustersGraphs[j])
 				newGraph[i] = {}
 				for n in clustersNodes[j]:
-					newGraph[i][n] = adjMtrxDist[i][n]
-					newGraph[n][i] = adjMtrxDist[n][i]
+					newGraph[i][n] = adjMtrxTimes[i][n]
+					newGraph[n][i] = adjMtrxTimes[n][i]
 				
 				[value, _] = tsp(newGraph)
 				totVal = value - clusterValues[j] + clusterValuesSum
-				# if (totVal < mx):
-				if (value < mxValue):
+				if (totVal < mx):
+				# if (value < mxValue):
 					mx = totVal
 					mxValue = value
 					valueCoorToMx = value
@@ -166,7 +166,7 @@ def solve(drivers, nodes, adjMtrxDist, adjMtrxTimes, nodeWeights, deliveryManWei
 		mnDistDiff = float('inf')
 		mnIdx = -1
 		for j in range(len(path)-1):
-			distDiff = -adjMtrxDist[path[j]][path[j+1]] + adjMtrxDist[path[j]][1] + adjMtrxDist[1][path[j+1]]
+			distDiff = -adjMtrxTimes[path[j]][path[j+1]] + adjMtrxTimes[path[j]][1] + adjMtrxTimes[1][path[j+1]]
 			if (distDiff < mnDistDiff):
 				mnDistDiff = distDiff
 				mnIdx = j

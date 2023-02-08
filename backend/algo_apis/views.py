@@ -235,7 +235,8 @@ def addressToLocations(excelPath, userName, randomNumber):
         x =places[i]
         lat, lng, title , status= get_geocordinates(x)
         print(title)
-        if lat==1000 or status==0:
+        in_india = ((lat >=8 and lat <=40) and (lng >=68 and lng <=96))
+        if lat==1000 or status==0 or in_india == False:
             continue
         print()
         data['lat'][i]= lat
@@ -245,6 +246,7 @@ def addressToLocations(excelPath, userName, randomNumber):
     latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
     print("The path of the geo_encoding with lat long coordinates is ", latLongCsvFilePath);
     data = data[(data["lat"]!=-1) & (data["lng"]!=-1)]
+
     # data.to_csv("./data/bangalore_dispatch_address_finals_out.csv")
     data.to_csv(latLongCsvFilePath);
 
@@ -365,6 +367,7 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
 # function to find the first n available riders for this purpose 
 def findFirstNAvailableRiders(n):
     riders = Rider.objects.filter(status = "Available").only("email");
+    print()
     count = 0;
     availableRiders = []
 
@@ -495,7 +498,7 @@ def findNumberOfLocations(currentAlgorithm, latLongCsvFilePath):
     # print(total_entries-1)
 
     # say everything went fine 
-    return total_entries;
+    return total_entries-1;
 
 
 
@@ -579,7 +582,7 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 
         # here we also have to calculate the total number of locations under this algorithm 
         # and finally save this to db 
-        totalLocations = findNumberOfLocations(currentAlgorithm, latLongCsvFilePath);
+        totalLocations = findNumberOfLocations(currentAlgorithm, distMatrixFileName);
         currentAlgorithm.number_of_locations = totalLocations;
         currentAlgorithm.save();
         currentLocation = Location.objects.get(username = userName, random_number = randomNumber)
@@ -595,6 +598,7 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         # now i will be calling the NEEL's algo here 
         time_matrix_data = think(timeMatrixFileName, n)
         dist_matrix_data = think(distMatrixFileName, n)
+        print("The length of matric", len(dist_matrix_data))
         algoRes, totalCost = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
         # print("The algo result is as follows \n\n\n", algoRes)
         men = totalCost
@@ -649,6 +653,113 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         createBagForEachRiders(availableNRiders);
 
 
+class DummyStart(APIView):
+    def post(self, request):
+        token = request.data["token"];
+        userName = Token.objects.get(key=token).user
+        randomNumber = request.data["randomNumber"];
+        n = request.data["n"]
+
+        # for the dummy data use the following credentials 
+        # token of war1@gmail.com
+        # randomNumber = zy2h00iubx
+
+        latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
+        # currUser = PersonInfo.objects.get(email)
+        currentUser = PersonInfo.objects.get(email = str(userName))
+        # storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser)
+        distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        
+        currentAlgorithm = AlgorithmStatusModel.objects.get(username = userName, random_number = randomNumber);
+        currentAlgorithm.number_of_drivers = n;
+        
+        availableNRiders = findFirstNAvailableRiders(n);
+        print("The available riders are as follows \n\n\n\n\n", availableNRiders)
+        print("The available riders are as follows :", availableNRiders);
+        # here we also have to calculate the total number of locations under this algorithm 
+        # and finally save this to db 
+        totalLocations = findNumberOfLocations(currentAlgorithm, distMatrixFileName);
+        print("totalLocations ==> ", totalLocations);
+        currentAlgorithm.number_of_locations = totalLocations;
+        currentAlgorithm.save();
+        currentLocation = Location.objects.get(username = userName, random_number = randomNumber)
+        # creating the dictionary for item weights 
+        locationToItemVolume_nodeWeights = findNodeWeights(currentLocation);
+        print("the node item weight is \n\n\n", locationToItemVolume_nodeWeights)
+
+        # deliveryManBagWeight = findBagWeightsOfRiders(availableNRiders);
+
+        # print("the bag weight is \n\n\n", deliveryManBagWeight)
+        
+        # timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
+        # now i will be calling the NEEL's algo here 
+        # n is total number of drivers 
+        numberOfDrivers = currentAlgorithm.number_of_drivers;
+
+        time_matrix_data = think(timeMatrixFileName, numberOfDrivers)
+        dist_matrix_data = think(distMatrixFileName, numberOfDrivers)
+        print("The length of matric", len(dist_matrix_data))
+
+        print("The number of drivers\n\n", numberOfDrivers);
+        algoRes, totalCost = solve(numberOfDrivers, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+        # print("The algo result is as follows \n", algoRes)
+        men = totalCost
+        for i in range(100):
+
+            temp, totalCost = solve(numberOfDrivers, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+
+            debug_string = "";
+            for key in temp:
+                debug_string+=str(key)+" : "+str(len(temp[key]))+" , "
+            print("iteration ", i , " over ::::  ",debug_string);
+            # print(totalCost)
+
+            if(totalCost < men):
+
+                totalCost = totalCost
+
+                men = totalCost
+
+                algoRes = temp
+
+
+
+
+        print("Final Total Cost : ", totalCost)
+
+########################################################################################################
+        #TODO 
+        #   observe the output and find the riders id correctly and locations correctly 
+        # the output order to Neels algo is place_id vs rider_id
+        riderIdVsLoc = [];
+        currentLocation = Location.objects.get(username = currentUser.email, random_number = randomNumber);
+        location_array = currentLocation.location_array;
+        coordinates = location_array['coordinates']
+        print("The location_array is as follows \n", coordinates)
+
+
+        for i in range(n):
+            riderIdVsLoc.append([]);
+
+        # here we are assigning the locations to the riders 
+        for key in algoRes:
+            for location in algoRes[key]:
+                riderIdVsLoc[key].append(coordinates[location-1])
+            # currentLatLong = coordinates[key-1];
+            # riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
+        
+
+        # print("The final mapping of riderid vs loc is as follows \n\n");
+        # print(riderIdVsLoc)
+
+        riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders);
+
+        # now we also have to create new bag for each of this riders 
+        createBagForEachRiders(availableNRiders);
+
+        return Response({"msg" : "success"}, status=status.HTTP_200_OK)
+
 
 
 
@@ -659,6 +770,7 @@ class StartAlgoView(APIView):
     # post request to start the algo 
     def post(self, request):
         # first we have to make the status as started 
+        
         token = request.data['token'];
         randomNumber = request.data['randomNumber']
         n = int(request.data["n"]);
@@ -855,7 +967,7 @@ def findRemainingLocations(userName, randomNumber):
             i = i +1;
 
     # say everything went fine 
-    return oldLocationsDictForMagicApi, listOfIds, RiderVsRemainingLocationsDict;
+    return oldLocationsDictForMagicApi, listOfIds, RiderVsRemainingLocationsDict, listOfRiders;
 
 
 
@@ -948,10 +1060,17 @@ class DynamicPickUpPoints(APIView):
         distanceMatrix = think(distMatrixFileName, n);
         timeMatrix = think(timeMatrixFileName, n)
 
+        oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict = findRemainingLocations(userName, randomNumber)
+        currentLocation = Location.objects.get(username=userName, random_number = randomNumber);
+
+        # we have to find the node weights 
+        locationToItemWeight_nodeWeights = findNodeWeights(currentLocation)
+
+        print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
+        numberOfLocations = n;
         # using the for loop to find the distance for this purpose
-        for i in range(0, 1):
-            new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : -1}
-            oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict = findRemainingLocations(userName, randomNumber)
+        for i in range(0, 3):
+            new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : n+i+1}
             distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
 
             distanceArrayDict = {};
@@ -973,12 +1092,6 @@ class DynamicPickUpPoints(APIView):
             
             print("The time array dictionary is as follows \n\n\n", timeArrayDict);
 
-            currentLocation = Location.objects.get(username=userName, random_number = randomNumber);
-
-            # we have to find the node weights 
-            locationToItemWeight_nodeWeights = findNodeWeights(currentLocation)
-
-            print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
 
 
             # print("The distance matrix original thing is as follows \n\n", distanceMatrix)
@@ -1002,7 +1115,7 @@ class DynamicPickUpPoints(APIView):
             oriLocations = copy.deepcopy(RiderVsRemainingLocationsDict)
             print("oriLocations", oriLocations)
             numberOfDrivers = currentAlgoStatus.number_of_drivers
-            locationsResult, totalCost, distanceMatrix, timeMatrix, nodeWeights, m, points = pickup(numberOfDrivers, RiderVsRemainingLocationsDict, locationToItemWeight_nodeWeights, distanceMatrix, timeMatrix, n, newNode, distanceArrayDict, timeArrayDict, points)
+            locationsResult, totalCost, distanceMatrix, timeMatrix, nodeWeights, m, points = pickup(numberOfDrivers, RiderVsRemainingLocationsDict, locationToItemWeight_nodeWeights, distanceMatrix, timeMatrix, numberOfLocations, newNode, distanceArrayDict, timeArrayDict, points)
             men = totalCost
 
             ix = -1
@@ -1026,8 +1139,25 @@ class DynamicPickUpPoints(APIView):
 
             print("locationsResult is as follows+++++++++++ \n\n\n\n", locationsResult)
 
-            # now we have to find the pick up location id and store it in the location_id 
+            # updaitn stuff 
+            oldLocationsDictionaryForMagicApi.append(new_pick_up.copy())
+            listOfIds.append(new_pick_up.copy()["id"])
+            # for the nodeweight they already appended the stuff hence we will have to just update it 
+            locationToItemWeight_nodeWeights = nodeWeights
+
+            # we can also update the RiderVsRemainingLocationsDict 
+            RiderVsRemainingLocationsDict = locationsResult;
+            # updating the number of locations as it is auto incremented by the algorithm itself 
+            numberOfLocations = m;
+    # once the algorithm finishes running then we will have to store the stuff in the database with 
+    # the updated values of the rider pick up points and show to the frontend 
+    # we have to store the new pickup locations in the location model along with their items 
+    # store the updated ridervslocation_ids thing in the rider location section 
+    # this can be done using the encoding that we have right now 
+
             
+
+
 
 
 

@@ -20,7 +20,8 @@ def think(time_filename, n):
     np_matrix = np.column_stack((np.zeros(num_rows), np_matrix ))
     np_matrix = np.append([np.zeros(num_cols+1)], np_matrix, axis=0 )
     np_matrix[np_matrix == 0] = 10^10 
-
+    print("rows", num_rows)
+    print("cols", num_cols)
     # res = solve(n,num_rows,np_matrix)
     # print("\n\n\n\n")
     # print(res)
