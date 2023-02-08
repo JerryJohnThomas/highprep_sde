@@ -52,7 +52,7 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
 
 
 	for i in range(1, nodes + 1):
-		if j in allLocations:
+		if i in allLocations:
 			adjMtrxDist[i].append(distances[i])
 		else:
 			adjMtrxDist[i].append(10 ** 10)
