@@ -87,7 +87,8 @@ export default function RiderBag() {
     console.log("bro");
     return (
       <div className="layer1">
-        <h1>Inventory (change column names)</h1>
+        {/* <h1>Inventory (change column names)</h1> */}
+        <h1>Bag Inventory </h1>
         <div>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">

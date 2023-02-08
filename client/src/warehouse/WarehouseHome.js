@@ -10,7 +10,7 @@ function WarehouseHome({ randomNumber, setRandomNumber, token, islogged }) {
     const navigate = useNavigate();
 
     const [places, setPlaces] = useState(32);
-    const [riders, setRiders] = useState(5);
+    const [riders, setRiders] = useState(10);
     const [showUpload, setShowUpload] = useState(false);
     const [uploadedExcel, setUploadedExcel] = useState(null);
 

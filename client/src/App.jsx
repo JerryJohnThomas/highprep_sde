@@ -26,6 +26,7 @@ import RiderBag from "./rider/riderBag.jsx";
 import Delivery from "./rider/delivery";
 import Camera from "./Camera";
 import Camera2 from "./camera2";
+import InputIt from "./common/InputIt";
 function App() {
     const [islogged, setIsLogged] = useState(false);
     // const[islogged, setIsLogged] = useState(true)
@@ -35,7 +36,8 @@ function App() {
     const [query, setQueryState] = useState("rk5@gmail.com");
     const [randomNumber, setRandomNumber] = useState(
         // "ka509l1tul"
-        "epb88up2ek"
+        // "epb88up2ek"
+        "zy2h00iubx"
     );
 
     return (
@@ -146,6 +148,19 @@ function App() {
                         exact
                         path="/home"
                         element={<Home token={token} islogged={islogged} />}
+                    />
+
+                    <Route
+                        exact
+                        path="/config"
+                        element={
+                            <InputIt
+                                token={token}
+                                setToken={setToken}
+                                randomNumber={randomNumber}
+                                setRandomNumber={setRandomNumber}
+                            />
+                        }
                     />
                     <Route
                         exact
