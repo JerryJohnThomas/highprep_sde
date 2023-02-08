@@ -22,7 +22,7 @@ import copy
 # locations, cost, adjMatrixTime, adjMatri, nodeWeights, nodes
 
 def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, newNode, distances, times, points):
-	
+
     deliveryManWeight = 100
     graph = {}
     for i in range(nodes+1):
@@ -33,29 +33,29 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
             graph[i][j] = adjMtrxDist[i][j]
 
     nodes += 1
-	
-	allLocations = set()
-	allLocations.add(nodes)
-	for i in locations:
-		for j in locations[i]:
-			allLocations.add(j)
 
-	distances1 = []
+    allLocations = set()
+    allLocations.add(nodes)
+    for i in locations:
+        for j in locations[i]:
+            allLocations.add(j)
 
-	for i in range(1, nodes + 1):
-		if(i in allLocations):
-			distances1.append(distances[i])
-		else:
-			distances1.append(10 ** 10)
+    distances1 = []
 
-	adjMtrxDist.append(list(distances1))
+    for i in range(1, nodes + 1):
+        if(i in allLocations):
+            distances1.append(distances[i])
+        else:
+            distances1.append(10 ** 10)
+
+    adjMtrxDist.append(list(distances1))
 
 
-	for i in range(1, nodes + 1):
-		if i in allLocations:
-			adjMtrxDist[i].append(distances[i])
-		else:
-			adjMtrxDist[i].append(10 ** 10)
+    for i in range(1, nodes + 1):
+        if i in allLocations:
+            adjMtrxDist[i].append(distances[i])
+        else:
+            adjMtrxDist[i].append(10 ** 10)
 
 
     # adjMtrxDist.append([])
@@ -64,8 +64,8 @@ def pickup(drivers, locations, nodeWeights, adjMtrxDist, adjMtrxTimes, nodes, ne
     # distances1 = [10**10 for i in range(nodes + 1)]
     # for i in distances.keys():
     #     distances1[i] = distances[i]
-    
-    
+
+
     print("sixe of matrix++++", len(adjMtrxDist))
     # we have to append the distance1 array at mthe end of adjmtrxdist  dont know in numpy 
     # adjMtrxDist =  numpy.append(adjMtrxDist, numpy.array(list(distances1)))
