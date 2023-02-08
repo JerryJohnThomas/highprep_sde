@@ -14,6 +14,7 @@ import json
 from datetime import datetime as dt
 import googlemaps
 import gmaps
+
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 
@@ -27,7 +28,11 @@ import string
 import random
 from .Think import think
 from .maps_route_api import api_call_pickup, api_call_pickup_dummy
-from .main import solve;
+from .main import solve
+from .rudr import *
+from .markov_rudr import *
+from .func_rudr import *
+
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
     def get(self, request):
@@ -484,6 +489,47 @@ def createBagForEachRiders(availableNRiders):
 
 
 
+def find_path_cost(path):
+    if len(path) == 0:
+        return 0
+    temp_path = copy.deepcopy(path)
+    temp_path += [temp_path[0]]
+    path_sum = 0
+    for i in range(len(temp_path)-1):
+        path_sum += node_travel_time[temp_path[i]][temp_path[i+1]]
+    return path_sum
+
+
+def find_loc(n, m, node_travel_distance, node_travel_time, node_weights, deliveryManWeight, positions):
+	clusters = markov_clusters(node_travel_distance, positions, False)
+
+
+	print(clusters)
+
+	# starting_points = random.sample(range(1, m+1), n)
+	# locations, _ = find_path_for_all_drivers(n, m, node_travel_time, node_weights, deliveryManWeight, starting_points, 20)
+	clusters = clusters[1:]
+	for i in range(len(clusters)):
+		clusters[i] = list(clusters[i])
+
+
+	best_cost = infinity
+	best_locations = {}
+	for i in range(100):
+		locations, cost = find_travel_clusters(n, m, node_travel_time, copy.deepcopy(
+			clusters), node_weights, deliveryManWeight)
+
+		all_path_sum = 0
+		for loc in locations.values():
+			all_path_sum += find_path_cost(loc)
+
+		cost = max(cost, all_path_sum)
+
+		if cost < best_cost:
+			best_locations = locations
+			best_cost = cost
+
+	return best_locations, best_cost
 
 
 # defining the function to find the total number of locations 
@@ -598,7 +644,18 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         # now i will be calling the NEEL's algo here 
         time_matrix_data = think(timeMatrixFileName, n)
         dist_matrix_data = think(distMatrixFileName, n)
-        print("The length of matric", len(dist_matrix_data))
+        print("The length of matrix", len(dist_matrix_data))
+
+        # node_travel_distance = [[0 for i in range(totalLocations+1)] for j in range(totalLocations+1)]
+
+        # for i in range(totalLocations):
+        #     for j in range(i+1, totalLocations):
+        #         node_travel_distance[int(points[i][0])][int(
+        #             points[j][0])] = 1 / adjMtrxDist[int(points[i][0])][int(points[j][0])]
+        #         node_travel_distance[int(points[j][0])][int(
+        #             points[i][0])] = 1 / adjMtrxDist[int(points[j][0])][int(points[i][0])]
+
+        
         algoRes, totalCost = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
         # print("The algo result is as follows \n\n\n", algoRes)
         men = totalCost
@@ -699,6 +756,7 @@ class DummyStart(APIView):
 
         time_matrix_data = think(timeMatrixFileName, numberOfDrivers)
         dist_matrix_data = think(distMatrixFileName, numberOfDrivers)
+        print( "dist_matrix_data === ", dist_matrix_data)
         print("The length of matric", len(dist_matrix_data))
 
         print("The number of drivers\n\n", numberOfDrivers);
@@ -1064,10 +1122,16 @@ class DynamicPickUpPoints(APIView):
 
         # we have to find the adjacency matrix using the think function and time matrix as well 
         distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+        print("distMatrixFileName ====== ", distMatrixFileName)
         timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
         n = currentAlgoStatus.number_of_locations;
         distanceMatrix = think(distMatrixFileName, n).tolist();
         timeMatrix = think(timeMatrixFileName, n).tolist()  
+        print(" distancematrix before====== ", distanceMatrix)
+
+    # distance_matrix_war1@gmail.com_jquh71dq5b.csv
+        # distanceMatrix=distanceMatrix.tolist();
+        # print(" distancematrix after====== ", distanceMatrix)
 
         oldLocationsDictionaryForMagicApi, listOfIds, RiderVsRemainingLocationsDict, listOfRiders = findRemainingLocations(userName, randomNumber)
         currentLocation = Location.objects.get(username=userName, random_number = randomNumber);
@@ -1077,6 +1141,7 @@ class DynamicPickUpPoints(APIView):
         print("initial ridervslocationid", RiderVsRemainingLocationsDict)
         # print("The value of node weights is as follows \n\n\n", locationToItemWeight_nodeWeights);
         numberOfLocations = n;
+        print("started\n\n\n\n");
         # using the for loop to find the distance for this purpose
         for i in range(0, 5):
             print("ball_status 1", i)
@@ -1201,6 +1266,7 @@ class DynamicPickUpPoints(APIView):
     # we have to store the new pickup locations in the location model along with their items 
     # store the updated ridervslocation_ids thing in the rider location section 
     # this can be done using the encoding that we have right now 
+        return Response("done")
 
             
 
@@ -1436,5 +1502,7 @@ class CvPoint(APIView):
         file1 = request.FILES["file1"];
         # file2 = request.FILES["file2"];
         print("the file 1 is ", file1);
-        # print("the file 2 is ", file2);
+        
+        # print("the file 2
+        #  is ", file2);
         return Response("1");

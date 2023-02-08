@@ -3,10 +3,9 @@ import copy
 
 def tsp(graph):
 	G = copy.deepcopy(graph)
-	assert(len(G) >= 1)
 	if (len(G) == 1):
-		return [0, [(list(G.keys()))[0]]]
-	
+		return [0, [(list(G.keys()))[0], (list(G.keys()))[0]]]
+
 	newG = {}
 	nodes = set()
 	for i in G:
@@ -207,3 +206,4 @@ def remove_edge_from_matchedMST(MatchedMST, v1, v2):
 # ret = tsp({61: {1: 0.9951049241160452, 2: 3.5214885559944666}, 1: {61: 0.9951049241160452, 2: 0}, 2: {61: 3.5214885559944666, 1:0}})
 
 # print(ret)
+
