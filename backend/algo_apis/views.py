@@ -93,7 +93,7 @@ class UploadExcelSheetView(APIView):
         print("The saved new entry in the algorithm thing is \n", algorithmStatus);
         
         # say everything went fine 
-        return Response({"msg" : "Hopefully done successfully", "randomNumber" : randomNumber}, status=status.HTTP_201_CREATED)
+        return Response({"msg" : "Hopefully done successfully", "randomNumber" : randomNumber, "number" : len(excelData.index)}, status=status.HTTP_201_CREATED)
 
 
 
@@ -1178,8 +1178,8 @@ def long_running_dynamic_pickup_task(userName, randomNumber, file, currentAlgoSt
         for i in range(0, len(lat)):
             print("ball_status 1", i)
             new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : n+i+1}
-            # distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
-            distanceArray, timeArray = api_call_pickup_dummy(new_pick_up, oldLocationsDictionaryForMagicApi);
+            distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
+            # distanceArray, timeArray = api_call_pickup_dummy(new_pick_up, oldLocationsDictionaryForMagicApi);
             distanceArrayDict = {};
             k = 0;
 
@@ -1283,6 +1283,8 @@ def long_running_dynamic_pickup_task(userName, randomNumber, file, currentAlgoSt
         storeUpdatedRiderLocationInDb(RiderVsRemainingLocationsDict, oldLocationsDictionaryForMagicApi, initialNumberOfLocations, userName, randomNumber, numberOfLocations);
         print("the final list of ids\n", listOfIds);
         print("the total number of locations ", numberOfLocations)
+        currentAlgoStatus.status = "Finished"
+        currentAlgoStatus.save()
 
 
 
@@ -1298,6 +1300,7 @@ class DynamicPickUpPoints(APIView):
         data = request.data;
         token = data['token'];
         randomNumber = request.data["randomNumber"]
+        print("THE RANDOM NUMBER OF pickup points is  ", randomNumber)
         file = request.FILES['file']
 
 
@@ -1317,14 +1320,15 @@ class DynamicPickUpPoints(APIView):
 
         currentAlgoStatus = AlgorithmStatusModel.objects.get(username = userName, random_number = randomNumber);
         currentAlgoStatus.dynamicPickUpExcelSheet = file;
+        currentAlgoStatus.status = "NotFinished"
         currentAlgoStatus.save();
         #    my_tuple = (n, userName, currentAlgorithm, currentUser, randomNumber)
         # threading.Thread(target=long_running_task, args=my_tuple).start()
 
         # here we have to run this on the separate thread 
-        # my_tuple = (userName, randomNumber, file, currentAlgoStatus)
-        # threading.Thread(target=long_running_dynamic_pickup_task, args=my_tuple).start()
-        long_running_dynamic_pickup_task(userName, randomNumber, file, currentAlgoStatus)
+        my_tuple = (userName, randomNumber, file, currentAlgoStatus)
+        threading.Thread(target=long_running_dynamic_pickup_task, args=my_tuple).start()
+        # long_running_dynamic_pickup_task(userName, randomNumber, file, currentAlgoStatus)
 
         return Response({"msg" : "started dynamic pickup points"})
 
@@ -1375,14 +1379,14 @@ def storeUpdatedRiderLocationInDb(RiderVsRemainingLocationsDict, oldLocationsDic
         }
 
 
-        # currentRider.save()
+        currentRider.save()
         currentAlgorithmRiderToLocation[currentRider.email] = coordinate;
     
     currentAlgorithm = AlgorithmStatusModel.objects.get(username = userName, random_number = randomNumber);
     currentAlgorithm.number_of_locations = totalNumberOfLocations;
     currentAlgorithm.rider_to_location = currentAlgorithmRiderToLocation
     print("The current algorithm rider_to_location array is ", currentAlgorithmRiderToLocation, "\n\n")
-    # currentAlgorithm.save();
+    currentAlgorithm.save();
     
     # we have to update the   rider_to_locations in the current algorithm as well 
     
@@ -1409,7 +1413,7 @@ def storeUpdatedRiderLocationInDb(RiderVsRemainingLocationsDict, oldLocationsDic
     
     currentLocation.location_array["coordinates"] = locationArray;
     print("The final location array inside location collection is ", locationArray)
-    # currentLocation.save();
+    currentLocation.save();
 
     # say everything went fine 
     return;
@@ -1497,7 +1501,7 @@ class DummyDynamicPickUpPoints(APIView):
             print("ball_status 1", i)
             new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : n+i+1}
             # distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
-            distanceArray, timeArray = api_call_pickup_dummy(new_pick_up, oldLocationsDictionaryForMagicApi);
+            distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
 
             distanceArrayDict = {};
             k = 0;
