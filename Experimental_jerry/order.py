@@ -41,6 +41,7 @@ while end <= len:
     start=end
     end = min(start+block_size, len)
     day_count= day_count+1
+
     if start==end:
         break
 
