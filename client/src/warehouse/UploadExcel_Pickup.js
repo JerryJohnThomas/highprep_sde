@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import ExcelUploader from "./ExcelUploader";
 import "./UploadExcel.css";
 import axios from "../axios"
-function UploadExcel_Pickup({ randomNumber, setShowUpload, token, islogged, uploadedExcel, setUploadedExcel, setRandomNumber,setRiders ,riders, triggerUseEffect, setTriggerUseEffect}) {
+function UploadExcel_Pickup({ randomNumber, setShowUpload,starter_fn, token, islogged, uploadedExcel, setUploadedExcel, setRandomNumber,setRiders ,riders, triggerUseEffect, setTriggerUseEffect}) {
 
     let handleClick = (e) => {
         if (e.target.className == "jj_uploadexcel_wrapper")
             setShowUpload(false);
         console.log(token);
+        console.log(randomNumber);
     };
 
     let handle_Submission = () => {
@@ -18,7 +19,8 @@ function UploadExcel_Pickup({ randomNumber, setShowUpload, token, islogged, uplo
             return;
         }
         
-            console.log("token is ", {token});
+            console.log("token is ", token);
+            console.log("randomNumber is ", randomNumber);
             const formData = new FormData();
             formData.append('file', uploadedExcel);
             formData.append('token', token);
@@ -30,9 +32,10 @@ function UploadExcel_Pickup({ randomNumber, setShowUpload, token, islogged, uplo
                 console.log("Successfully sent file");                
                 setShowUpload(false);
                 console.log("res");
-                console.log(res.data.randomNumber);
-                setRandomNumber(res.data.randomNumber);
+                // setRandomNumber(res.data.randomNumber);
                 setTriggerUseEffect((x) => x + 1);
+                starter_fn();
+                console.log("starter function tried to start");
             })
             .catch((err) => {
                 // Handle error

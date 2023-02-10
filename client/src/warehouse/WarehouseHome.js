@@ -194,6 +194,7 @@ function WarehouseHome({ randomNumber, setRandomNumber, token, islogged }) {
                         token={token}
                         setRiders={setRiders}
                         riders={riders}
+                        setPlaces={setPlaces}
                     />
                 ) : null}
             </div>

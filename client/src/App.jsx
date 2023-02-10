@@ -39,8 +39,8 @@ function App() {
         // "epb88up2ek"
         // "zy2h00iubx"
         // "jquh71dq5b"
-            "zy2h00iubx"
-        );
+        "c4kqnid27x"
+    );
 
     return (
         <div>
@@ -161,6 +161,8 @@ function App() {
                                 setToken={setToken}
                                 randomNumber={randomNumber}
                                 setRandomNumber={setRandomNumber}
+                                email={query}
+                                setEmail={setQueryState}
                             />
                         }
                     />
