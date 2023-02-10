@@ -30,14 +30,11 @@ import UploadExcel_Pickup from "./UploadExcel_Pickup";
 import { Alert } from "@mui/material";
 // const center = { lat: 48.8584, lng: 2.2945 }
 let center = { lat: 12.9716, lng: 77.5946 };
-function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
+function Directions2_before_i_go_mad({ setRandomNumber, randomNumber, token, islogged }) {
     const [showUpload, setShowUpload] = useState(false);
     const [uploadedExcel, setUploadedExcel] = useState(null);
     const [gotCenter, setGotCenter] = useState(false);
     const [gotCenterData, setGotCenterData] = useState([12.9716, 77.5946]);
-    
-    const [daymap, setDaymap] = useState([1,2,3,4,5,6,7,8]);
-    const[selectedday,setSelectedDay] = useState(0);
 
     const [triggerUseEffect, setTriggerUseEffect] = useState(1);
     const [stats, setStats] = useState([]);
@@ -108,7 +105,6 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                 setRiderplaces([]);
                 setShowRiderRoute([]);
                 let data = res.data;
-                
                 let rider_to_loc = data.rider_to_location;
                 for (let i = 0; i < rider_to_loc.length; i++) {
                     let temp = [];
@@ -375,20 +371,6 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                         </div>
                     </div>
                     <div className="jerry_routes_bottom">
-                        {/* <HorizontalScrollBar /> */}
-                        <div className="jerry_h_container">
-                            {
-                                daymap.map((data,index) => {
-                                    return <div className="jj_stats_button margin_10_width" onClick={()=>setSelectedDay(index)} onDoubleClick={()=>console.log(selectedday)} >day {index}</div>
-                                })
-                            }
-                            {/* <div className="jj_stats_button margin_10_width">day 2</div> */}
-                            {/* <div className="jj_stats_button margin_10_width">day 3</div> */}
-                            {/* <div className="jj_stats_button margin_10_width">day 4</div> */}
-                            {/* <div className="jj_stats_button margin_10_width">day 5</div>
-                            <div className="jj_stats_button margin_10_width">day 16</div>
-                            <div className="jj_stats_button margin_10_width">day 17</div> */}
-                        </div>
                         {stats.map((data, index) => (
                             <RiderCard
                                 name={`rk${index + 1}@gmail.com`}
@@ -421,30 +403,4 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
     );
 }
 
-
-let HorizontalScrollBar = () => {
-  return (
-      <div style={{ overflowX: "scroll" }}>
-          <div
-              style={{
-                  display: "flex",
-                  width: "120%",
-                  background: "rgb(218, 218, 218)",
-                  padding: "1rem",
-              }}
-          >
-              <div className="jj_stats_button" style={{ width: "50%", margin:"5px 5px", padding:"10px 15px" }}>01-08-2023 </div>
-              <div className="jj_stats_button" style={{ width: "50%", margin:"5px 5px", padding:"10px 15px" }}>20-08-2023</div>
-              <div className="jj_stats_button" style={{ width: "50%", margin:"5px 5px", padding:"10px 15px" }}>30-08-2023</div>
-              <div className="jj_stats_button" style={{ width: "50%", margin:"5px 5px", padding:"10px 15px" }}>40-08-2023</div>
-              <div className="jj_stats_button" style={{ width: "50%", margin:"5px 5px", padding:"10px 15px" }}>50-08-2023</div>
-              <div className="jj_stats_button" style={{ width: "50%", margin:"5px 5px", padding:"10px 15px" }}>60-08-2023</div>
-              <div className="jj_stats_button" style={{ width: "50%", margin:"5px 5px", padding:"10px 15px" }}>70-08-2023</div>
-          </div>
-      </div>
-  );
-};
-
-// export default HorizontalScrollBar;
-
-export default Directions2;
+export default Directions2_before_i_go_mad;

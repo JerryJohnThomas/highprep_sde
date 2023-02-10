@@ -27,6 +27,7 @@ import Delivery from "./rider/delivery";
 import Camera from "./Camera";
 import Camera2 from "./camera2";
 import InputIt from "./common/InputIt";
+import Test from "./warehouse/Test";
 function App() {
     const [islogged, setIsLogged] = useState(false);
     // const[islogged, setIsLogged] = useState(true)
@@ -166,6 +167,9 @@ function App() {
                             />
                         }
                     />
+
+                    <Route exact path="/test" element={<Test/>} />
+
                     <Route
                         exact
                         path="/"

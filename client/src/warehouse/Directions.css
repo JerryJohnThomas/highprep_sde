@@ -57,3 +57,18 @@
 
 
 }
+
+.jerry_h_container{
+    display: flex;
+    width: 100%;
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* overflow: hidden; */
+}
+
+.margin_10_width{
+    margin: 10px;   
+    width: 25%;
+    text-align: center;
+    /* padding: 5px 10px; */
+}
