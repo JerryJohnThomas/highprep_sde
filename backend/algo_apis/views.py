@@ -803,26 +803,27 @@ class DummyStart(APIView):
         numberOfDrivers = currentAlgorithm.number_of_drivers;
 
         time_matrix_data = think(timeMatrixFileName, numberOfDrivers)
+        print("time matri data ", time_matrix_data)
         dist_matrix_data = think(distMatrixFileName, numberOfDrivers)
-        print( "dist_matrix_data === ", dist_matrix_data)
+        # print( "dist_matrix_data === ", dist_matrix_data)
         # print("The length of matric", len(dist_matrix_data))
-        # f = open("rudr_testing.txt", "a") 
-        # f.write("The number of drivers\n\n")
-        # f.write(str(numberOfDrivers))
-        # f.write("totallocations\n\n")
-        # f.write(str(totalLocations))
-        # f.write("dist_matrix_data\n\n")
-        # f.write(str(dist_matrix_data.tolist()))
-        # f.write("time_matrix_data\n\n")
-        # f.write(str(time_matrix_data.tolist()))
-        # f.write("locationToItemVolume_nodeWeights\n\n")
-        # f.write(str(locationToItemVolume_nodeWeights) )
-        # f.write("deliveryManWeight  \n\n")
-        # temp = 640000
-        # f.write(str(temp) )
-        # f.write("n  \n\n")
-        # f.write(str(n))
-        # f.close();
+        f = open("rudr_testing.txt", "a") 
+        f.write("The number of drivers\n\n")
+        f.write(str(numberOfDrivers))
+        f.write("totallocations\n\n")
+        f.write(str(totalLocations))
+        f.write("dist_matrix_data\n\n")
+        f.write(str(dist_matrix_data.tolist()))
+        f.write("time_matrix_data\n\n")
+        f.write(str(time_matrix_data.tolist()))
+        f.write("locationToItemVolume_nodeWeights\n\n")
+        f.write(str(locationToItemVolume_nodeWeights) )
+        f.write("deliveryManWeight  \n\n")
+        temp = 640000
+        f.write(str(temp) )
+        f.write("n  \n\n")
+        f.write(str(n))
+        f.close();
 
         # print("done++++++++++++++++++++++")
 
