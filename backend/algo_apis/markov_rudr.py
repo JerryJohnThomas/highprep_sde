@@ -5,8 +5,8 @@ from .rudr import *
 
 def markov_clusters(node_travel_distance, positions, draw=False):
     network = nx.from_numpy_array(np.matrix(node_travel_distance))
-    print(node_travel_distance)
-    print(network)
+    # print(node_travel_distance)
+    # print(network)
 
     # then get the adjacency matrix (in sparse form)
     matrix = nx.to_scipy_sparse_array(network)
@@ -23,9 +23,9 @@ def markov_clusters(node_travel_distance, positions, draw=False):
             min_modularity_cluster_set = clusters
             min_modularity = Q
 
-    print(min_modularity_cluster_set)
+    # print(min_modularity_cluster_set)
     if draw:
-        print(min_modularity_cluster_set)
+        # print(min_modularity_cluster_set)
         mc.draw_graph(matrix, min_modularity_cluster_set, pos=positions,
                       node_size=50, with_labels=False, edge_color="grey")
 

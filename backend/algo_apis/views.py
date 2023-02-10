@@ -394,7 +394,7 @@ def storeLatLongInDb(latLongCsvFilePath, userName, randomNumber, currentUser):
 # function to find the first n available riders for this purpose 
 def findFirstNAvailableRiders(n):
     riders = Rider.objects.filter(status = "Available").only("email");
-    print()
+    # print()
     count = 0;
     availableRiders = []
 
@@ -526,7 +526,7 @@ def find_loc(n, m, node_travel_distance, node_travel_time, node_weights, deliver
     clusters = markov_clusters(node_travel_distance, positions, False)
 
 
-    print(clusters)
+    # print(clusters)
 
     # starting_points = random.sample(range(1, m+1), n)
     # locations, _ = find_path_for_all_drivers(n, m, node_travel_time, node_weights, deliveryManWeight, starting_points, 20)
@@ -780,18 +780,18 @@ class DummyStart(APIView):
         currentAlgorithm.number_of_drivers = n;
         
         availableNRiders = findFirstNAvailableRiders(n);
-        print("The available riders are as follows \n\n\n\n\n", availableNRiders)
-        print("The available riders are as follows :", availableNRiders);
+        # print("The available riders are as follows \n\n\n\n\n", availableNRiders)
+        # print("The available riders are as follows :", availableNRiders);
         # here we also have to calculate the total number of locations under this algorithm 
         # and finally save this to db 
         totalLocations = findNumberOfLocations(currentAlgorithm, distMatrixFileName);
-        print("totalLocations ==> ", totalLocations);
+        # print("totalLocations ==> ", totalLocations);
         currentAlgorithm.number_of_locations = totalLocations;
         currentAlgorithm.save();
         currentLocation = Location.objects.get(username = userName, random_number = randomNumber)
         # creating the dictionary for item weights 
         locationToItemVolume_nodeWeights = findNodeWeights(currentLocation);
-        print("the node item weight is \n\n\n", locationToItemVolume_nodeWeights)
+        # print("the node item weight is \n\n\n", locationToItemVolume_nodeWeights)
 
         # deliveryManBagWeight = findBagWeightsOfRiders(availableNRiders);
 
@@ -805,16 +805,26 @@ class DummyStart(APIView):
         time_matrix_data = think(timeMatrixFileName, numberOfDrivers)
         dist_matrix_data = think(distMatrixFileName, numberOfDrivers)
         print( "dist_matrix_data === ", dist_matrix_data)
-        print("The length of matric", len(dist_matrix_data))
+        # print("The length of matric", len(dist_matrix_data))
+        # f = open("rudr_testing.txt", "a") 
+        # f.write("The number of drivers\n\n")
+        # f.write(str(numberOfDrivers))
+        # f.write("totallocations\n\n")
+        # f.write(str(totalLocations))
+        # f.write("dist_matrix_data\n\n")
+        # f.write(str(dist_matrix_data.tolist()))
+        # f.write("time_matrix_data\n\n")
+        # f.write(str(time_matrix_data.tolist()))
+        # f.write("locationToItemVolume_nodeWeights\n\n")
+        # f.write(str(locationToItemVolume_nodeWeights) )
+        # f.write("deliveryManWeight  \n\n")
+        # temp = 640000
+        # f.write(str(temp) )
+        # f.write("n  \n\n")
+        # f.write(str(n))
+        # f.close();
 
-        print("The number of drivers\n\n", numberOfDrivers);
-        print("numberofrivers", numberOfDrivers)
-        print("totallocations", totalLocations)
-        print("dist_matrix_data", dist_matrix_data)
-        print("time_matrix_data", time_matrix_data )
-        print("locationToItemVolume_nodeWeights", locationToItemVolume_nodeWeights )
-        print("deliveryManWeight  ", 640000 )
-        print("n  ", 0 )
+        # print("done++++++++++++++++++++++")
 
         node_travel_distance = [[0 for i in range(totalLocations+1)] for j in range(totalLocations+1)]
 
@@ -858,7 +868,7 @@ class DummyStart(APIView):
         currentLocation = Location.objects.get(username = currentUser.email, random_number = randomNumber);
         location_array = currentLocation.location_array;
         coordinates = location_array['coordinates']
-        print("The location_array is as follows \n", coordinates)
+        # print("The location_array is as follows \n", coordinates)
 
 
         for i in range(n):
