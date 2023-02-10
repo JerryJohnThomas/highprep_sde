@@ -34,6 +34,9 @@ from .markov_rudr import *
 from .func_rudr import *
 
 import math
+# import open
+import openpyxl
+
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
     def get(self, request):
@@ -137,13 +140,13 @@ def api_call(origins, destinations):
     call = requests.post('https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix', json=body, headers=headers)
     res = call.text
 
-    print(call.status_code, call.reason)
+    # print(call.status_code, call.reason)
     json_object = json.loads(call.text)
 
     print(len(json_object))
     for id,data in enumerate(json_object):
         # print(id, data)
-        print(data)
+        # print(data)
         ind1 = data["originIndex"]
         ind2 = data["destinationIndex"]
 
@@ -240,11 +243,11 @@ def addressToLocations(excelPath, userName, randomNumber):
     for i in range(places.size):
         x =places[i]
         lat, lng, title , status= get_geocordinates(x)
-        print(title)
+        # print(title)
         in_india = ((lat >=8 and lat <=40) and (lng >=68 and lng <=96))
         if lat==1000 or status==0 or in_india == False:
             continue
-        print()
+        # print()
         data['lat'][i]= lat
         data['lng'][i]= lng
         time.sleep(1)
@@ -291,7 +294,7 @@ def calculateDistanceTimeMatrix(filePath, userName, randomNumber):
 
     size=lat.size
 
-    print()
+    # print()
 
     num_index = np.arange(0,size)
 
@@ -342,6 +345,70 @@ def calculateDistanceTimeMatrix(filePath, userName, randomNumber):
         dist_mat.to_csv(f"./data/distance/{distMatrixFileName}", index=True)
         time_mat.to_csv(f"./data/time/{timeMatrixFileName}", index=True)
 
+
+
+
+# function to get the distance time matrix 
+def calculateDistanceTimeMatrix_version2(filePath, userName, randomNumber, start, end, dayCount):
+    
+    df = pd.read_csv(filePath)
+    df = df[start:end]
+    lat = df["lat"]
+    lng = df["lng"]
+
+    size=lat.size
+    print("caldist_v2 start",start," end", end, "size",size)
+
+    print(lat)
+
+    num_index = np.arange(0,size)
+
+    places = []
+    for i in range(size):
+        places.append([i,lat[i+start],lng[i+start]])
+
+    batches = []
+    count=0
+    for i in range(0,size,25):
+        batches.append(places[i:min(i+25,size)])
+
+
+    arr = np.arange(0,size) 
+    dist_mat = pd.DataFrame( index=arr, columns=arr)
+    time_mat = pd.DataFrame( index=arr, columns=arr)
+
+
+    print("total batches ", len(batches))
+
+    for id_i,data_i in enumerate(batches):
+        id_range_i = np.arange(id_i*25, id_i*25 + len(data_i))
+        
+        for id_j,data_j in enumerate(batches):
+            id_range_j = np.arange(id_j*25, id_j*25 + len(data_j))
+            
+            # print(id_range_i," XX ",id_range_j)
+            dist_batch, time_batch = api_call(data_i,data_j)
+            # updaing the csv
+            for j in id_range_j:
+                for i in id_range_i:
+                    # print("accessing indices", i-id_range_i[0])
+                    key_i = i-id_range_i[0]
+                    key_j = j-id_range_j[0]
+                    # i changed str(j) to int(j)
+                    dist_mat.at[int(i),int(j)] = dist_batch[key_i][key_j]
+                    time_mat.at[int(i),int(j)] = time_batch[key_i][key_j]
+            time.sleep(15)
+            print(id_i," and ",id_j," is over")
+
+    time_now = dt.now().isoformat()
+    time_now= time_now.replace(":",".")
+
+    write_csv=True
+    distMatrixFileName = "distance_matrix_" + str(userName) + "_" + str(randomNumber) +  "_" + str(dayCount) + ".csv";
+    timeMatrixFileName = "time_matrix_" + str(userName) + "_" + str(randomNumber) + "_" + str(dayCount) + ".csv";
+    if write_csv:
+        dist_mat.to_csv(f"./data/distance/{distMatrixFileName}", index=True)
+        time_mat.to_csv(f"./data/time/{timeMatrixFileName}", index=True)
 
 
 
@@ -431,7 +498,7 @@ def markThemAsNonAvailable(availableRidersN):
 
 # this function will store the list of location_ids assigned to rider in their collection. 
 # (location_id is the field)
-def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availableNRiders):
+def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availableNRiders, dayCount):
     i = 0;
     riderDict = {};
     # using the for loop for storing this in database 
@@ -454,7 +521,13 @@ def storeLocationsInRiderCollection(username, randomNumber, riderIdVsLoc, availa
     # currentAlgorithm = 
     # saving the locations to be completed by the rider in the AlgorithmStatusModel thingy 
     currentAlgorithm = AlgorithmStatusModel.objects.get(username =  username, random_number = randomNumber);
-    currentAlgorithm.rider_to_location = riderDict;
+    currentDict = {}
+    currentDict = currentAlgorithm.rider_to_location
+    if currentDict == []:
+        currentDict = {};
+    currentDict[dayCount] = riderDict
+    currentAlgorithm.rider_to_location = currentDict
+
     # we also have to update the status of the algorithm as finished for this purpose
     currentAlgorithm.status = "Finished";
     currentAlgorithm.save();
@@ -611,6 +684,25 @@ def findNodeWeights(currentLocation):
 
 
 
+# function to find the map of location_id and item weight 
+def findNodeWeights_version2(currentLocation, start, end, daysCount, blockSize, t):
+    coordinates = currentLocation.location_array["coordinates"];
+
+    itemVolumeNodeWeights = {};
+    # t = 0;
+    # using the for loop for this purpose 
+    for entry in coordinates[start : end]:
+        itemName = entry[3];
+        itemVolume = Item.objects.get(item_name = itemName).item_volume
+        # if(daysCount != 0):
+        itemVolumeNodeWeights[entry[0]-t*blockSize] = float(itemVolume);
+        # t = t+1;
+
+
+    # say everything went fine 
+    return itemVolumeNodeWeights
+
+
 
 
 # defining the function to find the weight of bags of each rider involved in tour 
@@ -623,6 +715,17 @@ def findBagWeightsOfRiders(availableNRiders):
     
     # say everything went fine 
     return riderVsBagWeight;
+
+
+
+## ordering section
+def add_front_zero(temp):
+    splitted = temp.split("-")
+    date, month, year= splitted[0], splitted[1], splitted[2]
+    if(len(date)==1):
+        date="0"+date
+    new_date = date+"-"+month+"-"+year
+    return new_date
 
 
 
@@ -644,8 +747,47 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 ########################################################################################################
 
         excelPath = currentAlgorithm.excelSheetFile;
+        print("The excel sheet path is ", excelPath);
+        df = pd.read_excel(excelPath)
+        print("content of files is ", df);
+        firstEntryAddress = df["address"]
+        print("The content that got deleted is ", firstEntryAddress)
+
+        filename = excelPath
+        wb = openpyxl.load_workbook(filename, "w")
+        sheetPath = list(str(excelPath).split("/"))[1][:-5]
+        sheet = wb["Sheet1"]
+        
+        status = sheet.cell(sheet.min_row, 1).value
+        print(status)
+        sheet.delete_rows(sheet.min_row, 1)
+        wb.save(filename)
+
+        df = pd.read_excel(excelFile);
+
+        print("The remaining content of the file is ", df)
+        #read the excel file
+        # # print()
+
+        # #drop the first row
+        # df.drop(df.index[0])
+
+        # #save the changes to the excel file
+        # df.to_excel(excelPath, index=False)
 
 
+        # print("the content of excel sheet is \n\n", df);
+
+        # 1. delete 
+        # # 2. sort it 
+        # excelFile = pd.read_csv(excelPath)
+        # excelFile['EDD'] = excelFile['EDD'].apply(lambda x: add_front_zero(x))
+        # excelFile = excelFile.sort_values(by='EDD', ascending=True)
+        # # 4. add it back 
+        # excelFile
+        # 5. find lat long 
+        # 6. delete 
+        # 7. each time add this point at start in batch thing 
 ########################################################################################################
         #TODO ==> UNCOMMENT THE LINE 
         addressToLocations(excelPath, userName, randomNumber)
@@ -660,24 +802,118 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 ########################################################################################################
         #TODO 
             # how to find the places given the latitude and longitude 
+        # sorting the data based on edd 
+        # add both the lines together to sort it
+        excelFile = pd.read_csv(latLongCsvFilePath)
+        excelFile['EDD'] = excelFile['EDD'].apply(lambda x: add_front_zero(x))
+        excelFile = excelFile.sort_values(by='EDD', ascending=True)
 
+
+        # start index
+        start = 0 
+        # n = 
+        numberOfRiders = n
+        maxNumberLocationPerRider = 3
+        block_size = numberOfRiders*maxNumberLocationPerRider
+        length = len(excelFile)
+        print("length: ",length)
+        # print(length)
+        # # end index 
+        end = min(start+block_size, length)
+        day_count = 0
+        t = 0;
+        while end <= length:
+            print(start, end, " on day: ",day_count)
+            # you can do data[start:end]
+            # pdb.set_trace()
+            calculateDistanceTimeMatrix_version2(latLongCsvFilePath, userName, randomNumber, start, end, day_count);
+
+            distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + "_" + str(day_count) +  ".csv";
+            timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + "_" + str(day_count) + ".csv";
+
+            # here we also have to calculate the total number of locations under this algorithm 
+            # and finally save this to db 
+            # totalLocations = findNumberOfLocations(currentAlgorithm, distMatrixFileName);
+            totalLocations = end-start;
+            currentAlgorithm.number_of_locations = totalLocations;
+            currentAlgorithm.save();
+
+
+            currentLocation = Location.objects.get(username = userName, random_number = randomNumber)
+            # creating the dictionary for item weights 
+            locationToItemVolume_nodeWeights = findNodeWeights_version2(currentLocation, start, end, day_count, block_size, t);
+            t = t+1;
+            # print("the node item weight is \n\n\n", locationToItemVolume_nodeWeights)
+
+            time_matrix_data = think(timeMatrixFileName, n)
+            dist_matrix_data = think(distMatrixFileName, n)
+            # print("The length of matrix", len(dist_matrix_data))
+
+            node_travel_distance = [[0 for i in range(totalLocations+1)] for j in range(totalLocations+1)]
+
+            # TODO - Possible error here
+            for i in range(0, len(dist_matrix_data)):
+                for j in range(0, len(dist_matrix_data[i])):
+                    if dist_matrix_data[i][j] != 0:
+                        node_travel_distance[i][j] = 1 / dist_matrix_data[i][j]
+            # print("distance matrix data  ==> ", dist_matrix_data)
+            print("nodeweights", locationToItemVolume_nodeWeights)
+            algoRes, totalCost = find_loc(
+            n, totalLocations, node_travel_distance, time_matrix_data, locationToItemVolume_nodeWeights, 640000, [])
+
+            algoRes_temp1, totalCost_temp1 = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+            # print("The algo result is as follows \n", algoRes_temp1)
+            men = totalCost_temp1
+            for i in range(100):
+
+                temp, totalCost_temp1 = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
+
+                debug_string = "";
+                for key in temp:
+                    debug_string+=str(key)+" : "+str(len(temp[key]))+" , "
+                print("iteration ", i , " over ::::  ",debug_string);
+                # print(totalCost_temp1)
+
+                if(totalCost_temp1 < men):
+
+                    men = totalCost_temp1
+
+                    algoRes_temp1 = temp
+
+            if (totalCost_temp1 < totalCost):
+                algoRes = algoRes_temp1
+                totalCost = totalCost_temp1
+
+            # print("Final Total Cost : ", totalCost)
+
+            riderIdVsLoc = [];
+            currentLocation = Location.objects.get(username = currentUser.email, random_number = randomNumber);
+            location_array = currentLocation.location_array;
+            coordinates = location_array['coordinates'][start:end]
+            # print("The location_array is as follows \n", coordinates)
+
+
+            for i in range(n):
+                riderIdVsLoc.append([]);
+
+            # here we are assigning the locations to the riders 
+            for key in algoRes:
+                for location in algoRes[key]:
+                    riderIdVsLoc[key].append(coordinates[location-1])
+
+            riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders, day_count);
+            createBagForEachRiders(availableNRiders);
+
+            start=end
+            end = min(start+block_size, length)
+            day_count= day_count+1
+            if start==end:
+                break
+
+            
             # now we have to calculate the distance time matrix csv for the algorithm 
-        calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
         # calculateDistanceTimeMatrix_l1norm(latLongCsvFilePath, userName, randomNumber);
 ########################################################################################################
-
-        distMatrixFileName = "./data/distance/distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-        timeMatrixFileName = "./data/time/time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
-
-        # here we also have to calculate the total number of locations under this algorithm 
-        # and finally save this to db 
-        totalLocations = findNumberOfLocations(currentAlgorithm, distMatrixFileName);
-        currentAlgorithm.number_of_locations = totalLocations;
-        currentAlgorithm.save();
-        currentLocation = Location.objects.get(username = userName, random_number = randomNumber)
-        # creating the dictionary for item weights 
-        locationToItemVolume_nodeWeights = findNodeWeights(currentLocation);
-        print("the node item weight is \n\n\n", locationToItemVolume_nodeWeights)
 
         # deliveryManBagWeight = findBagWeightsOfRiders(availableNRiders);
 
@@ -685,63 +921,11 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         
         # timeMatrixFileName = "./time_matrix218_2023-01-21T17.04.47.497441.csv"
         # now i will be calling the NEEL's algo here 
-        time_matrix_data = think(timeMatrixFileName, n)
-        dist_matrix_data = think(distMatrixFileName, n)
-        print("The length of matrix", len(dist_matrix_data))
-
-        node_travel_distance = [[0 for i in range(totalLocations+1)] for j in range(totalLocations+1)]
-
-        for i in range(1, len(dist_matrix_data)):
-            for j in range(1, len(dist_matrix_data[i])):
-                if dist_matrix_data[i][j] != 0:
-                    node_travel_distance[i][j] = 1 / dist_matrix_data[i][j]
-
-        algoRes, totalCost = find_loc(
-        n, totalLocations, node_travel_distance, time_matrix_data, locationToItemVolume_nodeWeights, 640000, [])
-
-        algoRes_temp1, totalCost_temp1 = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
-        # print("The algo result is as follows \n", algoRes_temp1)
-        men = totalCost_temp1
-        for i in range(100):
-
-            temp, totalCost_temp1 = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
-
-            debug_string = "";
-            for key in temp:
-                debug_string+=str(key)+" : "+str(len(temp[key]))+" , "
-            print("iteration ", i , " over ::::  ",debug_string);
-            # print(totalCost_temp1)
-
-            if(totalCost_temp1 < men):
-
-                men = totalCost_temp1
-
-                algoRes_temp1 = temp
-
-        if (totalCost_temp1 < totalCost):
-            algoRes = algoRes_temp1
-            totalCost = totalCost_temp1
-
-        print("Final Total Cost : ", totalCost)
 
 ########################################################################################################
         #TODO 
         #   observe the output and find the riders id correctly and locations correctly 
         # the output order to Neels algo is place_id vs rider_id
-        riderIdVsLoc = [];
-        currentLocation = Location.objects.get(username = currentUser.email, random_number = randomNumber);
-        location_array = currentLocation.location_array;
-        coordinates = location_array['coordinates']
-        print("The location_array is as follows \n", coordinates)
-
-
-        for i in range(n):
-            riderIdVsLoc.append([]);
-
-        # here we are assigning the locations to the riders 
-        for key in algoRes:
-            for location in algoRes[key]:
-                riderIdVsLoc[key].append(coordinates[location-1])
             # currentLatLong = coordinates[key-1];
             # riderIdVsLoc[algoRes[key]-1].append(currentLatLong);
         
@@ -749,10 +933,8 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
         # print("The final mapping of riderid vs loc is as follows \n\n");
         # print(riderIdVsLoc)
 
-        riderLocationDict = storeLocationsInRiderCollection(currentUser.email, randomNumber, riderIdVsLoc, availableNRiders);
 
         # now we also have to create new bag for each of this riders 
-        createBagForEachRiders(availableNRiders);
 
 
 
@@ -791,6 +973,10 @@ class DummyStart(APIView):
         currentLocation = Location.objects.get(username = userName, random_number = randomNumber)
         # creating the dictionary for item weights 
         locationToItemVolume_nodeWeights = findNodeWeights(currentLocation);
+
+        # here we have to run the batch thing 
+
+
         # print("the node item weight is \n\n\n", locationToItemVolume_nodeWeights)
 
         # deliveryManBagWeight = findBagWeightsOfRiders(availableNRiders);
@@ -829,8 +1015,8 @@ class DummyStart(APIView):
 
         node_travel_distance = [[0 for i in range(totalLocations+1)] for j in range(totalLocations+1)]
 
-        for i in range(1, len(dist_matrix_data)):
-            for j in range(1, len(dist_matrix_data[i])):
+        for i in range(0, len(dist_matrix_data)):
+            for j in range(0, len(dist_matrix_data[i])):
                 if dist_matrix_data[i][j] != 0:
                     node_travel_distance[i][j] = 1 / dist_matrix_data[i][j]
 
