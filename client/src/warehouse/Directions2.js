@@ -27,12 +27,14 @@ import { useEffect } from "react";
 import RiderCard from "./RiderCard";
 import UploadExcel_Pickup from "./UploadExcel_Pickup";
 // import { Alert } from "@material-ui/core";
-import {Alert} from  "@mui/material"
+import { Alert } from "@mui/material";
 // const center = { lat: 48.8584, lng: 2.2945 }
-const center = { lat: 9.95, lng: 76.25 };
+let center = { lat: 12.9716, lng: 77.5946 };
 function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
     const [showUpload, setShowUpload] = useState(false);
     const [uploadedExcel, setUploadedExcel] = useState(null);
+    const [gotCenter, setGotCenter] = useState(false);
+    const [gotCenterData, setGotCenterData] = useState([12.9716, 77.5946]);
 
     const [triggerUseEffect, setTriggerUseEffect] = useState(1);
     const [stats, setStats] = useState([]);
@@ -50,8 +52,7 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
     const [max_dist_state, setMax_dist_state] = useState(0);
     const [sum_dist_state, setSum_dist_state] = useState(0);
 
-    const [open, setOpen] = useState(true);
-
+    const [open, setOpen] = useState(false);
 
     let colors = [
         "yellow",
@@ -91,7 +92,10 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
             })
             .then((res) => {
                 console.log(res.data);
-                if (res.data.msg == "Algo is still going on") {
+                if (
+                    res.data.msg == "Algo is still going on" ||
+                    res.data.msg == "started dynamic pickup points"
+                ) {
                     setTimeout(() => {
                         setTriggerUseEffect((x) => x + 1);
                     }, 1000 * 15);
@@ -117,8 +121,13 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                     }
                     setRiderplaces((old) => [...old, temp]);
                     setShowRiderRoute((old) => [...old, true]);
+                    setGotCenterData((x)=>[temp[temp.length-1].lat,temp[temp.length-1].lng]);
+                    // console.log("center it", );
+                    setGotCenter(true);
+                    // console.log(center);
                 }
                 setTrigger_api((x) => x + 1);
+                setOpen(true);
             })
             .catch((error) => {
                 console.log(error);
@@ -126,6 +135,7 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
     };
     useEffect(() => {
         starter_fn();
+        console.log("started function use Effect !!!!!!!!!!!! ");
         // setRiderplaces([
         //     [{rider_id: 1},{lat : 10.7992017 , lng:76.8221794},{lat:13.7992017 , lng:77.8221794}, {lat:12.5992017 , lng:76.9221794}, {lat:12.7992017 , lng:77.8221794}],
         //     [{rider_id: 2},{lat : 10.9992017 , lng:76.9221794}, {lat:12.6992017 , lng:77.5221794}],
@@ -236,13 +246,13 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                     Math.round(Number(old) + Number(totdist))
                 );
 
-                console.log(results.routes);
+                // console.log(results.routes);
             })
             .catch((err) => {
                 console.log("error", err);
-                console.log(org);
-                console.log(wp);
-                console.log(dest);
+                // console.log(org);
+                // console.log(wp);
+                // console.log(dest);
             });
 
         // setDistance(results.routes[0].legs[0].distance.text)
@@ -266,18 +276,11 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
 
     return (
         <>
-        {
-            open?
-                        <Alert  
-            onClose={() => setOpen(false)}
-            >
-                Maps Updated
-            </Alert>
-            :
-            null
-        }
-    
-                <div className="jerry_directions2_contianer_top">
+            {open ? (
+                <Alert onClose={() => setOpen(false)}>Maps Updated</Alert>
+            ) : null}
+
+            <div className="jerry_directions2_contianer_top">
                 <div className="jerry_directions2_map_container">
                     {/* start comment here */}
                     <GoogleMap
@@ -292,7 +295,6 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                         }}
                         onLoad={(map) => setMap(map)}
                     >
-                        <Marker position={center} />
                         {renderitem.map((data, index) => {
                             return (
                                 <div>
@@ -310,6 +312,22 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                                 </div>
                             );
                         })}
+                        {/* /> */}
+                        {gotCenter ? (
+                            <Marker
+                                position={{
+                                    lat: gotCenterData[0],
+                                    lng: gotCenterData[1],
+                                }}
+                                icon={{
+                                    path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z",
+                                    fillColor: "#0D25B2",
+                                    fillOpacity: 0.8,
+                                    strokeColor: "#FFFFFF",
+                                    strokeWeight: 1,
+                                }}
+                            />
+                        ) : null}
                     </GoogleMap>
                     {/* end comment here */}
                 </div>
@@ -322,11 +340,15 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                         <div> Maximum Time: {max_time_state}</div>
                         <div>
                             {" "}
-                            Average Time: {sum_time_state / stats.length}
+                            Average Time:{" "}
+                            {Math.round((sum_time_state / stats.length) * 100) /
+                                100}
                         </div>
                         <div>
                             {" "}
-                            Average Dist: {sum_dist_state / stats.length}
+                            Average Dist:{" "}
+                            {Math.round((sum_dist_state / stats.length) * 100) /
+                                100}{" "}
                         </div>
                         <div> Total Riders: {stats.length}</div>
                         <div className="jerry_routes_stats_bottom">
@@ -351,7 +373,7 @@ function Directions2({ setRandomNumber, randomNumber, token, islogged }) {
                     <div className="jerry_routes_bottom">
                         {stats.map((data, index) => (
                             <RiderCard
-                                name={`rk${index+1}@gmail.com`}
+                                name={`rk${index + 1}@gmail.com`}
                                 key={index}
                                 index={index}
                                 onClick_fn={handleClickHighLight}

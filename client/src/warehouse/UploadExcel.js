@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ExcelUploader from "./ExcelUploader";
 import "./UploadExcel.css";
 import axios from "../axios"
-function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploadedExcel, setRandomNumber,setRiders ,riders}) {
+function UploadExcel({ setPlaces,setShowUpload, token, islogged, uploadedExcel, setUploadedExcel, setRandomNumber,setRiders ,riders}) {
 
     let handleClick = (e) => {
         if (e.target.className == "jj_uploadexcel_wrapper")
@@ -32,6 +32,7 @@ function UploadExcel({ setShowUpload, token, islogged, uploadedExcel, setUploade
                 console.log("res");
                 console.log(res.data.randomNumber);
                 setRandomNumber(res.data.randomNumber);
+                setPlaces(res.data.number);
                 
             })
             .catch((err) => {
