@@ -1,6 +1,33 @@
 from .rudr import *
+import community as community_louvain
 
 # Compute Markov Clusters
+
+# Compute Markov Clusters
+def louvian_clusters(node_travel_distance, positions, draw=False):
+    network = nx.from_numpy_array(np.matrix(node_travel_distance))
+    partition = community_louvain.best_partition(network)
+    # if draw:
+
+    #     # draw the graph
+    #     # color the nodes according to their partition
+    #     cmap = cm.get_cmap('viridis', max(partition.values()) + 1)
+    #     nx.draw_networkx_nodes(node_travel_distance, positions, partition.keys(), node_size=40,
+    #                         cmap=cmap, node_color=list(partition.values()))
+    #     nx.draw_networkx_edges(node_travel_distance, positions, alpha=0.5)
+    #     plt.show()
+    clusters_dict = dict()
+    for i in partition:
+        if partition[i] in clusters_dict.keys():
+            clusters_dict[partition[i]] += [i]
+        else:
+            clusters_dict[partition[i]] = [i]
+    clusters = list(clusters_dict.values())
+    if draw:
+        matrix = nx.to_scipy_sparse_array(network)
+        mc.draw_graph(matrix, clusters, pos=positions,
+                      node_size=50, with_labels=False, edge_color="grey")
+    return clusters
 
 
 def markov_clusters(node_travel_distance, positions, draw=False):

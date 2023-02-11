@@ -34,6 +34,8 @@ from .markov_rudr import *
 from .func_rudr import *
 
 import math
+from .views_jerry import * 
+import time 
 # endpoint to return the lat-long of the places from the google maps 
 class LatLongView(APIView):
     def get(self, request):
@@ -573,6 +575,57 @@ def find_loc(n, m, node_travel_distance, node_travel_time, node_weights, deliver
     # print("B", best_locations)
     return best_locations, best_cost
 
+def find_loc_lov(n, m, node_travel_distance, node_travel_time, node_weights, deliveryManWeight, positions=[]):
+    clusters = louvian_clusters(node_travel_distance, positions, False)
+
+
+    # print(clusters)
+
+    # starting_points = random.sample(range(1, m+1), n)
+    # locations, _ = find_path_for_all_drivers(n, m, node_travel_time, node_weights, deliveryManWeight, starting_points, 20)
+    clusters = clusters[1:]
+    for i in range(len(clusters)):
+        clusters[i] = list(clusters[i])
+
+
+    best_cost = infinity
+    best_locations = {}
+    for i in range(100):
+        print("Iteration number:", i)
+        # pdb.set_trace()
+        locations, cost = find_travel_clusters(n, m, node_travel_time, copy.deepcopy(
+            clusters), node_weights, deliveryManWeight)
+
+        all_path_sum = 0
+        for loc in locations.values():
+            all_path_sum += find_path_cost(loc, node_travel_time)
+
+        cost = max(cost, all_path_sum)
+
+        if cost < best_cost:
+            best_locations = locations
+            best_cost = cost
+    for d in best_locations:
+        idx = -1
+        if (1 in best_locations[d]):
+            idx = best_locations[d].index(1)
+            best_locations[d] = best_locations[d][idx:] + best_locations[d][:idx] + [1]
+        else :
+            mnVal = float('inf')
+            mnIdx = -1
+            for i in range(len(best_locations[d])-1):
+                x = best_locations[d][i]
+                y = best_locations[d][i+1]
+                val = -1 * node_travel_distance[x][y] + node_travel_distance[x][1] + node_travel_distance[1][y]
+                if (val< mnVal):
+                    mnVal = val
+                    mnIdx = i
+            assert(mnIdx != -1)
+            best_locations[d] = [1] + best_locations[d][mnIdx+1:] + best_locations[d][:mnIdx+1] + [1]
+
+    # print("B", best_locations)
+    return best_locations, best_cost
+
 
 # defining the function to find the total number of locations 
 def findNumberOfLocations(currentAlgorithm, latLongCsvFilePath):
@@ -626,6 +679,109 @@ def findBagWeightsOfRiders(availableNRiders):
 
 
 
+# function to get the distance time matrix 
+def calculateDistanceTimeMatrix_OSRM(filePath, userName, randomNumber):
+    
+    df = pd.read_csv(filePath)
+    lat = df["lat"]
+    lng = df["lng"]
+
+    size=lat.size
+
+    print()
+
+    num_index = np.arange(0,size)
+
+    places = []
+    for i in range(size):
+        places.append([i,lat[i],lng[i]])
+
+    batches = []
+    count=0
+
+    max_size_count = 50
+    for i in range(0,size,max_size_count):
+        batches.append(places[i:min(i+max_size_count,size)])
+
+
+    arr = np.arange(0,size) 
+    dist_mat = pd.DataFrame( index=arr, columns=arr)
+    time_mat = pd.DataFrame( index=arr, columns=arr)
+
+
+    print("total batches ", len(batches))
+
+    for id_i,data_i in enumerate(batches):
+        id_range_i = np.arange(id_i*max_size_count, id_i*max_size_count + len(data_i))
+        
+        for id_j,data_j in enumerate(batches):
+            id_range_j = np.arange(id_j*max_size_count, id_j*max_size_count + len(data_j))
+            
+            # print(id_range_i," XX ",id_range_j)
+            dist_batch, time_batch = api_call_osrm(data_i,data_j)
+            # updaing the csv
+            for j in id_range_j:
+                for i in id_range_i:
+                    # print("accessing indices", i-id_range_i[0])
+                    key_i = i-id_range_i[0]
+                    key_j = j-id_range_j[0]
+                    # i changed str(j) to int(j)
+                    dist_mat.at[int(i),int(j)] = dist_batch[key_i][key_j]
+                    time_mat.at[int(i),int(j)] = time_batch[key_i][key_j]
+            print(id_i," and ",id_j," is over")
+
+    time_now = dt.now().isoformat()
+    time_now= time_now.replace(":",".")
+
+    write_csv=True
+    # distMatrixFileName = "distance_matrix_" + ".csv"
+    # timeMatrixFileName = "time_matrix_" + ".csv"
+    distMatrixFileName = "distance_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+    timeMatrixFileName = "time_matrix_" + str(userName) + "_" + str(randomNumber) + ".csv";
+    if write_csv:
+        dist_mat.to_csv(f"./data/distance/{distMatrixFileName}", index=True)
+        time_mat.to_csv(f"./data/time/{timeMatrixFileName}", index=True)
+    # if write_csv:
+    #     dist_mat.to_csv(f"./{distMatrixFileName}", index=True)
+    #     time_mat.to_csv(f"./{timeMatrixFileName}", index=True)
+
+def calculate_distance2(ss):
+    url = 'http://router.project-osrm.org/table/v1/driving/'+ss
+    response = requests.get(url)
+    data = response.json()
+    distance = data['durations']
+    return distance
+
+
+def api_call_osrm(origins, destinations):
+    # origins is an array where each item is an aarray [index, latitiude ,longitide]
+    size1 = len(origins)
+    size2 = len(destinations)
+    
+
+    full_str = ""
+    for places in origins:
+        places = str(places[2])+","+str(places[1])
+        full_str = full_str+places+";"
+    for places in destinations:
+        places = str(places[2])+","+str(places[1])
+        full_str = full_str+places+";"
+    full_str = full_str[:-1]
+
+    ss = "sources="
+    for i in range(len(origins)):
+        ss=ss+str(i+1)+";"
+    ss = ss[:-1]
+
+    full_str= full_str+"?"+ss
+    distance = calculate_distance2(full_str)
+    print(distance)
+    return distance, distance
+
+
+# calculateDistanceTimeMatrix_OSRM("./test2.csv")
+
+
 # thread function to run the actual start enpoint 
 def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
     ########################################################################################################
@@ -652,6 +808,8 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 ########################################################################################################
 
         # excelData = pd.read_excel(excelPath);
+
+        # 
         
         # latLongCsvFilePath is the file in which the lat and long has been find out by the algorithm 
         latLongCsvFilePath = "./data/" + str(userName) + "_" + str(randomNumber) + ".csv"
@@ -663,6 +821,7 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 
             # now we have to calculate the distance time matrix csv for the algorithm 
         calculateDistanceTimeMatrix(latLongCsvFilePath, userName, randomNumber);
+        # calculateDistanceTimeMatrix_OSRM(latLongCsvFilePath, userName, randomNumber);
         # calculateDistanceTimeMatrix_l1norm(latLongCsvFilePath, userName, randomNumber);
 ########################################################################################################
 
@@ -698,6 +857,13 @@ def long_running_task(n, userName, currentAlgorithm, currentUser, randomNumber):
 
         algoRes, totalCost = find_loc(
         n, totalLocations, node_travel_distance, time_matrix_data, locationToItemVolume_nodeWeights, 640000, [])
+
+        # algoRes1, totalCost1 = find_loc_lov(
+        # n, totalLocations, node_travel_distance, time_matrix_data, locationToItemVolume_nodeWeights, 640000, [])
+
+        # if totalCost1 < totalCost:
+        #     totalCost = totalCost1
+        #     algoRes = algoRes1
 
         algoRes_temp1, totalCost_temp1 = solve(n, totalLocations, dist_matrix_data, time_matrix_data, locationToItemVolume_nodeWeights, 640000,0)
         # print("The algo result is as follows \n", algoRes_temp1)
@@ -1190,6 +1356,7 @@ def long_running_dynamic_pickup_task(userName, randomNumber, file, currentAlgoSt
             print("ball_status 1", i)
             new_pick_up = {"lat" : lat[i], "lng" : lng[i], "id" : n+i+1}
             distanceArray, timeArray = api_call_pickup(new_pick_up, oldLocationsDictionaryForMagicApi);
+            time.sleep(10)
             # distanceArray, timeArray = api_call_pickup_dummy(new_pick_up, oldLocationsDictionaryForMagicApi);
             distanceArrayDict = {};
             k = 0;
@@ -1203,8 +1370,8 @@ def long_running_dynamic_pickup_task(userName, randomNumber, file, currentAlgoSt
             # similarly we have to calculate the time matrix 
             timeArrayDict = {};
             k = 0;
-            for time in timeArray:
-                timeArrayDict[listOfIds[k]] = time;
+            for time1 in timeArray:
+                timeArrayDict[listOfIds[k]] = time1;
                 k = k+1;
             
 
